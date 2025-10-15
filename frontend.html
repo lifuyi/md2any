@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown编辑器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/brands.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left h1 {
+            font-size: 18px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-left h1::before {
+            content: "🍂";
+            font-size: 20px;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #D86E4F;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #c05a3a;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        /* Dropdown styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            font-size: 14px;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown .btn {
+            border-radius: 4px 0 0 4px;
+        }
+
+        .dropdown .dropdown-toggle {
+            border-left: 1px solid #c05a3a;
+            border-radius: 0 4px 4px 0;
+            padding: 8px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-right: 10px;
+        }
+
+        .checkbox-container input {
+            margin-right: 5px;
+        }
+
+        select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading.active {
+            display: flex;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #D86E4F;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .editor-pane, .preview-pane, .settings-pane {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-pane, .preview-pane {
+            flex: 1;
+        }
+
+        .settings-pane {
+            width: 0;
+            margin-left: 0;
+            overflow: hidden;
+            flex-shrink: 0;
+            transition: width 0.3s ease, margin-left 0.3s ease;
+        }
+        
+        .settings-pane.visible {
+            width: 250px;
+            margin-left: 20px;
+        }
+        
+        .settings-pane .close-btn {
+            float: right;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .settings-pane .close-btn:hover {
+            color: #333;
+        }
+
+        .pane-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            font-weight: bold;
+            color: #333;
+        }
+
+        #editor {
+            flex: 1;
+            border: none;
+            padding: 20px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+        }
+
+        #preview {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .settings-content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .setting-group {
+            margin-bottom: 20px;
+        }
+
+        .setting-group h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .theme-option {
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .theme-option:hover {
+            background: #f0f0f0;
+        }
+
+        .theme-option.active {
+            border-color: #D86E4F;
+            background: #fff5f0;
+        }
+
+        .section-card {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            background: #fafafa;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px;
+        }
+
+        .status-bar {
+            background: white;
+            padding: 10px 20px;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .editor-pane, .preview-pane, .settings-pane {
+                min-height: 300px;
+                width: 100%;
+                margin-left: 0;
+                margin-top: 20px;
+            }
+        }
+        
+        /* Custom CSS Editor Floating Panel */
+        .floating-panel {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 1000px;
+            height: 80vh;
+            z-index: 1000;
+            flex-direction: column;
+        }
+        
+        .panel-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            font-weight: bold;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 8px 8px 0 0;
+            background: #f8f9fa;
+        }
+        
+        .panel-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        #custom-css-editor {
+            width: 100%;
+            height: 100%;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: none;
+        }
+        
+        .panel-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            border-radius: 0 0 8px 8px;
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <h1>Markdown编辑器</h1>
+        </div>
+        <div class="header-right">
+            <div class="checkbox-container">
+                <input type="checkbox" id="split-checkbox">
+                <label for="split-checkbox">分隔线拆分</label>
+            </div>
+            <select id="theme-selector">
+              
+            </select>
+            <button class="btn btn-secondary" onclick="loadSample()">
+                <i class="fas fa-file-code"></i> 示例
+            </button>
+            <button class="btn btn-secondary" id="settings-toggle">
+                <i class="fas fa-cog"></i> 设置面板
+            </button>
+            <button class="btn btn-secondary" onclick="copyToClipboard()" style="background-color: #1e3a8a; color: white;">
+                <i class="fas fa-copy"></i> 复制
+            </button>
+            <div class="dropdown">
+                <button class="btn btn-primary">
+                    <i class="fas fa-download"></i> 下载
+                </button>
+                <div class="dropdown-content">
+                    <a href="#" onclick="downloadHTML()"><i class="fas fa-file-code"></i> 下载HTML</a>
+                    <a href="#" onclick="downloadPNG()"><i class="fas fa-image"></i> 下载PNG</a>
+                    <a href="#" onclick="downloadMD()"><i class="fas fa-file-alt"></i> 下载MD</a>
+                    <a href="#" onclick="downloadTXT()"><i class="fas fa-file-alt"></i> 下载TXT</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <button class="btn" style="background-color: #4CAF50; color: white;">
+                    <i class="fab fa-weixin"></i> 发送到微信草稿箱
+                </button>
+                <div class="dropdown-content">
+                    <a href="#" onclick="sendToWeChatDraft()"><i class="fas fa-paper-plane"></i> 发送到草稿箱</a>
+                    <a href="#" onclick="configureWeChat()"><i class="fas fa-cog"></i> 配置微信信息</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="editor-pane">
+            <div class="pane-header">
+                <i class="fas fa-edit"></i> 编辑器
+                <button id="clear-editor" class="btn btn-secondary" style="float: right; padding: 2px 8px;" title="清空编辑器">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+            <textarea id="editor" placeholder="请输入Markdown内容..."></textarea>
+        </div>
+
+        <div class="preview-pane">
+            <div class="pane-header">
+                <i class="fas fa-eye"></i> 预览
+            </div>
+            <div id="preview">
+                <div style="text-align: center; color: #999; margin-top: 50px;">
+                    <i class="fas fa-arrow-left" style="font-size: 48px; margin-bottom: 20px; opacity: 0.3;"></i>
+                    <p>在左侧编辑器输入内容，右侧将实时预览</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-pane" id="settings-pane">
+            <div class="pane-header">
+                <i class="fas fa-cog"></i> 编辑器设置
+                <button class="close-btn" id="settings-close">×</button>
+            </div>
+            <div class="settings-content">
+                <div class="setting-group">
+                    <h3>主题风格</h3>
+                    <div class="theme-option" data-theme="yata.css">
+                        <strong>现代多彩</strong>
+                        <div>多彩·现代</div>
+                    </div>
+                    <div class="theme-option" data-theme="sample.css">
+                        <strong>Apple</strong>
+                        <div>视觉·渐变</div>
+                    </div>
+                    <div class="theme-option" data-theme="darktech.css">
+                        <strong>Cyberpunk</strong>
+                        <div>未来·科技感</div>
+                    </div>
+                    <div class="theme-option" data-theme="traditional-chinese.css">
+                        <strong>中国风</strong>
+                        <div>古典·雅致</div>
+                    </div>
+                    <div class="theme-option" data-theme="custom.css">
+                        <strong>自定义</strong>
+                        <div>自定义样式</div>
+                        <button id="edit-custom-css" class="btn btn-secondary" style="margin-top: 10px;">
+                            <i class="fas fa-edit"></i> 编辑CSS
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <span id="status">就绪</span>
+        <span id="char-count">0 字符</span>
+    </div>
+
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Custom CSS Editor Floating Panel -->
+    <div class="floating-panel" id="css-floating-panel">
+        <div class="panel-header">
+            <span>编辑自定义CSS</span>
+            <button class="close-btn" id="close-css-panel">×</button>
+        </div>
+        <div class="panel-content">
+            <textarea id="custom-css-editor" placeholder="在此输入您的自定义CSS..."></textarea>
+        </div>
+        <div class="panel-footer">
+            <button class="btn btn-secondary" id="css-example-btn">示例</button>
+            <button class="btn btn-secondary" id="cancel-css-edit">取消</button>
+            <button class="btn btn-primary" id="save-css-edit">保存</button>
+        </div>
+    </div>
+
+    <!-- Libraries for markdown processing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/turndown/dist/turndown.min.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    
+    <!-- Core functionality -->
+    <script src="styles.js"></script>
+    <script src="app.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="frontend.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</body>
+</html>
