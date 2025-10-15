@@ -525,8 +525,7 @@ const STYLES = {
       tr: 'border-bottom: 1px solid #e0e0e0;',
     }
   }
-  }
-
+};
 
 /* Additional themes imported from all_themes_data.json */
 

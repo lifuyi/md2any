@@ -581,7 +581,7 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
             URL.revokeObjectURL(url);
         }
 
-        // 下载PNG
+                // 下载PNG
         function downloadPNG() {
             const previewPane = document.getElementById('preview');
             const theme = themeSelector.value;
@@ -679,12 +679,23 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
                 
                 waitForMathJax().then(() => {
                     // If we have an iframe, capture its content directly
+                    // Fix: Increase scale and fix height calculation to capture full content
                     html2canvas(iframe.contentDocument.body, {
                     useCORS: true,
                     allowTaint: true,
                     backgroundColor: '#ffffff',
-                    scale: 2,
+                    scale: 3, // Increased scale for better quality
                     logging: false,
+                    scrollX: 0,
+                    scrollY: 0,
+                    // Fix for height issue: ensure full height is captured
+                    windowHeight: Math.max(
+                        iframe.contentDocument.body.scrollHeight,
+                        iframe.contentDocument.body.offsetHeight,
+                        iframe.contentDocument.documentElement.clientHeight,
+                        iframe.contentDocument.documentElement.scrollHeight,
+                        iframe.contentDocument.documentElement.offsetHeight
+                    ),
                     ignoreElements: function(element) {
                         // Only ignore clearly hidden elements
                         return element.style.visibility === 'hidden' || 
@@ -760,12 +771,21 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
                 });
             } else {
                 // Fallback to capturing the entire preview pane
+                // Fix: Increase scale and ensure full height capture
                 html2canvas(previewPane, {
                     useCORS: true,
                     allowTaint: true,
                     backgroundColor: '#ffffff',
-                    scale: 2,
+                    scale: 3, // Increased scale for better quality
                     logging: false,
+                    scrollX: 0,
+                    scrollY: 0,
+                    // Fix for height issue: ensure full height is captured
+                    windowHeight: Math.max(
+                        previewPane.scrollHeight,
+                        previewPane.offsetHeight,
+                        document.documentElement.clientHeight
+                    ),
                     onclone: function(clonedDoc) {
                         // Clean up duplicate MathJax elements in fallback clone
                         const mathElements = clonedDoc.querySelectorAll('mjx-container');

@@ -4,22 +4,15 @@
   <img src="logo.svg" width="120" height="120" alt="公众号 Markdown 编辑器">
 
   一个专为微信公众号设计的 Markdown 编辑器
-
-  [![在线体验](https://img.shields.io/badge/在线体验-editor.huasheng.ai-0066FF?style=for-the-badge)](https://editor.huasheng.ai/)
-  [![GitHub](https://img.shields.io/badge/GitHub-源代码-000?style=for-the-badge&logo=github)](https://github.com/alchaincyf/huasheng_editor)
-  [![知识星球](https://img.shields.io/badge/知识星球-AI编程-ff6b6b?style=for-the-badge)](https://wx.zsxq.com/group/48888144124288)
 </div>
 
 ## 🌟 在线体验
 
-👉 **[https://editor.huasheng.ai/](https://editor.huasheng.ai/)**
+👉 **[]()**
 
 ## ✨ 功能特点
 
-### 🎨 13 种精美样式
-- **经典公众号系列**：默认、技术、优雅、深度阅读
-- **传统媒体系列**：杂志风格、纽约时报、金融时报、Jony Ive
-- **现代数字系列**：Wired 连线、Medium 长文、Apple 极简、Anthropic Claude、AI Coder 特调
+
 
 ### 📸 智能图片处理（⭐ 最新升级）
 - **智能粘贴**：支持从任何地方粘贴图片（截图、浏览器、文件管理器）
@@ -42,28 +35,13 @@
 ## 📖 使用指南
 
 ### 快速开始
-1. 访问 [在线编辑器](https://editor.huasheng.ai/)
+
 2. 在左侧输入或粘贴 Markdown 内容
 3. 选择喜欢的样式主题
 4. 点击「复制到公众号」
 5. 粘贴到微信公众号编辑器
 
-### 本地运行
-```bash
-# 克隆仓库
-git clone https://github.com/alchaincyf/huasheng_editor.git
 
-# 进入目录
-cd huasheng_editor
-
-# 启动本地服务器（Python）
-python3 -m http.server 8080
-
-# 或使用提供的脚本
-./start.sh
-
-# 访问 http://localhost:8080
-```
 
 ## 🛠️ 技术栈
 
@@ -77,19 +55,8 @@ python3 -m http.server 8080
 
 ## 📂 项目结构
 
-```
-公众号编辑器/
-├── index.html        # 主页面
-├── app.js           # Vue 应用逻辑
-├── styles.js        # 13 种样式主题配置
-├── icon.svg         # 项目图标
-├── favicon.svg      # 网站图标
-├── logo.svg         # Logo 图标
-├── start.sh         # 启动脚本
-├── README.md        # 项目说明
-├── CLAUDE.md        # 技术文档
-└── LICENSE          # 开源许可证
-```
+
+
 
 ## 💡 核心特性
 
