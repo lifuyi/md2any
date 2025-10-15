@@ -116,7 +116,7 @@ const STYLES = {
     }
   },
 
-'wechat-nyt': {
+  'wechat-nyt': {
     name: '纽约时报',
     styles: {
       container: 'max-width: 680px; margin: 0 auto; padding: 48px 32px; font-family: Georgia, "Times New Roman", Times, serif; font-size: 18px; line-height: 1.8 !important; color: #121212 !important; background-color: #fff !important; word-wrap: break-word;',
@@ -203,7 +203,7 @@ const STYLES = {
     }
   },
 
-'wechat-medium': {
+ 'wechat-medium': {
     name: 'Medium 长文',
     styles: {
       container: 'max-width: 680px; margin: 0 auto; padding: 48px 32px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 21px; line-height: 1.58 !important; color: #242424 !important; background-color: #fff !important; word-wrap: break-word; letter-spacing: -0.003em;',
@@ -261,7 +261,7 @@ const STYLES = {
     }
   },
 
-'wechat-anthropic': {
+  'wechat-anthropic': {
     name: 'Claude',
     styles: {
       container: 'max-width: 700px; margin: 0 auto; padding: 56px 40px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif; font-size: 18px; line-height: 1.7 !important; color: #2b2b2b !important; background-color: #faf9f7 !important; word-wrap: break-word; letter-spacing: -0.01em;',
@@ -524,13 +524,7 @@ const STYLES = {
       td: 'padding: 12px 16px; border: none; border-bottom: 1px solid #e0e0e0; color: #1a1a1a !important; background-color: #fff !important;',
       tr: 'border-bottom: 1px solid #e0e0e0;',
     }
-  }
-  tr: 'border-bottom: 1px solid #e0e0e0;',
-    }
-  }
-
-
-/* Additional themes imported from all_themes_data.json */
+  },
 
   'yata': {
     name: 'Yata Style',

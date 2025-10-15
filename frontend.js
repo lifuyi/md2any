@@ -146,6 +146,9 @@
                     mermaid.init(undefined, preview.querySelectorAll('pre code'));
                 }
                 
+                // 初始化 MathJax
+                initMathJax(preview);
+                
                 updateStatus('渲染完成');
             } catch (error) {
                 console.error('渲染失败:', error);
@@ -1586,3 +1589,38 @@ pre {
         window.loadSample = loadSample;
         window.copyToClipboard = copyToClipboard;
         window.clearEditor = clearEditor;
+// Initialize MathJax for math formulas
+function initMathJax(container) {
+  // 检查 MathJax 是否已加载
+  if (typeof window.MathJax !== 'undefined' && window.MathJax.typesetPromise) {
+    // 使用 setTimeout 确保 DOM 更新完成后再渲染
+    setTimeout(() => {
+      try {
+        // 对指定容器进行 MathJax 渲染
+        window.MathJax.typesetPromise([container]);
+      } catch (error) {
+        console.warn('MathJax 渲染失败:', error);
+      }
+    }, 100);
+  } else if (typeof window.MathJax !== 'undefined' && window.MathJax.typeset) {
+    // 备用方法
+    setTimeout(() => {
+      try {
+        window.MathJax.typeset([container]);
+      } catch (error) {
+        console.warn('MathJax 渲染失败:', error);
+      }
+    }, 100);
+  } else {
+    // 如果 MathJax 还未加载，等待一段时间再尝试
+    setTimeout(() => {
+      if (typeof window.MathJax !== 'undefined' && window.MathJax.typeset) {
+        try {
+          window.MathJax.typeset([container]);
+        } catch (error) {
+          console.warn('MathJax 渲染失败:', error);
+        }
+      }
+    }, 500);
+  }
+}

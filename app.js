@@ -567,6 +567,8 @@ const editorApp = createApp({
     // 手动触发一次渲染（确保初始内容显示）
     this.$nextTick(() => {
       this.renderMarkdown();
+      // 初始化 MathJax
+      this.initMathJax();
     });
   },
 
@@ -587,6 +589,31 @@ const editorApp = createApp({
   },
 
   methods: {
+      initMathJax() {
+        // 检查 MathJax 是否已加载
+        if (typeof window.MathJax !== 'undefined' && window.MathJax.typeset) {
+          // 使用 setTimeout 确保 DOM 更新完成后再渲染
+          setTimeout(() => {
+            try {
+              // 对整个渲染内容进行 MathJax 渲染
+              window.MathJax.typeset([document.querySelector('#app .rendered-content')]);
+            } catch (error) {
+              console.warn('MathJax 渲染失败:', error);
+            }
+          }, 100);
+        } else {
+          // 如果 MathJax 还未加载，等待一段时间再尝试
+          setTimeout(() => {
+            if (typeof window.MathJax !== 'undefined' && window.MathJax.typeset) {
+              try {
+                window.MathJax.typeset([document.querySelector('#app .rendered-content')]);
+              } catch (error) {
+                console.warn('MathJax 渲染失败:', error);
+              }
+            }
+          }, 500);
+        }
+      },
     loadStarredStyles() {
       try {
         const saved = localStorage.getItem('starredStyles');
@@ -746,6 +773,9 @@ const markdown = \`![图片](img://\${imageId})\`;
       html = this.applyInlineStyles(html);
 
       this.renderedContent = html;
+      
+      // 初始化 MathJax
+      this.initMathJax();
     },
 
     preprocessMarkdown(content) {
