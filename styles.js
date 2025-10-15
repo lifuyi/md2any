@@ -526,10 +526,6 @@ const STYLES = {
     }
   }
   }
-
-
-/* Additional themes imported from all_themes_data.json */
-
   'yata': {
     name: 'Yata Style',
     styles: {
