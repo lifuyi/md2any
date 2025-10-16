@@ -4,12 +4,25 @@
             `http://${window.location.hostname}:5002` : 
             'http://localhost:5002';
             
+        // Add error handling for missing libraries
+        if (typeof window.markdownit === 'undefined') {
+            console.warn('markdown-it not loaded, using fallback');
+        }
+        if (typeof window.hljs === 'undefined') {
+            console.warn('highlight.js not loaded, using fallback');
+        }
+            
         // Initialize markdown-it with syntax highlighting
         const md = window.markdownit({
           html: true,
           linkify: true,
           typographer: true,
           highlight: function (str, lang) {
+            // 特殊处理Mermaid图表
+            if (lang === 'mermaid') {
+              return '<pre class="mermaid"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
+            }
+            
             if (lang && hljs.getLanguage(lang)) {
               try {
                 return '<pre class="hljs"><code>' +
@@ -141,9 +154,63 @@
                 // 直接更新预览区域，不再使用iframe
                 preview.innerHTML = combinedContent;
                 
-                // 重新初始化Mermaid图表
+                // 重新初始化Mermaid图表 - 延迟执行确保DOM完全就绪
                 if (typeof mermaid !== 'undefined') {
-                    mermaid.init(undefined, preview.querySelectorAll('pre code'));
+                    setTimeout(() => {
+                        try {
+                            console.log('Starting Mermaid rendering...');
+                            
+                            // Find all mermaid code blocks with multiple selector patterns
+                            const mermaidSelectors = [
+                                'pre code.language-mermaid',
+                                'code.mermaid', 
+                                '.mermaid',
+                                'pre.mermaid',
+                                'div.mermaid'
+                            ];
+                            
+                            let mermaidElements = [];
+                            mermaidSelectors.forEach(selector => {
+                                const elements = preview.querySelectorAll(selector);
+                                console.log(`Found ${elements.length} elements with selector: ${selector}`);
+                                mermaidElements.push(...elements);
+                            });
+                            
+                            // 去重并过滤掉已经渲染的元素
+                            mermaidElements = [...new Set(mermaidElements)].filter(el => {
+                                return !el.closest('.mermaid[data-processed="true"]');
+                            });
+                            
+                            console.log(`Total unique Mermaid elements to render: ${mermaidElements.length}`);
+                            
+                            if (mermaidElements.length > 0) {
+                                // 为每个元素添加data-processed标记避免重复渲染
+                                mermaidElements.forEach(el => {
+                                    el.setAttribute('data-processed', 'true');
+                                });
+                                
+                                mermaid.run({
+                                    nodes: mermaidElements
+                                }).then(() => {
+                                    console.log('Mermaid rendering completed successfully');
+                                }).catch((error) => {
+                                    console.error('Mermaid rendering failed:', error);
+                                    console.error('Error details:', error.message, error.stack);
+                                    // 如果渲染失败，移除标记以便下次重试
+                                    mermaidElements.forEach(el => {
+                                        el.removeAttribute('data-processed');
+                                    });
+                                });
+                            } else {
+                                console.log('No Mermaid elements found to render');
+                            }
+                        } catch (error) {
+                            console.error('Mermaid initialization failed:', error);
+                            console.error('Error details:', error.message, error.stack);
+                        }
+                    }, 100); // 100ms延迟确保DOM完全加载
+                } else {
+                    console.warn('Mermaid is not defined');
                 }
                 
                 // 初始化 MathJax

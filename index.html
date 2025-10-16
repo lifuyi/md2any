@@ -13,6 +13,59 @@
             box-sizing: border-box;
         }
 
+        /* Image paste functionality styles */
+        .image-paste-area {
+            border: 2px dashed #ddd;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            margin: 10px 0;
+            background: #fafafa;
+            transition: all 0.3s ease;
+        }
+        .image-paste-area.dragover {
+            border-color: #D86E4F;
+            background: #fff5f0;
+        }
+        .image-paste-status {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 4px;
+            display: none;
+            font-size: 12px;
+        }
+        .image-paste-status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .image-paste-status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .image-paste-status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .image-preview-container {
+            max-width: 100%;
+            margin: 10px 0;
+            text-align: center;
+        }
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .image-info {
+            font-size: 11px;
+            color: #666;
+            margin-top: 5px;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: #f5f5f5;
@@ -184,6 +237,8 @@
 
         .editor-pane, .preview-pane {
             flex: 1;
+            max-width: 50%;
+            min-width: 0;
         }
 
         .settings-pane {
@@ -234,6 +289,30 @@
             flex: 1;
             padding: 20px;
             overflow-y: auto;
+            overflow-x: auto;
+            word-wrap: break-word;
+            max-width: 100%;
+        }
+
+        /* Prevent content from expanding the preview pane */
+        #preview img {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        #preview pre {
+            max-width: 100%;
+            overflow-x: auto;
+        }
+        
+        #preview code {
+            word-break: break-all;
+        }
+        
+        #preview table {
+            max-width: 100%;
+            overflow-x: auto;
+            display: block;
         }
 
         .settings-content {
@@ -416,7 +495,13 @@
                     <i class="fas fa-trash-alt"></i>
                 </button>
             </div>
-            <textarea id="editor" placeholder="请输入Markdown内容..."></textarea>
+            <div class="image-paste-area" id="imagePasteArea" style="display: none;">
+                <p><i class="fas fa-image"></i> 拖拽图片到此处或按 Ctrl+V 粘贴图片</p>
+                <p style="color: #666; font-size: 12px;">支持 PNG, JPG, GIF 等格式</p>
+            </div>
+            <div class="image-paste-status" id="imagePasteStatus"></div>
+            <div id="imagePreviewContainer"></div>
+            <textarea id="editor" placeholder="请输入Markdown内容...&#10;&#10;💡 提示：您可以直接粘贴图片(Ctrl+V)或拖拽图片文件到编辑器中！"></textarea>
         </div>
 
         <div class="preview-pane">
@@ -492,6 +577,9 @@
         </div>
     </div>
 
+    <!-- Fallback libraries for offline functionality -->
+    <script src="fallback_libs.js"></script>
+    
     <!-- Libraries for markdown processing -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
@@ -507,7 +595,13 @@
     <script src="frontend.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <script>
-        mermaid.initialize({ startOnLoad: true });
+        // Mermaid configuration with better error handling
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+            logLevel: 'warn'
+        });
     </script>
     <script>
       // MathJax configuration
@@ -532,5 +626,188 @@
       };
     </script>
     <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <script>
+        // Image paste and drag-drop functionality
+        // Using ImageStore and ImageCompressor from app.js instead of duplicating here
+
+        // Initialize image functionality
+        const imageStore = new ImageStore();
+        const imageCompressor = new ImageCompressor();
+        let imageCounter = 0;
+
+        function showImageStatus(message, type = 'info') {
+            const status = document.getElementById('imagePasteStatus');
+            status.textContent = message;
+            status.className = `image-paste-status ${type}`;
+            status.style.display = 'block';
+            
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 3000);
+        }
+
+        async function handleImageUpload(file) {
+            try {
+                showImageStatus('🔄 正在处理图片...', 'info');
+                
+                // Compress image
+                const compressedBlob = await imageCompressor.compress(file);
+                const originalSize = file.size;
+                const compressedSize = compressedBlob.size;
+                
+                // Generate ID and save
+                const imageId = 'img_' + Date.now() + '_' + (++imageCounter);
+                await imageStore.saveImage(imageId, compressedBlob, {
+                    name: file.name || 'pasted-image',
+                    originalSize: originalSize,
+                    type: compressedBlob.type
+                });
+                
+                // Create object URL and insert markdown
+                const objectURL = URL.createObjectURL(compressedBlob);
+                const markdownImage = `![${file.name || 'image'}](${objectURL})\n`;
+                
+                // Insert into editor
+                const editor = document.getElementById('editor');
+                const cursorPos = editor.selectionStart;
+                const textBefore = editor.value.substring(0, cursorPos);
+                const textAfter = editor.value.substring(cursorPos);
+                editor.value = textBefore + markdownImage + textAfter;
+                editor.setSelectionRange(cursorPos + markdownImage.length, cursorPos + markdownImage.length);
+                
+                // Trigger preview update
+                if (window.updatePreview) {
+                    updatePreview();
+                }
+                
+                // Show preview in editor pane
+                const previewContainer = document.getElementById('imagePreviewContainer');
+                const previewDiv = document.createElement('div');
+                previewDiv.className = 'image-preview-container';
+                previewDiv.innerHTML = `
+                    <img src="${objectURL}" class="image-preview" alt="${file.name || 'image'}">
+                    <div class="image-info">
+                        ${file.name || '粘贴的图片'} (${ImageCompressor.formatSize(originalSize)} → ${ImageCompressor.formatSize(compressedSize)})
+                        <button onclick="this.parentElement.parentElement.remove()" style="margin-left: 10px; background: #f44336; color: white; border: none; padding: 2px 6px; border-radius: 2px; cursor: pointer;">删除</button>
+                    </div>
+                `;
+                previewContainer.appendChild(previewDiv);
+                
+                const compressionRatio = ((originalSize - compressedSize) / originalSize * 100).toFixed(1);
+                showImageStatus(`✅ 图片已插入！压缩率 ${compressionRatio}%`, 'success');
+                
+            } catch (error) {
+                showImageStatus('❌ 图片处理失败: ' + error.message, 'error');
+            }
+        }
+
+        // Initialize image paste functionality
+        function initImagePaste() {
+            const editor = document.getElementById('editor');
+            const pasteArea = document.getElementById('imagePasteArea');
+            
+            // Initialize ImageStore
+            imageStore.init().catch(err => {
+                console.warn('IndexedDB initialization failed:', err);
+            });
+            
+            // Paste event for the entire document
+            document.addEventListener('paste', async (event) => {
+                const items = event.clipboardData?.items;
+                if (!items) return;
+
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
+                    if (item.type.indexOf('image') !== -1) {
+                        event.preventDefault();
+                        const file = item.getAsFile();
+                        if (file) {
+                            await handleImageUpload(file);
+                        }
+                        break;
+                    }
+                }
+            });
+
+            // Drag and drop events for editor
+            editor.addEventListener('dragenter', (e) => {
+                e.preventDefault();
+                pasteArea.style.display = 'block';
+                pasteArea.classList.add('dragover');
+            });
+
+            editor.addEventListener('dragover', (e) => {
+                e.preventDefault();
+            });
+
+            editor.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                if (!editor.contains(e.relatedTarget)) {
+                    pasteArea.classList.remove('dragover');
+                    setTimeout(() => {
+                        if (!pasteArea.classList.contains('dragover')) {
+                            pasteArea.style.display = 'none';
+                        }
+                    }, 100);
+                }
+            });
+
+            editor.addEventListener('drop', async (e) => {
+                e.preventDefault();
+                pasteArea.classList.remove('dragover');
+                pasteArea.style.display = 'none';
+                
+                const files = e.dataTransfer?.files;
+                if (!files || files.length === 0) return;
+
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    if (file.type.startsWith('image/')) {
+                        await handleImageUpload(file);
+                    }
+                }
+            });
+
+            // Also handle paste area directly
+            pasteArea.addEventListener('dragenter', (e) => {
+                e.preventDefault();
+                pasteArea.classList.add('dragover');
+            });
+
+            pasteArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+            });
+
+            pasteArea.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                if (!pasteArea.contains(e.relatedTarget)) {
+                    pasteArea.classList.remove('dragover');
+                }
+            });
+
+            pasteArea.addEventListener('drop', async (e) => {
+                e.preventDefault();
+                pasteArea.classList.remove('dragover');
+                pasteArea.style.display = 'none';
+                
+                const files = e.dataTransfer?.files;
+                if (!files || files.length === 0) return;
+
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    if (file.type.startsWith('image/')) {
+                        await handleImageUpload(file);
+                    }
+                }
+            });
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            // Wait a bit to ensure other scripts are loaded
+            setTimeout(initImagePaste, 100);
+        });
+    </script>
 </body>
 </html>
