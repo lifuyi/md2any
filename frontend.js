@@ -259,7 +259,7 @@
             });
           });
 
-          const container = doc.createElement('div');
+          const container = doc.createElement('section');
           container.setAttribute('style', style.container);
           container.innerHTML = doc.body.innerHTML;
 
@@ -362,7 +362,7 @@
             const firstElement = group[0].element;
 
             // 创建容器
-            const gridContainer = doc.createElement('div');
+            const gridContainer = doc.createElement('section');
             gridContainer.setAttribute('class', 'image-grid');
             gridContainer.setAttribute('data-image-count', imageCount);
 
@@ -418,7 +418,7 @@
 
             // 将图片添加到容器中
             group.forEach((item) => {
-              const imgWrapper = doc.createElement('div');
+              const imgWrapper = doc.createElement('section');
 
               imgWrapper.setAttribute('style', `
                 width: 100%;
@@ -616,7 +616,7 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
             });
             
             // 创建容器并应用容器样式
-            const container = doc.createElement('div');
+            const container = doc.createElement('section');
             container.setAttribute('style', styles.container);
             container.innerHTML = doc.body.innerHTML;
             
@@ -1027,7 +1027,7 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
                 });
                 
                 // 创建容器并应用容器样式
-                const container = doc.createElement('div');
+                const container = doc.createElement('section');
                 container.setAttribute('style', styles.container);
                 container.innerHTML = doc.body.innerHTML;
                 
@@ -1046,7 +1046,7 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
         // 将HTML内容复制到剪贴板
         function copyHTMLToClipboard(htmlContent) {
             // 创建临时div来处理HTML内容
-            const tempDiv = document.createElement('div');
+            const tempDiv = document.createElement('section');
             tempDiv.innerHTML = htmlContent;
             
             // 移除可能的script标签以确保安全
@@ -1093,7 +1093,7 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
                     .then(() => {
                         hideLoading();
                         updateStatus('已复制到剪贴板');
-                        alert('已复制到剪贴板');
+                        // alert('已复制到剪贴板');
                     })
                     .catch(err => {
                         console.error('Clipboard API 失败:', err);
@@ -1111,7 +1111,7 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
             // 首先尝试使用更直接的方法来复制HTML内容
             try {
                 // 创建一个临时的div元素来保存HTML内容
-                const tempDiv = document.createElement('div');
+                const tempDiv = document.createElement('section');
                 tempDiv.innerHTML = html;
                 tempDiv.style.position = 'fixed';
                 tempDiv.style.left = '-9999px';

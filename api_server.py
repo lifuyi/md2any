@@ -221,7 +221,7 @@ def apply_inline_styles(html_content, style_name):
         # 根据选择器查找元素并应用样式
         if selector == 'container':
             # 为整个内容创建容器
-            container = soup.new_tag('div')
+            container = soup.new_tag('section')
             container['style'] = css_props
             container.extend(soup.contents)
             soup = BeautifulSoup('', 'html.parser')
@@ -230,7 +230,7 @@ def apply_inline_styles(html_content, style_name):
             elements = soup.select(selector)
             for element in elements:
                 # 如果是图片且在网格容器内，跳过样式应用
-                if element.name == 'img' and element.find_parent('div', class_='image-grid'):
+                if element.name == 'img' and element.find_parent('section', class_='image-grid'):
                     continue
                 
                 # 获取当前样式并追加新样式
@@ -283,7 +283,7 @@ def group_consecutive_images(soup):
             continue
             
         # 创建网格容器
-        grid_container = soup.new_tag('div', **{
+        grid_container = soup.new_tag('section', **{
             'class': 'image-grid',
             'data-image-count': str(len(group))
         })
@@ -303,7 +303,7 @@ def group_consecutive_images(soup):
         
         # 将图片添加到网格中
         for img in group:
-            img_wrapper = soup.new_tag('div')
+            img_wrapper = soup.new_tag('section')
             img_wrapper['style'] = 'width: 100%; height: auto; overflow: hidden;'
             
             # 克隆图片并设置样式

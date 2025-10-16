@@ -854,7 +854,7 @@ const markdown = \`![图片](img://\${imageId})\`;
         });
       });
 
-      const container = doc.createElement('div');
+      const container = doc.createElement('section');
       container.setAttribute('style', style.container);
       container.innerHTML = doc.body.innerHTML;
 
@@ -956,7 +956,7 @@ const markdown = \`![图片](img://\${imageId})\`;
         const firstElement = group[0].element;
 
         // 创建容器
-        const gridContainer = doc.createElement('div');
+        const gridContainer = doc.createElement('section');
         gridContainer.setAttribute('class', 'image-grid');
         gridContainer.setAttribute('data-image-count', imageCount);
 
@@ -1012,7 +1012,7 @@ const markdown = \`![图片](img://\${imageId})\`;
 
         // 将图片添加到容器中
         group.forEach((item) => {
-          const imgWrapper = doc.createElement('div');
+          const imgWrapper = doc.createElement('section');
 
           imgWrapper.setAttribute('style', `
             width: 100%;
@@ -1116,7 +1116,7 @@ const markdown = \`![图片](img://\${imageId})\`;
               }
 
               // 创建一个新的包装 div - 添加背景和居中样式（使用table-cell方式，更兼容）
-              const wrapper = doc.createElement('div');
+              const wrapper = doc.createElement('section');
               wrapper.setAttribute('style', `
                 width: 100% !important;
                 height: ${containerHeight} !important;
@@ -1130,7 +1130,7 @@ const markdown = \`![图片](img://\${imageId})\`;
               `.trim());
 
               // 创建内部居中容器
-              const innerWrapper = doc.createElement('div');
+              const innerWrapper = doc.createElement('section');
               innerWrapper.setAttribute('style', `
                 display: table-cell !important;
                 vertical-align: middle !important;
@@ -1961,7 +1961,7 @@ const markdown = \`![图片](img://\${imageId})\`;
 
     // 创建小红书渲染容器
     createXiaohongshuContainer() {
-      const container = document.createElement('div');
+      const container = document.createElement('section');
       container.style.position = 'fixed';
       container.style.left = '-9999px';
       container.style.top = '0';
@@ -2105,7 +2105,7 @@ const markdown = \`![图片](img://\${imageId})\`;
 
     // 创建简化的元素（只使用基本的内联样式）
     createSimplifiedElement(block) {
-      const el = document.createElement('div');
+      const el = document.createElement('section');
 
       switch (block.type) {
         case 'h1':
@@ -2167,7 +2167,7 @@ const markdown = \`![图片](img://\${imageId})\`;
 
     // 创建页面元素
     createPageElement() {
-      const page = document.createElement('div');
+      const page = document.createElement('section');
       page.style.width = '750px';
       page.style.height = '1000px';
       page.style.backgroundColor = this.getBackgroundColor();
@@ -2184,7 +2184,7 @@ const markdown = \`![图片](img://\${imageId})\`;
 
     // 添加页码
     addPageNumber(pageElement, currentPage, totalPages) {
-      const pageNumber = document.createElement('div');
+      const pageNumber = document.createElement('section');
       pageNumber.textContent = `${currentPage}/${totalPages}`;
       pageNumber.style.position = 'absolute';
       pageNumber.style.bottom = '30px';
@@ -2197,7 +2197,7 @@ const markdown = \`![图片](img://\${imageId})\`;
 
     // 添加首页信息面板
     addInfoPanel(pageElement, articleInfo) {
-      const panel = document.createElement('div');
+      const panel = document.createElement('section');
       panel.style.position = 'absolute';
       panel.style.top = '20px';
       panel.style.left = '40px';
@@ -2224,14 +2224,14 @@ const markdown = \`![图片](img://\${imageId})\`;
         td.style.textAlign = 'center';
         td.style.padding = '5px';
 
-        const valueDiv = document.createElement('div');
+        const valueDiv = document.createElement('section');
         valueDiv.textContent = item.value;
         valueDiv.style.fontSize = '24px';
         valueDiv.style.fontWeight = 'bold';
         valueDiv.style.color = '#0066FF';
         valueDiv.style.marginBottom = '4px';
 
-        const labelDiv = document.createElement('div');
+        const labelDiv = document.createElement('section');
         labelDiv.textContent = item.label;
         labelDiv.style.fontSize = '12px';
         labelDiv.style.color = '#666';
