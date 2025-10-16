@@ -186,12 +186,12 @@ IndexedDB 持久化存储
 
 ## 📊 Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=alchaincyf/huasheng_editor&type=Date)](https://star-history.com/#alchaincyf/huasheng_editor&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=lifuyi/md2any&type=Date)](https://star-history.com/#lifuyi/md2any&Date)
 
 ---
 
 <div align="center">
-  Made with ❤️ by <a href="https://github.com/alchaincyf">花生</a>
+  Made with ❤️ by <a href="https://github.com/lifuyi">lifuyi</a>
   <br>
   如果觉得有用，请给个 ⭐️ Star 支持一下！
 </div>
