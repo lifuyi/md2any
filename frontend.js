@@ -1782,3 +1782,150 @@ function initMathJax(container) {
     }, 500);
   }
 }
+
+        // Format customization functionality
+        
+        // Function to populate format fields with current theme values
+        function populateFormatFields() {
+            const currentTheme = themeSelector.value;
+            if (typeof STYLES === "undefined" || !STYLES[currentTheme]) {
+                console.warn("Theme not found:", currentTheme);
+                return;
+            }
+
+            const styles = STYLES[currentTheme].styles;
+            
+            // Map of field IDs to CSS selector names
+            const fieldMapping = {
+                "format-container": "container",
+                "format-h1": "h1",
+                "format-h2": "h2", 
+                "format-h3": "h3",
+                "format-h4": "h4",
+                "format-h5": "h5",
+                "format-h6": "h6",
+                "format-p": "p",
+                "format-strong": "strong",
+                "format-em": "em",
+                "format-a": "a",
+                "format-ul": "ul",
+                "format-ol": "ol",
+                "format-li": "li",
+                "format-blockquote": "blockquote",
+                "format-code": "code",
+                "format-pre": "pre",
+                "format-hr": "hr",
+                "format-img": "img",
+                "format-table": "table",
+                "format-th": "th",
+                "format-td": "td",
+                "format-tr": "tr",
+                "format-innercontainer": "innerContainer"
+            };
+
+            // Populate each field with the corresponding style value
+            Object.keys(fieldMapping).forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                const styleKey = fieldMapping[fieldId];
+                if (field && styles[styleKey]) {
+                    // Clean up the CSS - remove extra whitespace and make it readable
+                    let cssValue = styles[styleKey].trim();
+                    // Add line breaks after semicolons for better readability
+                    cssValue = cssValue.replace(/;\s*/g, ";\n").replace(/\n+/g, "\n");
+                    field.value = cssValue;
+                } else if (field) {
+                    // Clear field if no style exists
+                    field.value = "";
+                }
+            });
+        }
+
+        // Function to save format changes back to the current theme
+        function saveFormatChanges() {
+            const currentTheme = themeSelector.value;
+            if (typeof STYLES === "undefined" || !STYLES[currentTheme]) {
+                alert("当前主题不存在，无法保存");
+                return;
+            }
+
+            const fieldMapping = {
+                "format-container": "container",
+                "format-h1": "h1",
+                "format-h2": "h2",
+                "format-h3": "h3",
+                "format-h4": "h4",
+                "format-h5": "h5",
+                "format-h6": "h6",
+                "format-p": "p",
+                "format-strong": "strong",
+                "format-em": "em",
+                "format-a": "a",
+                "format-ul": "ul",
+                "format-ol": "ol",
+                "format-li": "li",
+                "format-blockquote": "blockquote",
+                "format-code": "code",
+                "format-pre": "pre",
+                "format-hr": "hr",
+                "format-img": "img",
+                "format-table": "table",
+                "format-th": "th",
+                "format-td": "td",
+                "format-tr": "tr",
+                "format-innercontainer": "innerContainer"
+            };
+
+            // Update the styles object with new values
+            Object.keys(fieldMapping).forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                const styleKey = fieldMapping[fieldId];
+                if (field && field.value.trim()) {
+                    // Clean up the CSS value
+                    let cssValue = field.value.trim();
+                    // Remove extra line breaks and normalize spaces
+                    cssValue = cssValue.replace(/\n+/g, " ").replace(/\s+/g, " ");
+                    STYLES[currentTheme].styles[styleKey] = cssValue;
+                }
+            });
+
+            // Re-render to apply changes
+            renderMarkdown();
+            updateStatus("格式已保存并应用到当前主题");
+        }
+
+        // Function to reset format fields to original theme values
+        function resetFormatFields() {
+            if (confirm("确定要重置所有格式设置吗？这将恢复到默认样式。")) {
+                populateFormatFields();
+                updateStatus("格式已重置");
+            }
+        }
+
+        // Set up format customization event listeners
+        document.addEventListener("DOMContentLoaded", () => {
+            const saveFormatBtn = document.getElementById("save-format");
+            const resetFormatBtn = document.getElementById("reset-format");
+            
+            if (saveFormatBtn) {
+                saveFormatBtn.addEventListener("click", saveFormatChanges);
+            }
+            
+            if (resetFormatBtn) {
+                resetFormatBtn.addEventListener("click", resetFormatFields);
+            }
+            
+            // Listen for theme changes to populate format fields
+            if (themeSelector) {
+                themeSelector.addEventListener("change", () => {
+                    setTimeout(() => {
+                        populateFormatFields();
+                    }, 100);
+                });
+            }
+            
+            // Populate format fields after initial load
+            setTimeout(() => {
+                populateFormatFields();
+            }, 1000);
+        });
+
