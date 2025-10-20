@@ -703,7 +703,7 @@ const STYLES = {
     }
   },
   "pop-art-pink-blue-mode": {
-    "name": "波普艺术 - 粉蓝",
+    "name": "波普艺术 - 粉蓝a",
     "styles": {
       "container": "width: 440px; margin: 0 auto; padding: 30px; font-family: \"Comic Sans MS\", \"Chalkboard SE\", \"Comic Neue\", sans-serif; font-size: 16px; line-height: 28px !important; color: #252a34 !important; background-color: #a6dcef !important; border-radius: 15px; box-shadow: 0 8px 0 #5f9fd8; border: 3px solid #000; position: relative; overflow: visible; word-wrap: break-word; display: block;",
       "h1": "font-size: 24px; font-weight: 600; color: #2c3e50 !important; line-height: 1.4 !important; margin: 32px 0 16px;",
@@ -731,7 +731,7 @@ const STYLES = {
     }
   },
   "pop-art-mint-mode": {
-    "name": "波普艺术 - 薄荷糖",
+    "name": "波普艺术 - 薄荷糖a",
     "styles": {
       "container": "width: 440px; margin: 0 auto; padding: 30px; font-family: \"Comic Sans MS\", \"Chalkboard SE\", \"Comic Neue\", sans-serif; font-size: 16px; line-height: 28px !important; color: #252a34 !important; background-color: #e0f7fa !important; border-radius: 15px; box-shadow: 0 8px 0 #4dd0e1; border: 3px solid #000; position: relative; overflow: visible; word-wrap: break-word; display: block;",
       "h1": "font-size: 24px; font-weight: 600; color: #2c3e50 !important; line-height: 1.4 !important; margin: 32px 0 16px;",
@@ -1900,35 +1900,7 @@ const STYLES = {
       "tr": "border-bottom: 2px solid rgba(255, 255, 255, 0.15);"
     }
   },
-  "white-mode": {
-    "name": "Instagram风格·纯白模式",
-    "enName": "Instagram Style·White Mode",
-    "styles": {
-      "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif; font-size: 16px; line-height: 1.8 !important; color: #1a1a1a !important; background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #e9ecef 100%) !important; word-wrap: break-word;",
-      "h1": "font-size: 32px; font-weight: 800; color: #1a1a1a; text-transform: uppercase; letter-spacing: 1px; text-shadow: 3px 3px 0 #ffffff; padding-bottom: 10px; margin: 32px 0 16px;",
-      "h2": "font-size: 24px; font-weight: 700; color: #1a1a1a; background: linear-gradient(45deg, #f8f9fa, #dee2e6); padding: 4px 10px; transform: rotate(-2deg); margin: 28px 0 14px;",
-      "h3": "font-size: 20px; font-weight: 600; color: #1a1a1a; border-left: 4px solid #dee2e6; padding-left: 12px; margin: 24px 0 12px;",
-      "h4": "font-size: 18px; font-weight: 600; color: #1a1a1a; line-height: 1.4 !important; margin: 20px 0 10px;",
-      "h5": "font-size: 17px; font-weight: 600; color: #1a1a1a; line-height: 1.4 !important; margin: 18px 0 9px;",
-      "h6": "font-size: 16px; font-weight: 600; color: #1a1a1a; line-height: 1.4 !important; margin: 16px 0 8px;",
-      "p": "margin: 16px 0 !important; line-height: 1.8 !important; color: #1a1a1a !important;",
-      "strong": "font-weight: 700; color: #dee2e6; background-color: rgba(255, 255, 255, 0.9); padding: 2px 6px; border-radius: 4px;",
-      "em": "font-style: italic; color: #f8f9fa;",
-      "a": "color: #dee2e6 !important; text-decoration: none; border-bottom: 2px solid #dee2e6; font-weight: 600;",
-      "ul": "margin: 16px 0; padding-left: 24px; background: rgba(255, 255, 255, 0.9); border-radius: 8px; padding: 15px;",
-      "ol": "margin: 16px 0; padding-left: 24px; counter-reset: item; background: rgba(255, 255, 255, 0.9); border-radius: 8px; padding: 15px;",
-      "li": "margin: 10px 0; line-height: 1.8 !important; color: #1a1a1a !important; position: relative; padding-left: 25px;",
-      "blockquote": "margin: 20px 0; padding: 15px 20px; background: rgba(255, 255, 255, 0.9); border-left: 5px solid #dee2e6; color: #1a1a1a !important; font-style: italic; border-radius: 0 8px 8px 0;",
-      "code": "font-family: \"SFMono-Regular\", Consolas, \"Liberation Mono\", Menlo, monospace; background: rgba(255, 255, 255, 0.9); padding: 2px 6px; border-radius: 4px; font-size: 14px; color: #dee2e6; border: 1px solid rgba(0, 0, 0, 0.1);",
-      "pre": "margin: 20px 0; padding: 16px; background: linear-gradient(135deg, #ffffff22, #f8f9fa22); border-radius: 12px; overflow-x: auto; line-height: 1.6 !important; border: 2px solid rgba(0, 0, 0, 0.1);",
-      "hr": "margin: 32px 0; border: none; height: 4px; background: repeating-linear-gradient(45deg, #ffffff, #ffffff 10px, #f8f9fa 10px, #f8f9fa 20px); border-radius: 2px;",
-      "img": "max-width: 100%; max-height: 600px !important; height: auto; display: block; margin: 20px auto; border-radius: 12px; border: 3px solid rgba(0, 0, 0, 0.1); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);",
-      "table": "width: 100%; margin: 20px 0; border-collapse: collapse; font-size: 15px; background: rgba(255, 255, 255, 0.9); border-radius: 12px; overflow: hidden;",
-      "th": "background: linear-gradient(45deg, #ffffff, #f8f9fa); color: #1a1a1a !important; padding: 12px; text-align: left; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;",
-      "td": "padding: 12px; border-bottom: 2px solid rgba(0, 0, 0, 0.1); color: #1a1a1a !important;",
-      "tr": "border-bottom: 2px solid rgba(0, 0, 0, 0.1);"
-    }
-  },
+ 
   "default-mode": {
     "name": "波普艺术·默认",
     "enName": "Pop Art·Default",
@@ -2239,7 +2211,7 @@ const STYLES = {
     }
   },
   "instagram-white-mode": {
-    "name": "Instagram风格 - 纯白模式",
+    "name": "Instagram风格 - 纯白模式a",
     "styles": {
       "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.8 !important; color: #3f3f3f !important; word-wrap: break-word; background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #e9ecef 100%) !important;;",
       "h1": "font-size: 24px; font-weight: 600; color: #2c3e50 !important; line-height: 1.4 !important; margin: 32px 0 16px;",
@@ -2267,7 +2239,7 @@ const STYLES = {
     }
   },
   "pink-blue-mode": {
-    "name": "波普艺术·粉蓝",
+    "name": "波普艺术·粉蓝a",
     "enName": "Pop Art·Pink & Blue",
     "styles": {
       "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: \"Comic Sans MS\", \"Chalkboard SE\", \"Comic Neue\", cursive; font-size: 16px; line-height: 1.8 !important; color: #252a34 !important; background: #a6dcef !important; word-wrap: break-word;",
@@ -2296,10 +2268,12 @@ const STYLES = {
     }
   },
   "purple-mode": {
-    "name": "波普艺术·紫色星空",
+    "name": "波普艺术·紫色星空a",
     "enName": "Pop Art·Purple Sky",
     "styles": {
-      "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: \"Comic Sans MS\", \"Chalkboard SE\", \"Comic Neue\", cursive; font-size: 16px; line-height: 1.8 !important; color: #ffffff !important; background: #1a1042 !important; word-wrap: break-word;",
+      //"container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: \"Comic Sans MS\", \"Chalkboard SE\", \"Comic Neue\", cursive; font-size: 16px; line-height: 1.8 !important; color: #ffffff !important; background: #1a1042 !important; word-wrap: break-word;",
+      "container": "max-width: 740px; margin: 0 auto; padding: 30px; font-family: \"Comic Sans MS\", \"Chalkboard SE\", \"Comic Neue\", sans-serif; font-size: 16px; line-height: 28px !important; color: #252a34 !important; background-color: #3a1f75 !important; border-radius: 15px; box-shadow: 0 8px 0 #1a0e3d; border: 3px solid #000; position: relative; overflow: visible; word-wrap: break-word; display: block;",
+
       "h1": "font-size: 32px; font-weight: 800; color: #ffffff; text-transform: uppercase; letter-spacing: 1px; text-shadow: 3px 3px 0 #ff4e79; padding-bottom: 10px; margin: 32px 0 16px; position: relative;",
       "h2": "font-size: 24px; font-weight: 700; color: #ffffff; background-color: #ffab40; padding: 4px 10px; transform: rotate(-2deg); margin: 28px 0 14px; border: 3px solid #1a1042;",
       "h3": "font-size: 20px; font-weight: 700; color: #ffffff; background-color: #a55eea; padding: 4px 10px; border-radius: 4px; margin: 24px 0 12px; transform: rotate(1deg);",
@@ -2323,8 +2297,182 @@ const STYLES = {
       "td": "padding: 12px; border-bottom: 2px solid #1a1042; color: #ffffff !important; background: rgba(255, 255, 255, 0.9); border-radius: 4px;",
       "tr": "border-bottom: 2px solid #1a1042;"
     }
-  }
+  },
   
+  // 从 md2wechat.cn 转译的主题
+  "md2wechat-default": {
+    "name": "默认主题 - 经典温暖",
+    "styles": {
+      "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: 'PingFang SC', -apple-system-font, system-ui, 'Helvetica Neue', 'Hiragino Sans GB', 'Microsoft YaHei UI', 'Microsoft YaHei', Arial, sans-serif; font-size: 15px; line-height: 1.75 !important; color: #222222 !important; background-color: #faf9f5 !important; word-wrap: break-word;",
+      "h1": "font-size: 22px; font-weight: 700; color: #ffffff !important; line-height: 1.2 !important; margin: 33px 8px 16.5px 0px; padding: 17.6px 33px; background-color: #c86442 !important; border-radius: 8px; text-align: center; box-shadow: 0px 2px 8px 0px rgba(200, 100, 66, 0.2);",
+      "h2": "font-size: 20px; font-weight: 700; color: #3f3f3f !important; line-height: 1.2 !important; margin: 40px 8px 15px 0px; padding: 0px 0px 10px 12px; border-left: 4px solid #3f3f3f;",
+      "h3": "font-size: 18px; font-weight: 700; color: #3f3f3f !important; line-height: 1.2 !important; margin: 36px 8px 13.5px 0px; padding: 0px 0px 7.2px 12px; border-left: 3px solid #3f3f3f;",
+      "h4": "font-size: 16px; font-weight: 700; color: #3f3f3f !important; line-height: 1.2 !important; margin: 24px 8px 8px 0px; padding: 0px 0px 0px 12px; border-left: 2px solid #3f3f3f;",
+      "h5": "font-size: 15px; font-weight: 700; color: #3f3f3f !important; line-height: 1.2 !important; margin: 18px 8px 6px 0px; padding: 0px 0px 0px 8px; border-left: 2px solid #3f3f3f;",
+      "h6": "font-size: 14px; font-weight: 700; color: #3f3f3f !important; line-height: 1.2 !important; margin: 14px 8px 4.2px 0px; padding: 0px 0px 0px 6px; border-left: 1px solid #3f3f3f;",
+      "p": "margin: 18px 8px !important; line-height: 1.75 !important; color: #222222 !important; text-align: justify; letter-spacing: 1.5px;",
+      "strong": "font-weight: 700; color: #c86442 !important;",
+      "em": "font-style: italic; color: #666666 !important;",
+      "a": "color: #c86442 !important; text-decoration: none; border-bottom: 1px solid #c86442;",
+      "ul": "margin: 0px 8px 22.5px; padding-left: 24px;",
+      "ol": "margin: 0px 8px 22.5px; padding-left: 24px;",
+      "li": "margin: 7.5px 0px; line-height: 1.75 !important; color: #3f3f3f !important;",
+      "blockquote": "margin: 24px 0px 32px; padding: 16px 16px 16px 32px; background-color: #f7f7f7 !important; border-left: 4px solid #cccccc; color: rgba(0, 0, 0, 0.6) !important; border-radius: 6px;",
+      "code": "font-family: Menlo, Monaco, Consolas, 'Courier New', monospace; font-size: 13.5px; padding: 3px 6px; background-color: rgba(200, 100, 66, 0.1) !important; color: #c86442 !important; border-radius: 4px;",
+      "pre": "margin: 21px 8px; padding: 16.8px; background-color: #fafafa !important; color: #141413 !important; border-radius: 8px; overflow-x: auto; line-height: 1.5 !important; box-shadow: 0px 2px 8px 0px rgba(200, 100, 66, 0.1);",
+      "hr": "margin: 32px 0px; border: none; height: 1px; background-color: #e0e0e0 !important;",
+      "img": "max-width: 100%; max-height: 600px !important; height: auto; display: block; margin: 20px auto; border-radius: 8px;",
+      "table": "width: 100%; margin: 16px 8px; border-collapse: collapse; font-size: 15px;",
+      "th": "background-color: #f6f6f4 !important; padding: 8px 12px; text-align: left; border: 1px solid #e5e5e5; font-weight: 700; color: #141413 !important;",
+      "td": "padding: 8px 12px; border: 1px solid #e5e5e5; color: #141413 !important;",
+      "tr": "border-bottom: 1px solid #e5e5e5;"
+    }
+  },
+  
+  "md2wechat-bytedance": {
+    "name": "字节范 - 科技现代",
+    "styles": {
+      "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: '__Inter_e8ce0c', '__Inter_Fallback_e8ce0c', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 15px; line-height: 1.8 !important; color: #4e5969 !important; background-color: #ffffff !important; word-wrap: break-word;",
+      "h1": "font-size: 22px; font-weight: 600; color: #1d2129 !important; line-height: 1.5 !important; margin: 33px 0px; padding: 13.2px 33px; background: linear-gradient(to right, rgba(22, 119, 255, 0.02), rgba(5, 212, 205, 0.05), rgba(22, 119, 255, 0.02)) !important; border-top: 3px solid #1677ff; border-bottom: 1px solid rgba(5, 212, 205, 0.5); border-radius: 4px; text-align: center;",
+      "h2": "font-size: 20px; font-weight: 600; color: #ffffff !important; line-height: 1.5 !important; margin: 60px 0px 30px; padding: 8px 28px; background: linear-gradient(135deg, #1677ff, #05d4cd) !important; border-radius: 8px 24px; text-align: center; letter-spacing: 2px; box-shadow: 0px 4px 12px 0px rgba(5, 212, 205, 0.15);",
+      "h3": "font-size: 18px; font-weight: 600; color: #1677ff !important; line-height: 1.6 !important; margin: 36px 0px 13.5px; padding: 9px 18px 9px 12px; border-left: 4px solid #1677ff; border-radius: 6px;",
+      "h4": "font-size: 16px; font-weight: 500; color: #05d4cd !important; line-height: 1.5 !important; margin: 32px 0px 8px; padding: 4.8px 0px 4.8px 8px; border-left: 3px solid #05d4cd; border-radius: 6px;",
+      "h5": "font-size: 15px; font-weight: 600; color: #1677ff !important; line-height: 1.5 !important; margin: 22.5px 0px 7.5px; padding: 3px 0px 3px 6px; border-left: 2px solid #1677ff;",
+      "h6": "font-size: 14px; font-weight: 600; color: #4e5969 !important; line-height: 1.5 !important; margin: 21px 0px 7px; padding: 1.4px 0px 1.4px 4px; border-left: 1px solid #4e5969;",
+      "p": "margin: 18px 0px !important; line-height: 1.8 !important; color: #4e5969 !important; text-align: justify; letter-spacing: 1.5px;",
+      "strong": "font-weight: 600; color: #1677ff !important;",
+      "em": "font-style: italic; color: #05d4cd !important;",
+      "a": "color: #1677ff !important; text-decoration: none; border-bottom: 1px solid #1677ff;",
+      "ul": "margin: 22.5px 0px; padding-left: 24px;",
+      "ol": "margin: 22.5px 0px; padding-left: 24px;",
+      "li": "margin: 7.5px 0px; line-height: 1.6 !important; color: #4e5969 !important;",
+      "blockquote": "margin: 24px 0px; padding: 16px 16px 16px 32px; background-color: #f2f3f5 !important; border-left: 4px solid #4e5969; color: #4e5969 !important; border-radius: 6px;",
+      "code": "font-family: SFMono-Regular, Consolas, Menlo, monospace; font-size: 13.5px; padding: 3px 6px; background-color: rgba(5, 212, 205, 0.1) !important; color: #05d4cd !important; border-radius: 4px;",
+      "pre": "margin: 21px 0px; padding: 16.8px; background-color: #f7f8fa !important; color: #141413 !important; border-radius: 8px; overflow-x: auto; line-height: 1.5 !important; box-shadow: 0px 2px 8px 0px rgba(22, 119, 255, 0.1);",
+      "hr": "margin: 40px 0px; border: none; height: 1px; background-color: #e1e4e8 !important;",
+      "img": "max-width: 100%; max-height: 600px !important; height: auto; display: block; margin: 20px auto; border-radius: 8px;",
+      "table": "width: 100%; margin: 24px 0px; border-collapse: collapse; font-size: 16px; border-radius: 8px; overflow: hidden; box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.05);",
+      "th": "background-color: transparent !important; padding: 12px 16px; text-align: left; font-weight: 600; color: #05d4cd !important; border-bottom: 2px solid rgba(5, 212, 205, 0.2);",
+      "td": "padding: 10px 16px; border-bottom: 1px solid #e1e4e8; color: #4e5969 !important;",
+      "tr": "border-bottom: 1px solid #e1e4e8;"
+    }
+  },
+  
+  "md2wechat-apple": {
+    "name": "苹果范 - 视觉渐变",
+    "styles": {
+      "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: '__Inter_e8ce0c', '__Inter_Fallback_e8ce0c', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif; font-size: 15px; line-height: 1.8 !important; color: #333333 !important; background-color: #ffffff !important; word-wrap: break-word;",
+      "h1": "font-size: 22px; font-weight: 700; color: #ffffff !important; line-height: 1.2 !important; margin: 30.8px 0px 22px; padding: 17.6px 33px; background: linear-gradient(135deg, #007aff, #ff2d55) !important; border-radius: 12px; text-align: center; letter-spacing: 2.2px; box-shadow: 0px 4px 15px 0px rgba(0, 122, 255, 0.2);",
+      "h2": "font-size: 20px; font-weight: 600; color: #1d1d1f !important; line-height: 1.5 !important; margin: 36px 0px 20px; padding: 8px 0px 10px 16px; border-left: 4px solid #007aff;",
+      "h3": "font-size: 18px; font-weight: 600; color: #1d1d1f !important; line-height: 1.5 !important; margin: 28.8px 0px 14.4px; padding: 5.4px 0px 7.2px 12.6px; border-left: 3px solid #5856d6;",
+      "h4": "font-size: 16px; font-weight: 600; color: #1d1d1f !important; line-height: 1.5 !important; margin: 24px 0px 12.8px; padding: 3.2px 0px 3.2px 9.6px; border-left: 2px solid #ff2d55;",
+      "h5": "font-size: 15px; font-weight: 600; color: #333333 !important; line-height: 1.5 !important; margin: 18px 0px 9px; padding: 1.5px 0px 1.5px 7.5px; border-left: 2px solid #007aff;",
+      "h6": "font-size: 14px; font-weight: 600; color: #666666 !important; line-height: 1.5 !important; margin: 14px 0px 7px; padding: 1.4px 0px 1.4px 7px; border-left: 1px solid #666666;",
+      "p": "margin: 18px 0px !important; line-height: 1.8 !important; color: #333333 !important; text-align: justify; letter-spacing: 1.5px;",
+      "strong": "font-weight: 600; color: #000000 !important;",
+      "em": "font-style: italic; color: #333333 !important;",
+      "a": "color: #007aff !important; text-decoration: none; border-bottom: 1px solid #007aff;",
+      "ul": "margin: 18px 0px; padding-left: 24px;",
+      "ol": "margin: 18px 0px; padding-left: 24px;",
+      "li": "margin: 6px 0px; line-height: 1.5 !important; color: #333333 !important;",
+      "blockquote": "margin: 24px 0px; padding: 16px 19.2px; background-color: rgba(0, 0, 0, 0.02) !important; border-radius: 8px; color: #333333 !important;",
+      "code": "font-family: SFMono-Regular, Consolas, Menlo, monospace; font-size: 13.5px; padding: 3px 6px; background-color: rgba(88, 86, 214, 0.1) !important; color: #5856d6 !important; border-radius: 4px;",
+      "pre": "margin: 21px 0px; padding: 16.8px; background-color: #fbfbfd !important; color: #141413 !important; border-radius: 8px; overflow-x: auto; line-height: 1.5 !important; box-shadow: 0px 4px 15px 0px rgba(88, 86, 214, 0.1);",
+      "hr": "margin: 32px 0px; border: none; height: 1px; background-color: #e1e4e8 !important;",
+      "img": "max-width: 100%; max-height: 600px !important; height: auto; display: block; margin: 20px auto; border-radius: 8px;",
+      "table": "width: 100%; margin: 18px 0px; border-collapse: collapse; font-size: 15px;",
+      "th": "background-color: rgba(0, 0, 0, 0.02) !important; padding: 8px 12px; text-align: left; font-weight: 600; color: #333333 !important; border-bottom: 2px solid #e1e4e8;",
+      "td": "padding: 8px 12px; border-bottom: 1px solid #e1e4e8; color: #333333 !important;",
+      "tr": "border-bottom: 1px solid #e1e4e8;"
+    }
+  },
+  
+  "md2wechat-sport": {
+    "name": "运动风 - 活力动感",
+    "styles": {
+      "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: '__Inter_e8ce0c', '__Inter_Fallback_e8ce0c', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 15px; line-height: 1.8 !important; color: #333333 !important; background-color: #ffffff !important; word-wrap: break-word;",
+      "h1": "font-size: 24px; font-weight: 800; color: #ffffff !important; line-height: 1.2 !important; margin: 33px 0px 16.5px; padding: 19.2px 33px; background: linear-gradient(45deg, #00a968, #ff6600, #38c6f4) !important; border-radius: 8px; text-align: center; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0px 4px 15px 0px rgba(0, 169, 104, 0.3);",
+      "h2": "font-size: 20px; font-weight: 700; color: #00a968 !important; line-height: 1.5 !important; margin: 36px 0px 20px; padding: 10px 0px 12px 16px; border-left: 5px solid #00a968;",
+      "h3": "font-size: 18px; font-weight: 700; color: #ff6600 !important; line-height: 1.5 !important; margin: 28.8px 0px 14.4px; padding: 7.2px 0px 9px 12.6px; border-left: 4px solid #ff6600;",
+      "h4": "font-size: 16px; font-weight: 600; color: #38c6f4 !important; line-height: 1.5 !important; margin: 24px 0px 12.8px; padding: 4.8px 0px 6.4px 9.6px; border-left: 3px solid #38c6f4;",
+      "h5": "font-size: 15px; font-weight: 600; color: #00a968 !important; line-height: 1.5 !important; margin: 18px 0px 9px; padding: 3px 0px 3px 7.5px; border-left: 2px solid #00a968;",
+      "h6": "font-size: 14px; font-weight: 600; color: #666666 !important; line-height: 1.5 !important; margin: 14px 0px 7px; padding: 1.4px 0px 1.4px 7px; border-left: 1px solid #666666;",
+      "p": "margin: 18px 0px !important; line-height: 1.8 !important; color: #333333 !important; text-align: justify; letter-spacing: 1.5px;",
+      "strong": "font-weight: 700; color: #00a968 !important; text-transform: uppercase;",
+      "em": "font-style: italic; color: #ff6600 !important; font-weight: 600;",
+      "a": "color: #00a968 !important; text-decoration: none; border-bottom: 2px solid #00a968; font-weight: 600;",
+      "ul": "margin: 18px 0px; padding-left: 24px;",
+      "ol": "margin: 18px 0px; padding-left: 24px;",
+      "li": "margin: 6px 0px; line-height: 1.5 !important; color: #333333 !important; font-weight: 500;",
+      "blockquote": "margin: 24px 0px; padding: 16px 19.2px; background-color: rgba(0, 169, 104, 0.02) !important; border-left: 4px solid #00a968; color: #333333 !important; border-radius: 8px;",
+      "code": "font-family: SFMono-Regular, Consolas, Menlo, monospace; font-size: 13.5px; padding: 3px 6px; background-color: rgba(56, 198, 244, 0.1) !important; color: #38c6f4 !important; border-radius: 4px; font-weight: 600;",
+      "pre": "margin: 21px 0px; padding: 16.8px; background-color: #f0f9ff !important; color: #141413 !important; border-radius: 8px; overflow-x: auto; line-height: 1.5 !important; box-shadow: 0px 4px 15px 0px rgba(56, 198, 244, 0.2);",
+      "hr": "margin: 32px 0px; border: none; height: 3px; background: repeating-linear-gradient(45deg, #00a968, #00a968 10px, #ff6600 10px, #ff6600 20px); border-radius: 2px;",
+      "img": "max-width: 100%; max-height: 600px !important; height: auto; display: block; margin: 20px auto; border-radius: 8px; border: 3px solid #00a968;",
+      "table": "width: 100%; margin: 18px 0px; border-collapse: collapse; font-size: 15px;",
+      "th": "background-color: rgba(0, 169, 104, 0.1) !important; padding: 8px 12px; text-align: left; font-weight: 700; color: #00a968 !important; border-bottom: 3px solid #00a968;",
+      "td": "padding: 8px 12px; border-bottom: 1px solid #e1e4e8; color: #333333 !important;",
+      "tr": "border-bottom: 1px solid #e1e4e8;"
+    }
+  },
+  
+  "md2wechat-chinese": {
+    "name": "中国风 - 古典雅致",
+    "styles": {
+      "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: 'Songti SC', 'SimSun', Georgia, serif; font-size: 16px; line-height: 2 !important; color: #333333 !important; background-color: #f8f4e9 !important; word-wrap: break-word; letter-spacing: 1px;",
+      "h1": "font-size: 28px; font-weight: 700; color: #8b1e22 !important; line-height: 1.8 !important; margin: 48px 0px 24px; padding: 20px; background: linear-gradient(135deg, #8b1e22, #333333) !important; -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; letter-spacing: 4px; border-bottom: 3px solid #8b1e22; text-shadow: 2px 2px 4px rgba(139, 30, 34, 0.3);",
+      "h2": "font-size: 22px; font-weight: 700; color: #8b1e22 !important; line-height: 1.8 !important; margin: 40px 0px 20px; padding: 15px 0px 15px 25px; border-left: 6px solid #8b1e22; background: linear-gradient(90deg, rgba(139, 30, 34, 0.1), transparent) !important; letter-spacing: 2px;",
+      "h3": "font-size: 20px; font-weight: 600; color: #333333 !important; line-height: 1.8 !important; margin: 36px 0px 18px; padding: 10px 0px 10px 20px; border-left: 4px solid #333333; letter-spacing: 1.5px;",
+      "h4": "font-size: 18px; font-weight: 600; color: #666666 !important; line-height: 1.8 !important; margin: 32px 0px 16px; padding: 8px 0px 8px 16px; border-left: 3px solid #666666;",
+      "h5": "font-size: 16px; font-weight: 600; color: #8b1e22 !important; line-height: 1.8 !important; margin: 28px 0px 14px; padding: 6px 0px 6px 12px; border-left: 2px solid #8b1e22;",
+      "h6": "font-size: 15px; font-weight: 600; color: #999999 !important; line-height: 1.8 !important; margin: 24px 0px 12px; padding: 4px 0px 4px 10px; border-left: 1px solid #999999;",
+      "p": "margin: 24px 0px !important; line-height: 2 !important; color: #333333 !important; text-align: justify; text-indent: 2em; letter-spacing: 1px;",
+      "strong": "font-weight: 700; color: #8b1e22 !important; background-color: rgba(139, 30, 34, 0.1) !important; padding: 2px 6px; border-radius: 4px; border-bottom: 2px dotted #8b1e22;",
+      "em": "font-style: italic; color: #666666 !important; font-family: 'KaiTi', cursive; text-decoration: underline wavy #8b1e22;",
+      "a": "color: #8b1e22 !important; text-decoration: none; border-bottom: 2px dotted #8b1e22; font-weight: 600; transition: all 0.3s ease;",
+      "ul": "margin: 24px 0px; padding-left: 32px; list-style-type: circle; background-color: rgba(139, 30, 34, 0.05) !important; padding: 20px; border: 1px solid #d4c5a0; border-radius: 8px;",
+      "ol": "margin: 24px 0px; padding-left: 32px; list-style-type: upper-roman; background-color: rgba(139, 30, 34, 0.05) !important; padding: 20px; border: 1px dashed #8b1e22; border-radius: 8px;",
+      "li": "margin: 12px 0px; line-height: 2 !important; color: #333333 !important; padding-left: 10px; position: relative;",
+      "blockquote": "margin: 36px 0px; padding: 25px 35px; background-color: #f0ebe1 !important; border-left: 6px solid #8b1e22; border-right: 6px solid #8b1e22; color: #333333 !important; font-style: italic; text-align: center; font-family: 'KaiTi', cursive; border-radius: 0; box-shadow: inset 0 0 20px rgba(139, 30, 34, 0.1);",
+      "code": "font-family: 'FangSong', monospace; font-size: 14px; padding: 4px 8px; background-color: #f0ebe1 !important; color: #8b1e22 !important; border: 2px solid #8b1e22; border-radius: 4px; font-weight: 600;",
+      "pre": "margin: 32px 0px; padding: 25px; background-color: #f0ebe1 !important; color: #333333 !important; border-left: 6px solid #8b1e22; overflow-x: auto; line-height: 1.8 !important; font-family: 'FangSong', monospace; box-shadow: inset 5px 0 10px rgba(139, 30, 34, 0.1);",
+      "hr": "margin: 48px auto; border: none; width: 60%; height: 3px; background: linear-gradient(to right, transparent, #8b1e22, #d4c5a0, #8b1e22, transparent); border-radius: 2px;",
+      "img": "max-width: 100%; max-height: 600px !important; height: auto; display: block; margin: 36px auto; border: 4px solid #8b1e22; border-radius: 0; box-shadow: 8px 8px 15px rgba(0, 0, 0, 0.2); padding: 8px; background-color: #f8f4e9 !important;",
+      "table": "width: 100%; margin: 32px 0px; border-collapse: separate; border-spacing: 0; font-size: 15px; border: 3px solid #8b1e22; background-color: #f8f4e9 !important; border-radius: 0;",
+      "th": "background: linear-gradient(135deg, #8b1e22, #d4c5a0) !important; color: #f8f4e9 !important; padding: 16px 20px; text-align: center; font-weight: 700; border: 1px solid #333333; font-family: 'KaiTi', cursive; font-size: 16px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);",
+      "td": "padding: 14px 18px; border: 1px solid #d4c5a0; color: #333333 !important; background-color: rgba(248, 244, 233, 0.9) !important; text-align: center; font-family: 'Songti SC', serif;",
+      "tr": "border-bottom: 1px solid #d4c5a0; transition: background-color 0.3s ease;"
+    }
+  },
+  
+  "md2wechat-cyberpunk": {
+    "name": "赛博朋克 - 未来霓虹",
+    "styles": {
+      "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: 'Orbitron', 'Courier New', monospace; font-size: 15px; line-height: 1.8 !important; color: #00ff41 !important; background: linear-gradient(135deg, #0a0a0a, #1a0a1a, #2a1a2a, #1a0a1a, #0a0a0a) !important; word-wrap: break-word; border: 2px solid #ff00ff; box-shadow: 0 0 30px rgba(255, 0, 255, 0.6), inset 0 0 30px rgba(0, 255, 65, 0.1);",
+      "h1": "font-size: 28px; font-weight: 900; color: #00ff41 !important; line-height: 1.2 !important; margin: 36px 0px 18px; padding: 20px; background: linear-gradient(45deg, #ff00ff, #00ff41, #00ffff, #ff00ff) !important; -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; text-transform: uppercase; letter-spacing: 4px; text-shadow: 0 0 15px #ff00ff, 0 0 25px #00ff41, 0 0 35px #ff00ff; border-bottom: 3px solid #00ff41; border-image: linear-gradient(45deg, #ff00ff, #00ff41) 1;",
+      "h2": "font-size: 22px; font-weight: 800; color: #ff00ff !important; line-height: 1.5 !important; margin: 32px 0px 16px; padding: 12px 0px 12px 20px; border-left: 6px solid #ff00ff; background: linear-gradient(90deg, rgba(255, 0, 255, 0.15), transparent) !important; text-shadow: 0 0 8px #ff00ff, 0 0 15px #ff00ff; letter-spacing: 2px;",
+      "h3": "font-size: 20px; font-weight: 700; color: #00ffff !important; line-height: 1.5 !important; margin: 28px 0px 14px; padding: 8px 0px 8px 16px; border-left: 5px solid #00ffff; text-shadow: 0 0 8px #00ffff, 0 0 15px #00ffff; letter-spacing: 1.5px;",
+      "h4": "font-size: 18px; font-weight: 700; color: #ffff00 !important; line-height: 1.5 !important; margin: 24px 0px 12px; padding: 6px 0px 6px 12px; border-left: 4px solid #ffff00; text-shadow: 0 0 6px #ffff00, 0 0 12px #ffff00;",
+      "h5": "font-size: 16px; font-weight: 600; color: #ff00ff !important; line-height: 1.5 !important; margin: 20px 0px 10px; padding: 4px 0px 4px 10px; border-left: 3px solid #ff00ff; text-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff;",
+      "h6": "font-size: 15px; font-weight: 600; color: #00ff41 !important; line-height: 1.5 !important; margin: 16px 0px 8px; padding: 2px 0px 2px 8px; border-left: 2px solid #00ff41; text-shadow: 0 0 4px #00ff41, 0 0 8px #00ff41;",
+      "p": "margin: 20px 0px !important; line-height: 1.8 !important; color: #00ff41 !important; text-align: justify; letter-spacing: 1.5px; text-shadow: 0 0 3px #00ff41, 0 0 6px rgba(0, 255, 65, 0.3);",
+      "strong": "font-weight: 900; color: #ff00ff !important; background-color: rgba(255, 0, 255, 0.15) !important; padding: 3px 6px; border-radius: 4px; text-shadow: 0 0 8px #ff00ff, 0 0 15px #ff00ff; border: 1px solid rgba(255, 0, 255, 0.3);",
+      "em": "font-style: italic; color: #00ffff !important; text-shadow: 0 0 6px #00ffff, 0 0 12px #00ffff; text-decoration: underline wavy #00ffff;",
+      "a": "color: #ffff00 !important; text-decoration: none; border-bottom: 3px solid #ffff00; font-weight: 800; text-shadow: 0 0 5px #ffff00, 0 0 10px #ffff00; transition: all 0.3s ease; background-color: rgba(255, 255, 0, 0.1) !important; padding: 2px 4px; border-radius: 3px;",
+      "ul": "margin: 24px 0px; padding-left: 24px; list-style-type: square; background-color: rgba(0, 255, 65, 0.08) !important; padding: 20px; border: 2px solid #00ff41; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 255, 65, 0.2), inset 0 0 15px rgba(0, 255, 65, 0.1);",
+      "ol": "margin: 24px 0px; padding-left: 24px; background-color: rgba(255, 0, 255, 0.08) !important; padding: 20px; border: 2px dashed #ff00ff; border-radius: 8px; box-shadow: 0 0 15px rgba(255, 0, 255, 0.2), inset 0 0 15px rgba(255, 0, 255, 0.1);",
+      "li": "margin: 10px 0px; line-height: 1.8 !important; color: #00ff41 !important; font-weight: 500; text-shadow: 0 0 3px #00ff41; position: relative; padding-left: 20px;",
+      "blockquote": "margin: 32px 0px; padding: 25px 35px; background: linear-gradient(135deg, rgba(255, 0, 255, 0.1), rgba(0, 255, 255, 0.1)) !important; border-left: 6px solid #ff00ff; border-right: 6px solid #00ffff; color: #00ff41 !important; text-shadow: 0 0 8px #ff00ff, 0 0 8px #00ffff; text-align: center; font-style: italic; border-radius: 0; box-shadow: inset 0 0 25px rgba(255, 0, 255, 0.2), 0 0 25px rgba(0, 255, 255, 0.2); font-family: 'Orbitron', monospace;",
+      "code": "font-family: 'Courier New', monospace; font-size: 14px; padding: 4px 8px; background: linear-gradient(135deg, rgba(0, 255, 65, 0.2), rgba(0, 255, 255, 0.2)) !important; color: #00ff41 !important; border: 2px solid #00ff41; border-radius: 4px; font-weight: 600; text-shadow: 0 0 5px #00ff41; box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);",
+      "pre": "margin: 28px 0px; padding: 25px; background: linear-gradient(135deg, #1a1a1a, #2a1a2a, #1a1a1a) !important; color: #00ff41 !important; border-left: 6px solid #ff00ff; border-right: 6px solid #00ffff; overflow-x: auto; line-height: 1.6 !important; font-family: 'Courier New', monospace; box-shadow: inset 0 0 30px rgba(255, 0, 255, 0.2), 0 0 30px rgba(0, 255, 255, 0.2); border-radius: 0;",
+      "hr": "margin: 40px 0px; border: none; height: 4px; background: linear-gradient(to right, #ff00ff, #00ff41, #00ffff, #ffff00, #ff00ff); border-radius: 2px; box-shadow: 0 0 20px rgba(255, 0, 255, 0.8), 0 0 20px rgba(0, 255, 65, 0.8);",
+      "img": "max-width: 100%; max-height: 600px !important; height: auto; display: block; margin: 28px auto; border: 4px solid #ff00ff; border-radius: 0; box-shadow: 0 0 30px rgba(255, 0, 255, 0.7), 0 0 30px rgba(0, 255, 65, 0.7); padding: 10px; background: linear-gradient(135deg, rgba(255, 0, 255, 0.1), rgba(0, 255, 65, 0.1));",
+      "table": "width: 100%; margin: 28px 0px; border-collapse: separate; border-spacing: 0; font-size: 15px; background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(26, 10, 26, 0.9)) !important; border: 3px solid #ff00ff; box-shadow: 0 0 25px rgba(255, 0, 255, 0.6), inset 0 0 25px rgba(0, 255, 65, 0.3); border-radius: 0;",
+      "th": "background: linear-gradient(45deg, #ff00ff, #00ff41, #00ffff) !important; color: #000000 !important; padding: 16px 20px; text-align: center; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px #ff00ff, 0 0 10px #00ff41; border: 2px solid #ffff00; font-family: 'Orbitron', monospace; font-size: 16px;",
+      "td": "padding: 14px 18px; border: 2px solid #00ff41; color: #00ff41 !important; background-color: rgba(0, 0, 0, 0.5) !important; text-align: center; font-family: 'Courier New', monospace; text-shadow: 0 0 5px #00ff41; font-weight: 600;",
+      "tr": "border-bottom: 2px solid #00ffff; transition: all 0.3s ease;"
+    }
+  }
 };
 
 if (typeof module !== 'undefined' && module.exports) {
