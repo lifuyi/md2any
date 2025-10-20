@@ -263,9 +263,20 @@
             });
           });
 
+          // 创建外层容器
           const container = doc.createElement('section');
           container.setAttribute('style', style.container);
-          container.innerHTML = doc.body.innerHTML;
+          
+          // 如果有内层容器样式，创建内层容器
+          if (style.innerContainer) {
+            const innerContainer = doc.createElement('section');
+            innerContainer.setAttribute('style', style.innerContainer);
+            innerContainer.innerHTML = doc.body.innerHTML;
+            container.appendChild(innerContainer);
+          } else {
+            // 如果没有内层容器样式，直接使用外层容器
+            container.innerHTML = doc.body.innerHTML;
+          }
 
           return container.outerHTML;
         }
