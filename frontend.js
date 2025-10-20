@@ -1474,7 +1474,7 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
             const newAppSecret = prompt('请输入微信公众号AppSecret:', appSecret);
             if (newAppSecret === null) return; // 用户取消了输入
             
-            const newThumbMediaId = prompt('请输入缩略图Media ID (可选):', thumbMediaId);
+            const newThumbMediaId = prompt('请输入缩略图Media ID (必要):', thumbMediaId);
             
             // 只要用户输入了有效的AppID和AppSecret就保存
             if (newAppId.trim() !== '' && newAppSecret.trim() !== '') {
