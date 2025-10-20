@@ -10,7 +10,7 @@ const STYLES = {
       "h4": "font-size: 18px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 20px 0 10px;",
       "h5": "font-size: 17px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 18px 0 9px;",
       "h6": "font-size: 16px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 16px 0 8px;",
-      "p": "margin: 0px; font-style: italic; color: rgb(122, 107, 95); line-height: 28px;"
+      "p": "margin: 0px; font-style: italic; color: rgb(122, 107, 95); line-height: 28px;",
       "strong": "font-weight: 600; color: #2c3e50 !important;",
       "em": "font-style: italic; color: #555 !important;",
       "a": "color: #3498db !important; text-decoration: none; border-bottom: 1px solid #3498db;",
@@ -1400,7 +1400,7 @@ const STYLES = {
       "em": "\n  color: #ff0033;\n  font-style: normal;\n  font-weight: 600;\n",
       "a": "\n  color: #000;\n  text-decoration: none;\n  border-bottom: 1px solid #ff0033;\n  transition: all 0.2s ease;\n",
       "ul": "\n  padding-left: 0;\n",
-      "ol": "margin: 16px 0px 24px; padding: 8px 56px; font-family: 'Noto Serif JP', serif; font-size: 16px; font-weight: 400; line-height: 28px; color: rgb(90, 74, 63);"
+      "ol": "margin: 16px 0px 24px; padding: 8px 56px; font-family: 'Noto Serif JP', serif; font-size: 16px; font-weight: 400; line-height: 28px; color: rgb(90, 74, 63);",
       "li": "\n  counter-increment: item;\n  list-style: none;\n  margin-bottom: 15px;\n  color: #333;\n  line-height: 1.6;\n  font-size: 16px;\n",
       "blockquote": "\n  background-color: #fff;\n  border-left: 3px solid #ff0033;\n  color: #666;\n  padding: 15px 20px;\n  margin: 20px 0;\n  font-style: italic;\n  position: relative;\n",
       "code": "\n  display: block;\n  padding-left: 15px;\n  line-height: 1.5;\n",
@@ -1584,9 +1584,9 @@ const STYLES = {
   "meadow-dawn": {
     "name": "青野晨光",
     "styles": {
-      "container": "max-width: 440px; margin: 0px; padding: 20px; font-family: \"Noto Serif JP\", serif; font-size: 16px; line-height: 28px !important; color: rgb(90, 74, 63); background-color: rgba(255, 253, 245, 0.9); word-wrap: break-word; width: 440px;"
-      "h1": "font-size: 32px; color: rgb(107, 140, 66); font-weight: 700; line-height: 40px; margin: 19.2px 0px 8px; padding: 0px 0px 4.8px;"
-      "h2": "font-size: 25.6px; color: rgb(107, 140, 66); font-weight: 700; line-height: 32px; margin: 19.2px 0px 8px; padding: 0px 0px 4.8px;"
+      "container": "max-width: 440px; margin: 0px; padding: 20px; font-family: \"Noto Serif JP\", serif; font-size: 16px; line-height: 28px !important; color: rgb(90, 74, 63); background-color: rgba(255, 253, 245, 0.9); word-wrap: break-word; width: 440px;",
+      "h1": "font-size: 32px; color: rgb(107, 140, 66); font-weight: 700; line-height: 40px; margin: 19.2px 0px 8px; padding: 0px 0px 4.8px;",
+      "h2": "font-size: 25.6px; color: rgb(107, 140, 66); font-weight: 700; line-height: 32px; margin: 19.2px 0px 8px; padding: 0px 0px 4.8px;",
       "h3": "\n  font-size: 1.4rem;\n",
       "h4": "font-size: 18px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 20px 0 10px;",
       "h5": "font-size: 17px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 18px 0 9px;",
@@ -1594,15 +1594,15 @@ const STYLES = {
       "p": "margin: 16px 0 !important; line-height: 1.8 !important; color: #3f3f3f !important;",
       "strong": "color: rgb(107, 140, 66); font-weight: 700;",
       "em": "font-style: italic; color: #555 !important;",
-      "a": "color: rgb(76, 51, 204); font-family: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif; font-size: 20px; font-weight: 700; line-height: 28px; text-decoration: none;"
-      "ul": "margin: 0px; padding: 0px 16px; font-family: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'; font-size: 16px; font-weight: 400; line-height: 24px; color: rgb(15, 10, 41);"
+      "a": "color: rgb(76, 51, 204); font-family: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif; font-size: 20px; font-weight: 700; line-height: 28px; text-decoration: none;",
+      "ul": "margin: 0px; padding: 0px 16px; font-family: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'; font-size: 16px; font-weight: 400; line-height: 24px; color: rgb(15, 10, 41);",
       "ol": "\n  list-style: none;\n  padding: 0.5em 3.5em;\n  counter-reset: decorated-counter;\n  margin-bottom: 1.5em;\n",
-      "li": "margin: 0px; padding: 0px; font-family: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'; font-size: 16px; font-weight: 700; line-height: 24px; color: rgb(15, 10, 41);"
-      "blockquote": "margin: 16px 0px 24px; padding: 16px; background-color: rgba(139, 154, 122, 0.1); border-left: 4px solid rgb(139, 154, 122); font-style: italic; color: rgb(122, 107, 95); border-radius: 0px 8px 8px 0px;"
-      "code": "font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace; background-color: rgb(234, 236, 239); color: rgb(90, 74, 63); padding: 2px 5px; border-radius: 4px; font-size: 14.4px; line-height: 25.2px;"
+      "li": "margin: 0px; padding: 0px; font-family: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'; font-size: 16px; font-weight: 700; line-height: 24px; color: rgb(15, 10, 41);",
+      "blockquote": "margin: 16px 0px 24px; padding: 16px; background-color: rgba(139, 154, 122, 0.1); border-left: 4px solid rgb(139, 154, 122); font-style: italic; color: rgb(122, 107, 95); border-radius: 0px 8px 8px 0px;",
+      "code": "font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace; background-color: rgb(234, 236, 239); color: rgb(90, 74, 63); padding: 2px 5px; border-radius: 4px; font-size: 14.4px; line-height: 25.2px;",
       "pre": "\n  background-color: rgba(139, 154, 122, 0.2);\n  padding: 1em;\n  border-radius: 8px;\n  overflow-x: auto;\n  margin-bottom: 1.5em;\n",
       "hr": "margin: 32px 0; border: none; border-top: 1px solid #e0e0e0;",
-      "img": "max-width: 100%; margin: 20px 0px 0px; font-family: 'Noto Serif JP', serif; font-size: 16px; font-weight: 400; line-height: 28px; color: rgb(90, 74, 63);"
+      "img": "max-width: 100%; margin: 20px 0px 0px; font-family: 'Noto Serif JP', serif; font-size: 16px; font-weight: 400; line-height: 28px; color: rgb(90, 74, 63);",
       "table": "\n  border-collapse: collapse;\n  width: 100%;\n  margin-bottom: 1.5em;\n",
       "th": "\n  background-color: rgba(139, 154, 122, 0.2);\n",
       "td": "\n  padding: 0.5em 1em;\n  border: 1px solid #d4d9c9;\n",

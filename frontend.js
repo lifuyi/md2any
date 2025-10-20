@@ -234,7 +234,11 @@
         
         // Apply inline styles using the same logic as app.js
         function applyInlineStyles(html, currentStyle) {
-          const style = STYLES[currentStyle].styles;
+  if (typeof STYLES === 'undefined') {
+    console.error('STYLES object not loaded');
+    return html;
+  }
+  const style = STYLES[currentStyle].styles;
           const parser = new DOMParser();
           const doc = parser.parseFromString(html, 'text/html');
 
@@ -595,7 +599,12 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
             let html = md.render(markdown);
             
             // 获取样式配置
-            const styleConfig = STYLES[theme] || STYLES['wechat-default'];
+            const styleConfig = (typeof STYLES !== 'undefined') ? (STYLES[theme] || STYLES['wechat-default']) : null;
+            if (!styleConfig) {
+                console.error('No style configuration available');
+                preview.innerHTML = html;
+                return;
+            }
             const styles = styleConfig.styles;
             
             // 应用内联样式
@@ -1006,7 +1015,13 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
                 let html = md.render(markdown);
                 
                 // 获取样式配置
-                const styleConfig = STYLES[theme] || STYLES['wechat-default'];
+                const styleConfig = (typeof STYLES !== 'undefined') ? (STYLES[theme] || STYLES['wechat-default']) : null;
+                if (!styleConfig) {
+                    console.error('No style configuration available for export');
+                    alert('样式配置未加载，无法导出');
+                    hideLoading();
+                    return;
+                }
                 const styles = styleConfig.styles;
                 
                 // 应用内联样式
@@ -1321,13 +1336,22 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
             checkWeChatConfig();
             
             // Populate theme selector with options from the STYLES object
-            const themes = Object.keys(STYLES);
-            themes.forEach(theme => {
+            if (typeof STYLES !== 'undefined') {
+                const themes = Object.keys(STYLES);
+                themes.forEach(theme => {
+                    const option = document.createElement('option');
+                    option.value = theme;
+                    option.textContent = STYLES[theme].name; // Use the name from STYLES
+                    themeSelector.appendChild(option);
+                });
+            } else {
+                console.error('STYLES object not loaded. Please check styles.js');
+                // Add a default option as fallback
                 const option = document.createElement('option');
-                option.value = theme;
-                option.textContent = STYLES[theme].name; // Use the name from STYLES
+                option.value = 'wechat-default';
+                option.textContent = 'Default';
                 themeSelector.appendChild(option);
-            });
+            }
             
             // Set wechat-default as the default theme
             themeSelector.value = 'wechat-default';

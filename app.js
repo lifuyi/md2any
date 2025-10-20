@@ -2293,4 +2293,6 @@ const markdown = \`![图片](img://\${imageId})\`;
   }
 });
 
-editorApp.mount('#app');
+// Only mount Vue app if #app element exists
+// Since the HTML doesn't use Vue templates, we don't mount the app
+// editorApp.mount('#app');
