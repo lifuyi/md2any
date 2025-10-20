@@ -140,48 +140,82 @@
             position: absolute;
             right: 0;
             background-color: #f9f9f9;
-            min-width: 160px;
+            min-width: 180px;
             box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
+            z-index: 1000;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin-top: 2px;
+        }
+
+        .dropdown-content.show {
+            display: block;
         }
 
         .dropdown-content a {
-            color: black;
-            padding: 12px 16px;
+            color: #333;
+            padding: 10px 15px;
             text-decoration: none;
             display: block;
-            font-size: 14px;
+            font-size: 13px;
+            transition: background-color 0.2s ease;
+            border-radius: 2px;
+            margin: 2px;
         }
 
         .dropdown-content a:hover {
-            background-color: #f1f1f1;
+            background-color: #e3f2fd;
+            color: #1976d2;
         }
 
-        .dropdown:hover .dropdown-content {
-            display: block;
+        .dropdown-content a:active {
+            background-color: #bbdefb;
         }
 
         .dropdown .btn {
-            border-radius: 4px 0 0 4px;
+            border-radius: 4px;
+            cursor: pointer;
+            user-select: none;
         }
 
-        .dropdown .dropdown-toggle {
-            border-left: 1px solid #c05a3a;
-            border-radius: 0 4px 4px 0;
-            padding: 8px;
+        .dropdown .btn:hover {
+            opacity: 0.9;
+        }
+
+        .dropdown .btn:active {
+            transform: translateY(1px);
+        }
+
+        .dropdown-toggle .fa-caret-down {
+            margin-left: 4px;
+            transition: transform 0.2s ease;
+        }
+
+        .dropdown.show .dropdown-toggle .fa-caret-down {
+            transform: rotate(180deg);
         }
 
         /* Preview pane header button styles */
         .preview-pane .pane-header .btn {
-            padding: 4px 8px;
+            padding: 6px 10px;
             font-size: 12px;
             line-height: 1.2;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .preview-pane .pane-header .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .preview-pane .pane-header .dropdown-content {
             right: 0;
             top: 100%;
-            margin-top: 2px;
+            margin-top: 4px;
+            min-width: 160px;
         }
 
         .preview-pane .pane-header .dropdown-content a {
@@ -504,27 +538,27 @@
             <div class="pane-header">
                 <i class="fas fa-eye"></i> 预览
                 <div style="float: right; display: flex; gap: 8px;">
-                    <button class="btn btn-secondary" onclick="copyToClipboard()" style="background-color: #1e3a8a; color: white; padding: 4px 8px; font-size: 12px;">
+                    <button class="btn btn-secondary" onclick="copyToClipboard()" style="background-color: #1e3a8a; color: white; padding: 6px 10px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer; transition: all 0.2s ease;">
                         <i class="fas fa-copy"></i> 复制
                     </button>
                     <div class="dropdown">
-                        <button class="btn btn-primary" style="padding: 4px 8px; font-size: 12px;">
-                            <i class="fas fa-download"></i> 下载
+                        <button class="btn btn-primary dropdown-toggle" onclick="toggleDropdown(this)" style="padding: 4px 8px; font-size: 12px;">
+                            <i class="fas fa-download"></i> 下载 <i class="fas fa-caret-down"></i>
                         </button>
                         <div class="dropdown-content">
-                            <a href="#" onclick="downloadHTML()"><i class="fas fa-file-code"></i> 下载HTML</a>
-                            <a href="#" onclick="downloadPNG()"><i class="fas fa-image"></i> 下载PNG</a>
-                            <a href="#" onclick="downloadMD()"><i class="fas fa-file-alt"></i> 下载MD</a>
-                            <a href="#" onclick="downloadTXT()"><i class="fas fa-file-alt"></i> 下载TXT</a>
+                            <a href="#" onclick="downloadHTML(); hideDropdown(this)"><i class="fas fa-file-code"></i> 下载HTML</a>
+                            <a href="#" onclick="downloadPNG(); hideDropdown(this)"><i class="fas fa-image"></i> 下载PNG</a>
+                            <a href="#" onclick="downloadMD(); hideDropdown(this)"><i class="fas fa-file-alt"></i> 下载MD</a>
+                            <a href="#" onclick="downloadTXT(); hideDropdown(this)"><i class="fas fa-file-alt"></i> 下载TXT</a>
                         </div>
                     </div>
                     <div class="dropdown">
-                        <button class="btn" style="background-color: #4CAF50; color: white; padding: 4px 8px; font-size: 12px;">
-                            <i class="fab fa-weixin"></i> 发送到微信
+                        <button class="btn dropdown-toggle" onclick="toggleDropdown(this)" style="background-color: #4CAF50; color: white; padding: 4px 8px; font-size: 12px;">
+                            <i class="fab fa-weixin"></i> 发送到微信 <i class="fas fa-caret-down"></i>
                         </button>
                         <div class="dropdown-content">
-                            <a href="#" onclick="sendToWeChatDraft()"><i class="fas fa-paper-plane"></i> 发送到草稿箱</a>
-                            <a href="#" onclick="configureWeChat()"><i class="fas fa-cog"></i> 配置微信信息</a>
+                            <a href="#" onclick="sendToWeChatDraft(); hideDropdown(this)"><i class="fas fa-paper-plane"></i> 发送到草稿箱</a>
+                            <a href="#" onclick="configureWeChat(); hideDropdown(this)"><i class="fas fa-cog"></i> 配置微信信息</a>
                         </div>
                     </div>
                 </div>

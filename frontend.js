@@ -57,6 +57,14 @@
         const cssExampleBtn = document.getElementById('css-example-btn');
         const customCssEditor = document.getElementById('custom-css-editor');
 
+        // 存储处理后的内容，用于复制、下载、发送到微信等操作
+        let processedContent = {
+            html: '',
+            styledHtml: '',
+            markdown: '',
+            theme: ''
+        };
+
         // 防抖函数
         let debounceTimer;
         function debounce(func, delay) {
@@ -153,6 +161,14 @@
                 
                 // 直接更新预览区域，不再使用iframe
                 preview.innerHTML = combinedContent;
+                
+                // 更新processedContent变量，供复制、下载、发送到微信等操作使用
+                processedContent = {
+                    html: combinedContent,
+                    styledHtml: combinedContent, // 这里存储的是已经应用了样式的HTML
+                    markdown: markdown,
+                    theme: theme
+                };
                 
                 // 重新初始化Mermaid图表 - 延迟执行确保DOM完全就绪
                 if (typeof mermaid !== 'undefined') {
@@ -483,7 +499,7 @@
 ##### 五级标题示例
 
 ###### 六级标题示例
-
+---
 ## 文本格式测试
 
 这是**加粗文字**的效果，这是*斜体文字*的效果，这是~~删除线文字~~的效果。
@@ -606,43 +622,60 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
                 return;
             }
 
-            // 渲染 markdown
-            let html = md.render(markdown);
-            
-            // 获取样式配置
-            const styleConfig = (typeof STYLES !== 'undefined') ? (STYLES[theme] || STYLES['wechat-default']) : null;
-            if (!styleConfig) {
-                console.error('No style configuration available');
-                preview.innerHTML = html;
-                return;
-            }
-            const styles = styleConfig.styles;
-            
-            // 应用内联样式
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            
-            // 应用样式到各个元素
-            Object.keys(styles).forEach(selector => {
-                if (selector === 'pre' || selector === 'code' || selector === 'pre code') {
+            // 如果processedContent中没有当前主题的内容，或者内容为空，则重新处理
+            if (!processedContent.styledHtml || processedContent.theme !== theme) {
+                try {
+                    // 渲染 markdown
+                    let html = md.render(markdown);
+                    
+                    // 获取样式配置
+                    const styleConfig = (typeof STYLES !== 'undefined') ? (STYLES[theme] || STYLES['wechat-default']) : null;
+                    if (!styleConfig) {
+                        console.error('No style configuration available');
+                        preview.innerHTML = html;
+                        return;
+                    }
+                    const styles = styleConfig.styles;
+                    
+                    // 应用内联样式
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    // 应用样式到各个元素
+                    Object.keys(styles).forEach(selector => {
+                        if (selector === 'pre' || selector === 'code' || selector === 'pre code') {
+                            return;
+                        }
+                        
+                        const elements = doc.querySelectorAll(selector);
+                        elements.forEach(el => {
+                            const currentStyle = el.getAttribute('style') || '';
+                            el.setAttribute('style', currentStyle + '; ' + styles[selector]);
+                        });
+                    });
+                    
+                    // 创建容器并应用容器样式
+                    const container = doc.createElement('section');
+                    container.setAttribute('style', styles.container);
+                    container.innerHTML = doc.body.innerHTML;
+                    
+                    const styledHtml = container.outerHTML;
+                    
+                    // 更新processedContent变量
+                    processedContent = {
+                        html: html,
+                        styledHtml: styledHtml,
+                        markdown: markdown,
+                        theme: theme
+                    };
+                } catch (error) {
+                    console.error('HTML处理失败:', error);
+                    alert('HTML处理失败: ' + error.message);
                     return;
                 }
-                
-                const elements = doc.querySelectorAll(selector);
-                elements.forEach(el => {
-                    const currentStyle = el.getAttribute('style') || '';
-                    el.setAttribute('style', currentStyle + '; ' + styles[selector]);
-                });
-            });
-            
-            // 创建容器并应用容器样式
-            const container = doc.createElement('section');
-            container.setAttribute('style', styles.container);
-            container.innerHTML = doc.body.innerHTML;
-            
-            const styledHtml = container.outerHTML;
-            
-            // 生成完整的HTML文档
+            }
+
+            // 使用processedContent中的处理后的HTML内容
             const fullHtml = `
 <!DOCTYPE html>
 <html>
@@ -656,7 +689,7 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
     <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
-    ${styledHtml}
+    ${processedContent.styledHtml}
 </body>
 </html>`;
             
@@ -672,7 +705,7 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
         }
 
                 // 下载PNG
-        function downloadPNG() {
+        async function downloadPNG() {
             const previewPane = document.getElementById('preview');
             const theme = themeSelector.value;
 
@@ -683,6 +716,13 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
 
             showLoading();
             updateStatus('正在生成PNG...');
+
+            // 先滚动到顶部，确保从内容开始处截图
+            window.scrollTo(0, 0);
+            previewPane.scrollTop = 0;
+            
+            // 等待一小段时间确保滚动完成
+            await new Promise(resolve => setTimeout(resolve, 100));
 
             // Check if we have an iframe in the preview
             const iframe = previewPane.querySelector('iframe');
@@ -770,27 +810,41 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
                 waitForMathJax().then(() => {
                     // If we have an iframe, capture its content directly
                     // Fix: Increase scale and fix height calculation to capture full content
-                    html2canvas(iframe.contentDocument.body, {
+                    const targetElement = iframe.contentDocument.body;
+                    const fullHeight = Math.max(
+                        targetElement.scrollHeight,
+                        targetElement.offsetHeight,
+                        iframe.contentDocument.documentElement.scrollHeight,
+                        iframe.contentDocument.documentElement.offsetHeight
+                    );
+                    const fullWidth = Math.max(
+                        targetElement.scrollWidth,
+                        targetElement.offsetWidth,
+                        iframe.contentDocument.documentElement.scrollWidth,
+                        iframe.contentDocument.documentElement.offsetWidth
+                    );
+                    
+                    html2canvas(targetElement, {
                     useCORS: true,
                     allowTaint: true,
                     backgroundColor: '#ffffff',
-                    scale: 3, // Increased scale for better quality
-                    logging: false,
+                    scale: 2, // 降低scale以避免内存问题
+                    logging: true, // 开启日志以便调试
                     scrollX: 0,
                     scrollY: 0,
-                    // Fix for height issue: ensure full height is captured
-                    windowHeight: Math.max(
-                        iframe.contentDocument.body.scrollHeight,
-                        iframe.contentDocument.body.offsetHeight,
-                        iframe.contentDocument.documentElement.clientHeight,
-                        iframe.contentDocument.documentElement.scrollHeight,
-                        iframe.contentDocument.documentElement.offsetHeight
-                    ),
+                    width: fullWidth,
+                    height: fullHeight,
+                    windowWidth: fullWidth,
+                    windowHeight: fullHeight,
                     ignoreElements: function(element) {
                         // Only ignore clearly hidden elements
                         return element.style.visibility === 'hidden' || 
                                element.style.display === 'none';
                     },
+                    // 添加额外的配置确保完整截图
+                    removeContainer: false,
+                    foreignObjectRendering: false,
+                    imageTimeout: 30000, // 增加超时时间
                     onclone: function(clonedDoc) {
                         // Minimal clone processing - just ensure visibility, no deduplication
                         console.log('Minimal MathJax clone processing...');
@@ -862,20 +916,35 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
             } else {
                 // Fallback to capturing the entire preview pane
                 // Fix: Increase scale and ensure full height capture
+                const fullHeight = Math.max(
+                    previewPane.scrollHeight,
+                    previewPane.offsetHeight,
+                    document.documentElement.scrollHeight,
+                    document.documentElement.offsetHeight
+                );
+                const fullWidth = Math.max(
+                    previewPane.scrollWidth,
+                    previewPane.offsetWidth,
+                    document.documentElement.scrollWidth,
+                    document.documentElement.offsetWidth
+                );
+                
                 html2canvas(previewPane, {
                     useCORS: true,
                     allowTaint: true,
                     backgroundColor: '#ffffff',
-                    scale: 3, // Increased scale for better quality
-                    logging: false,
+                    scale: 2, // 降低scale以避免内存问题
+                    logging: true, // 开启日志以便调试
                     scrollX: 0,
                     scrollY: 0,
-                    // Fix for height issue: ensure full height is captured
-                    windowHeight: Math.max(
-                        previewPane.scrollHeight,
-                        previewPane.offsetHeight,
-                        document.documentElement.clientHeight
-                    ),
+                    width: fullWidth,
+                    height: fullHeight,
+                    windowWidth: fullWidth,
+                    windowHeight: fullHeight,
+                    // 添加额外的配置确保完整截图
+                    removeContainer: false,
+                    foreignObjectRendering: false,
+                    imageTimeout: 30000, // 增加超时时间
                     onclone: function(clonedDoc) {
                         // Clean up duplicate MathJax elements in fallback clone
                         const mathElements = clonedDoc.querySelectorAll('mjx-container');
@@ -929,6 +998,55 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
                 });
             }
         }
+
+        // Dropdown菜单控制函数
+        function toggleDropdown(button) {
+            const dropdown = button.parentElement;
+            const content = dropdown.querySelector('.dropdown-content');
+            
+            // 关闭其他所有dropdown
+            document.querySelectorAll('.dropdown').forEach(drop => {
+                if (drop !== dropdown) {
+                    drop.classList.remove('show');
+                    drop.querySelector('.dropdown-content').classList.remove('show');
+                }
+            });
+            
+            // 切换当前dropdown
+            const isOpen = dropdown.classList.contains('show');
+            if (isOpen) {
+                dropdown.classList.remove('show');
+                content.classList.remove('show');
+            } else {
+                dropdown.classList.add('show');
+                content.classList.add('show');
+            }
+        }
+
+        function hideDropdown(link) {
+            const dropdown = link.closest('.dropdown');
+            if (dropdown) {
+                dropdown.classList.remove('show');
+                dropdown.querySelector('.dropdown-content').classList.remove('show');
+            }
+        }
+
+        // 点击其他地方关闭dropdown
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown').forEach(dropdown => {
+                    dropdown.classList.remove('show');
+                    dropdown.querySelector('.dropdown-content').classList.remove('show');
+                });
+            }
+        });
+
+        // 阻止dropdown内容点击事件冒泡
+        document.querySelectorAll('.dropdown-content').forEach(content => {
+            content.addEventListener('click', function(event) {
+                event.stopPropagation();
+            });
+        });
 
         // 将Markdown转换为纯文本
         function markdownToText(markdown) {
@@ -1018,49 +1136,73 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
                 return;
             }
 
+            // 如果processedContent中没有当前主题的内容，或者内容为空，则重新处理
+            if (!processedContent.styledHtml || processedContent.theme !== theme) {
+                showLoading();
+                updateStatus('正在处理内容...');
+                
+                try {
+                    // 渲染 markdown
+                    let html = md.render(markdown);
+                    
+                    // 获取样式配置
+                    const styleConfig = (typeof STYLES !== 'undefined') ? (STYLES[theme] || STYLES['wechat-default']) : null;
+                    if (!styleConfig) {
+                        console.error('No style configuration available for export');
+                        alert('样式配置未加载，无法导出');
+                        hideLoading();
+                        return;
+                    }
+                    const styles = styleConfig.styles;
+                    
+                    // 应用内联样式
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    // 应用样式到各个元素
+                    Object.keys(styles).forEach(selector => {
+                        if (selector === 'pre' || selector === 'code' || selector === 'pre code') {
+                            return;
+                        }
+                        
+                        const elements = doc.querySelectorAll(selector);
+                        elements.forEach(el => {
+                            const currentStyle = el.getAttribute('style') || '';
+                            el.setAttribute('style', currentStyle + '; ' + styles[selector]);
+                        });
+                    });
+                    
+                    // 创建容器并应用容器样式
+                    const container = doc.createElement('section');
+                    container.setAttribute('style', styles.container);
+                    container.innerHTML = doc.body.innerHTML;
+                    
+                    const styledHtml = container.outerHTML;
+                    
+                    // 更新processedContent变量
+                    processedContent = {
+                        html: html,
+                        styledHtml: styledHtml,
+                        markdown: markdown,
+                        theme: theme
+                    };
+                    
+                    hideLoading();
+                } catch (error) {
+                    console.error('内容处理失败:', error);
+                    alert('内容处理失败: ' + error.message);
+                    hideLoading();
+                    updateStatus('内容处理失败', true);
+                    return;
+                }
+            }
+
             showLoading();
             updateStatus('正在复制到剪贴板...');
 
             try {
-                // 渲染 markdown
-                let html = md.render(markdown);
-                
-                // 获取样式配置
-                const styleConfig = (typeof STYLES !== 'undefined') ? (STYLES[theme] || STYLES['wechat-default']) : null;
-                if (!styleConfig) {
-                    console.error('No style configuration available for export');
-                    alert('样式配置未加载，无法导出');
-                    hideLoading();
-                    return;
-                }
-                const styles = styleConfig.styles;
-                
-                // 应用内联样式
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                
-                // 应用样式到各个元素
-                Object.keys(styles).forEach(selector => {
-                    if (selector === 'pre' || selector === 'code' || selector === 'pre code') {
-                        return;
-                    }
-                    
-                    const elements = doc.querySelectorAll(selector);
-                    elements.forEach(el => {
-                        const currentStyle = el.getAttribute('style') || '';
-                        el.setAttribute('style', currentStyle + '; ' + styles[selector]);
-                    });
-                });
-                
-                // 创建容器并应用容器样式
-                const container = doc.createElement('section');
-                container.setAttribute('style', styles.container);
-                container.innerHTML = doc.body.innerHTML;
-                
-                const styledHtml = container.outerHTML;
-                
-                // 复制HTML到剪贴板
-                copyHTMLToClipboard(styledHtml);
+                // 使用processedContent中的处理后的HTML内容
+                copyHTMLToClipboard(processedContent.styledHtml);
             } catch (error) {
                 console.error('复制失败:', error);
                 alert('复制失败: ' + error.message);
@@ -1405,6 +1547,67 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
             
             console.log('微信配置验证通过，继续执行');
 
+            // 如果processedContent中没有当前主题的内容，或者内容为空，则重新处理
+            if (!processedContent.styledHtml || processedContent.theme !== theme) {
+                showLoading();
+                updateStatus('正在处理内容...');
+                
+                try {
+                    // 渲染 markdown
+                    let html = md.render(markdown);
+                    
+                    // 获取样式配置
+                    const styleConfig = (typeof STYLES !== 'undefined') ? (STYLES[theme] || STYLES['wechat-default']) : null;
+                    if (!styleConfig) {
+                        console.error('No style configuration available');
+                        preview.innerHTML = html;
+                        hideLoading();
+                        return;
+                    }
+                    const styles = styleConfig.styles;
+                    
+                    // 应用内联样式
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    // 应用样式到各个元素
+                    Object.keys(styles).forEach(selector => {
+                        if (selector === 'pre' || selector === 'code' || selector === 'pre code') {
+                            return;
+                        }
+                        
+                        const elements = doc.querySelectorAll(selector);
+                        elements.forEach(el => {
+                            const currentStyle = el.getAttribute('style') || '';
+                            el.setAttribute('style', currentStyle + '; ' + styles[selector]);
+                        });
+                    });
+                    
+                    // 创建容器并应用容器样式
+                    const container = doc.createElement('section');
+                    container.setAttribute('style', styles.container);
+                    container.innerHTML = doc.body.innerHTML;
+                    
+                    const styledHtml = container.outerHTML;
+                    
+                    // 更新processedContent变量
+                    processedContent = {
+                        html: html,
+                        styledHtml: styledHtml,
+                        markdown: markdown,
+                        theme: theme
+                    };
+                    
+                    hideLoading();
+                } catch (error) {
+                    console.error('内容处理失败:', error);
+                    alert('内容处理失败: ' + error.message);
+                    hideLoading();
+                    updateStatus('内容处理失败', true);
+                    return;
+                }
+            }
+
             showLoading();
             updateStatus('正在发送到微信草稿箱...');
 
@@ -1422,7 +1625,7 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
             const requestData = {
                 appid: appId,
                 secret: appSecret,
-                markdown: markdown,
+                markdown: markdown, // 使用原始markdown内容
                 style: theme,
                 thumb_media_id: thumbMediaId,
                 dashseparator: dashSeparator
