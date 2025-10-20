@@ -5,12 +5,6 @@
             'http://localhost:5002';
             
         // Add error handling for missing libraries
-        if (typeof window.markdownit === 'undefined') {
-            console.warn('markdown-it not loaded, using fallback');
-        }
-        if (typeof window.hljs === 'undefined') {
-            console.warn('highlight.js not loaded, using fallback');
-        }
             
         // Initialize markdown-it with syntax highlighting
         const md = window.markdownit({
@@ -174,7 +168,6 @@
                 if (typeof mermaid !== 'undefined') {
                     setTimeout(() => {
                         try {
-                            console.log('Starting Mermaid rendering...');
                             
                             // Find all mermaid code blocks with multiple selector patterns
                             const mermaidSelectors = [
@@ -188,7 +181,6 @@
                             let mermaidElements = [];
                             mermaidSelectors.forEach(selector => {
                                 const elements = preview.querySelectorAll(selector);
-                                console.log(`Found ${elements.length} elements with selector: ${selector}`);
                                 mermaidElements.push(...elements);
                             });
                             
@@ -197,7 +189,6 @@
                                 return !el.closest('.mermaid[data-processed="true"]');
                             });
                             
-                            console.log(`Total unique Mermaid elements to render: ${mermaidElements.length}`);
                             
                             if (mermaidElements.length > 0) {
                                 // 为每个元素添加data-processed标记避免重复渲染
@@ -208,7 +199,6 @@
                                 mermaid.run({
                                     nodes: mermaidElements
                                 }).then(() => {
-                                    console.log('Mermaid rendering completed successfully');
                                 }).catch((error) => {
                                     console.error('Mermaid rendering failed:', error);
                                     console.error('Error details:', error.message, error.stack);
@@ -218,7 +208,6 @@
                                     });
                                 });
                             } else {
-                                console.log('No Mermaid elements found to render');
                             }
                         } catch (error) {
                             console.error('Mermaid initialization failed:', error);
@@ -535,7 +524,6 @@
 ### 行内
 
 const result = calculateSum(5, 3);
-console.log(result);
 
 
 ## Mermaid图表测试
@@ -744,7 +732,6 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
                     throw new Error('预览区域似乎没有文本内容，请检查Markdown是否正确渲染');
                 }
                 
-                console.log(`准备截图，内容长度: ${contentText.length} 字符`);
                 
                 // 2. 等待渲染
                 updateStatus('等待渲染完成...');
@@ -755,7 +742,6 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
                 const scrollWidth = previewPane.scrollWidth || rect.width;
                 const scrollHeight = previewPane.scrollHeight || rect.height;
                 
-                console.log(`元素尺寸: ${rect.width}x${rect.height}, 滚动尺寸: ${scrollWidth}x${scrollHeight}`);
                 
                 // 4. 执行截图 - 使用最简单的配置
                 updateStatus('生成图片...');
@@ -771,7 +757,6 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
                     scrollY: 0,
                     onclone: function(clonedDoc) {
                         // 简单的克隆处理
-                        console.log('处理克隆文档...');
                         
                         // 确保所有元素可见
                         const body = clonedDoc.body;
@@ -796,7 +781,6 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
                     throw new Error('生成的画布无效');
                 }
                 
-                console.log(`画布生成成功: ${canvas.width}x${canvas.height}`);
                 
                 // 检查画布内容
                 const ctx = canvas.getContext('2d');
@@ -813,9 +797,7 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
                 
                 if (!hasContent) {
                     // 尝试强制渲染一个简单测试
-                    console.warn('画布似乎为空白，添加调试信息...');
-                    console.log('Preview innerHTML:', previewPane.innerHTML.substring(0, 500));
-                    console.log('Preview computed style:', window.getComputedStyle(previewPane));
+                    console.warn('画布似乎为空白');
                     
                     // 继续下载，让用户自己判断
                 }
@@ -832,7 +814,6 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
                 document.body.removeChild(link);
                 
                 updateStatus('PNG下载完成');
-                console.log(`PNG下载完成: ${canvas.width}x${canvas.height}`);
                 
             } catch (error) {
                 console.error('PNG生成失败:', error);
@@ -1387,18 +1368,12 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
             const thumbMediaId = localStorage.getItem('wechat_thumb_media_id') || '';
             
             // 调试信息
-            console.log('当前微信配置:');
-            console.log('AppID:', appId);
-            console.log('AppSecret:', appSecret);
-            console.log('ThumbMediaId:', thumbMediaId);
             
             if (!appId || !appSecret || appId.trim() === '' || appSecret.trim() === '') {
-                console.log('微信配置不完整，中断执行');
                 alert('请先配置微信信息（AppID和AppSecret）');
                 return;
             }
             
-            console.log('微信配置验证通过，继续执行');
 
             // 如果processedContent中没有当前主题的内容，或者内容为空，则重新处理
             if (!processedContent.styledHtml || processedContent.theme !== theme) {
@@ -1465,11 +1440,6 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
             updateStatus('正在发送到微信草稿箱...');
 
             // 调试信息
-            console.log('Sending request to send draft');
-            console.log('AppID:', appId);
-            console.log('AppSecret:', appSecret);
-            console.log('Theme:', theme);
-            console.log('ThumbMediaId:', thumbMediaId);
             
             // 获取分隔线拆分复选框的状态
             const splitCheckbox = document.getElementById('split-checkbox');
@@ -1484,7 +1454,6 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
                 dashseparator: dashSeparator
             };
             
-            console.log('Request data:', JSON.stringify(requestData));
             
             // 直接发送到新的后端接口
             fetch(`${API_BASE_URL}/wechat/send_draft`, {
@@ -1495,9 +1464,7 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
                 body: JSON.stringify(requestData)
             })
             .then(response => {
-                console.log('Received response from server:', response);
                 if (!response.ok) {
-                    console.log('Response not ok:', response.status, response.statusText);
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 return response.json();
@@ -1525,7 +1492,6 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
             .catch(error => {
                 hideLoading();
                 updateStatus('发送失败', true);
-                console.log('Final error caught:', error);
                 alert('发送到微信草稿箱失败: ' + error.message);
             });
         }
@@ -1538,17 +1504,11 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
             
             // Only log WeChat config in development mode
             if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                console.log('微信配置检查:');
-                console.log('AppID:', appId);
-                console.log('AppSecret:', appSecret ? '***' + appSecret.slice(-4) : null);
-                console.log('ThumbMediaId:', thumbMediaId);
             }
             
             if (appId && appSecret) {
-                console.log('微信配置完整');
                 return true;
             } else {
-                console.log('微信配置不完整');
                 return false;
             }
         }

@@ -817,7 +817,6 @@
         },
         startup: {
           ready: () => {
-            console.log('MathJax is loaded and ready');
             MathJax.startup.defaultReady();
           }
         }
@@ -907,7 +906,6 @@
             
             // Initialize ImageStore
             imageStore.init().catch(err => {
-                console.warn('IndexedDB initialization failed:', err);
             });
             
             // Paste event for the entire document

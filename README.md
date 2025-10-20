@@ -78,7 +78,6 @@ md2any/
 ├── frontend.js         # 前端交互逻辑
 ├── api_server.py       # Python API 服务器
 ├── fallback_libs.js    # 降级库支持
-├── gotu.js             # 图文生成工具
 └── README.md           # 项目说明
 ```
 

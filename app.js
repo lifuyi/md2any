@@ -26,7 +26,6 @@ class ImageStore {
 
       request.onsuccess = () => {
         this.db = request.result;
-        console.log('IndexedDB 初始化成功');
         resolve();
       };
 
@@ -41,7 +40,6 @@ class ImageStore {
           objectStore.createIndex('createdAt', 'createdAt', { unique: false });
           objectStore.createIndex('name', 'name', { unique: false });
 
-          console.log('ImageStore 对象存储已创建');
         }
       };
     });
@@ -70,7 +68,6 @@ class ImageStore {
       const request = objectStore.put(imageData);
 
       request.onsuccess = () => {
-        console.log(`图片已保存: ${id}`);
         resolve(id);
       };
 
@@ -149,7 +146,6 @@ class ImageStore {
       const request = objectStore.delete(id);
 
       request.onsuccess = () => {
-        console.log(`图片已删除: ${id}`);
         resolve();
       };
 
@@ -194,7 +190,6 @@ class ImageStore {
       const request = objectStore.clear();
 
       request.onsuccess = () => {
-        console.log('所有图片已清空');
         resolve();
       };
 
@@ -281,7 +276,6 @@ class ImageCompressor {
                   if (blob.size < file.size) {
                     resolve(blob);
                   } else {
-                    console.log('压缩后体积更大，使用原文件');
                     resolve(file);
                   }
                 } else {
@@ -521,7 +515,6 @@ const editorApp = createApp({
     this.imageStore = new ImageStore();
     try {
       await this.imageStore.init();
-      console.log('图片存储系统已就绪');
     } catch (error) {
       console.error('图片存储系统初始化失败:', error);
       this.showToast('图片存储系统初始化失败', 'error');
@@ -1520,24 +1513,14 @@ const markdown = \`![图片](img://\${imageId})\`;
 
     // 处理粘贴事件
     async handleSmartPaste(event) {
-      console.log('===== handleSmartPaste 被调用 =====');
-
       const clipboardData = event.clipboardData || event.originalEvent?.clipboardData;
 
       if (!clipboardData) {
-        console.log('不支持 clipboardData');
         return; // 不支持的浏览器，使用默认行为
-      }
-
-      // 调试模式（需要时可以打开）
-      const DEBUG = true;
-      if (DEBUG) {
-        console.log('剪贴板数据类型:', Array.from(clipboardData.types || []));
       }
 
       // 检查是否有文件（某些应用复制图片会作为文件）
       if (clipboardData.files && clipboardData.files.length > 0) {
-        if (DEBUG) console.log('检测到文件:', clipboardData.files[0]);
         const file = clipboardData.files[0];
         if (file && file.type && file.type.startsWith('image/')) {
           event.preventDefault();
@@ -1550,7 +1533,6 @@ const markdown = \`![图片](img://\${imageId})\`;
       const items = clipboardData.items;
       if (items) {
         for (let item of items) {
-          if (DEBUG) console.log('Item 类型:', item.type, 'Kind:', item.kind);
 
           // 检查是否是图片
           if (item.kind === 'file' && item.type && item.type.indexOf('image') !== -1) {
@@ -1570,29 +1552,17 @@ const markdown = \`![图片](img://\${imageId})\`;
 
       // 检查是否是类似 [Image #2] 这样的占位符文本
       if (textData && /^\[Image\s*#?\d*\]$/i.test(textData.trim())) {
-        if (DEBUG) console.warn('检测到图片占位符文本，但无法获取实际图片数据');
         this.showToast('⚠️ 请尝试：截图工具 / 浏览器复制 / 拖拽文件', 'error');
         event.preventDefault();
         return; // 不插入占位符文本
       }
 
-      if (DEBUG) {
-        console.log('纯文本数据:', textData?.substring(0, 200));
-        console.log('HTML 数据:', htmlData?.substring(0, 200));
-        console.log('是否检测为 Markdown:', textData && this.isMarkdown(textData));
-        console.log('是否有 turndownService:', !!this.turndownService);
-      }
 
       // 检查是否来自 IDE/代码编辑器的 HTML（需要特殊处理）
       const isFromIDE = this.isIDEFormattedHTML(htmlData, textData);
 
-      if (DEBUG) {
-        console.log('是否来自 IDE:', isFromIDE);
-      }
-
       if (isFromIDE && textData && this.isMarkdown(textData)) {
         // 来自 IDE 的 Markdown 代码，直接使用纯文本（避免转义）
-        if (DEBUG) console.log('检测到 IDE 复制的 Markdown 代码，使用纯文本');
         return; // 使用默认粘贴行为
       }
 
@@ -1606,13 +1576,11 @@ const markdown = \`![图片](img://\${imageId})\`;
 
         if (isMainlyCode) {
           // 真正的代码编辑器内容，使用纯文本
-          if (DEBUG) console.log('检测到代码编辑器格式，使用纯文本');
           return; // 使用默认粘贴行为
         }
 
         // 检查 HTML 中是否包含本地文件路径的图片（如 file:/// 协议）
         if (htmlData.includes('file:///') || htmlData.includes('src="file:')) {
-          if (DEBUG) console.warn('检测到本地文件路径的图片，无法直接上传');
           this.showToast('⚠️ 本地图片请直接拖拽文件到编辑器', 'error');
           event.preventDefault();
           return;
@@ -1648,7 +1616,7 @@ const markdown = \`![图片](img://\${imageId})\`;
           // 显示提示
           this.showToast('✨ 已智能转换为 Markdown 格式', 'success');
         } catch (error) {
-          if (DEBUG) console.error('HTML 转 Markdown 失败:', error);
+          console.error('HTML 转 Markdown 失败:', error);
           // 转换失败，使用纯文本
           this.insertTextAtCursor(event.target, textData);
         }
@@ -1656,12 +1624,10 @@ const markdown = \`![图片](img://\${imageId})\`;
       // 检查纯文本是否为 Markdown（后备方案，只有在没有 HTML 时才检查）
       else if (textData && this.isMarkdown(textData)) {
         // 已经是 Markdown，直接使用纯文本
-        if (DEBUG) console.log('没有 HTML，但检测到 Markdown 格式，使用纯文本');
         return; // 使用默认粘贴行为
       }
       // 普通文本，使用默认粘贴行为
       else {
-        if (DEBUG) console.log('普通文本，使用默认粘贴行为');
         return; // 使用默认行为
       }
     },
@@ -1780,7 +1746,6 @@ const markdown = \`![图片](img://\${imageId})\`;
 
         // 计算压缩率
         const compressionRatio = ((1 - compressedSize / originalSize) * 100).toFixed(0);
-        console.log(`图片压缩完成: ${ImageCompressor.formatSize(originalSize)} → ${ImageCompressor.formatSize(compressedSize)} (压缩 ${compressionRatio}%)`);
 
         // 第二步：生成唯一 ID
         const imageId = `img-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;

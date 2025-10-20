@@ -69,7 +69,7 @@ if (typeof window.TurndownService === 'undefined') {
 // Simple Mermaid fallback
 if (typeof window.mermaid === 'undefined') {
     window.mermaid = {
-        initialize: function() { console.log('Mermaid fallback initialized'); },
+        initialize: function() { },
         render: function() { return '<div class="mermaid-fallback">Mermaid diagram placeholder</div>'; }
     };
 }
@@ -81,4 +81,3 @@ if (typeof window.html2canvas === 'undefined') {
     };
 }
 
-console.log('Fallback libraries loaded for offline functionality');
