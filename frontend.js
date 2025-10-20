@@ -724,285 +724,131 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
             showLoading();
             updateStatus('正在生成PNG...');
 
-            // 先滚动到顶部，确保从内容开始处截图
-            window.scrollTo(0, 0);
-            previewPane.scrollTop = 0;
-            
-            // 等待一小段时间确保滚动完成
-            await new Promise(resolve => setTimeout(resolve, 100));
-
-            // Check if we have an iframe in the preview
-            const iframe = previewPane.querySelector('iframe');
-            
-            if (iframe && iframe.contentDocument) {
-                // Radical approach: Freeze MathJax state for PNG capture
-                const waitForMathJax = async () => {
-                    const iframeWindow = iframe.contentWindow;
-                    const iframeDoc = iframe.contentDocument;
-                    
-                    updateStatus('准备PNG导出，冻结数学公式状态...');
-                    
-                    // Step 1: Disable MathJax completely to prevent any further rendering
-                    if (iframeWindow.MathJax) {
-                        // Backup the original MathJax object
-                        iframeWindow._originalMathJax = iframeWindow.MathJax;
-                        // Disable MathJax typesetting
-                        iframeWindow.MathJax = {
-                            typesetPromise: () => Promise.resolve(),
-                            typeset: () => {},
-                            typesetClear: () => {}
-                        };
-                    }
-                    
-                    // Step 2: Clean up the DOM aggressively - remove ALL duplicates
-                    const allMathElements = iframeDoc.querySelectorAll('mjx-container');
-                    console.log(`Found ${allMathElements.length} total math elements`);
-                    
-                    // Track unique equations by their actual content
-                    const uniqueEquations = new Set();
-                    const keepElements = [];
-                    const removeElements = [];
-                    
-                    allMathElements.forEach((el, index) => {
-                        const content = el.textContent?.trim() || '';
-                        const rect = el.getBoundingClientRect();
-                        
-                        // Create a signature based on content and rough position
-                        const signature = `${content}_${Math.round(rect.top/30)*30}`;
-                        
-                        if (uniqueEquations.has(signature)) {
-                            removeElements.push({el, index, content: content.substring(0, 30)});
-                        } else {
-                            uniqueEquations.add(signature);
-                            keepElements.push({el, index, content: content.substring(0, 30)});
-                        }
-                    });
-                    
-                    console.log(`Keeping ${keepElements.length} unique equations, removing ${removeElements.length} duplicates`);
-                    
-                    // Remove all duplicates
-                    removeElements.forEach(item => {
-                        console.log(`Removing duplicate: ${item.content}...`);
-                        item.el.remove();
-                    });
-                    
-                    // Style the remaining elements properly
-                    keepElements.forEach(item => {
-                        const el = item.el;
-                        const rect = el.getBoundingClientRect();
-                        
-                        // Reset to clean state
-                        el.style.visibility = 'visible';
-                        el.style.opacity = '1';
-                        el.style.position = 'static';
-                        el.style.transform = 'none';
-                        
-                        // Determine if display math
-                        const isDisplay = el.getAttribute('display') === 'true' || 
-                                         rect.width > iframeDoc.body.clientWidth * 0.4;
-                        
-                        if (isDisplay) {
-                            el.style.display = 'block';
-                            el.style.margin = '1em auto';
-                            el.style.textAlign = 'center';
-                        } else {
-                            el.style.display = 'inline-block';
-                        }
-                    });
-                    
-                    updateStatus('数学公式清理完成，开始PNG生成...');
-                    return new Promise(resolve => setTimeout(resolve, 500));
-                };
+            try {
+                // 1. 确保内容可见性
+                updateStatus('准备截图内容...');
                 
-                waitForMathJax().then(() => {
-                    // If we have an iframe, capture its content directly
-                    // Fix: Increase scale and fix height calculation to capture full content
-                    const targetElement = iframe.contentDocument.body;
-                    const fullHeight = Math.max(
-                        targetElement.scrollHeight,
-                        targetElement.offsetHeight,
-                        iframe.contentDocument.documentElement.scrollHeight,
-                        iframe.contentDocument.documentElement.offsetHeight
-                    );
-                    const fullWidth = Math.max(
-                        targetElement.scrollWidth,
-                        targetElement.offsetWidth,
-                        iframe.contentDocument.documentElement.scrollWidth,
-                        iframe.contentDocument.documentElement.offsetWidth
-                    );
-                    
-                    html2canvas(targetElement, {
-                    useCORS: true,
-                    allowTaint: true,
+                // 重置滚动位置
+                window.scrollTo(0, 0);
+                previewPane.scrollTop = 0;
+                
+                // 强制设置预览区域可见
+                previewPane.style.visibility = 'visible';
+                previewPane.style.display = 'block';
+                previewPane.style.opacity = '1';
+                previewPane.style.position = 'static';
+                
+                // 检查内容
+                const contentText = previewPane.textContent || previewPane.innerText || '';
+                if (contentText.trim().length < 5) {
+                    throw new Error('预览区域似乎没有文本内容，请检查Markdown是否正确渲染');
+                }
+                
+                console.log(`准备截图，内容长度: ${contentText.length} 字符`);
+                
+                // 2. 等待渲染
+                updateStatus('等待渲染完成...');
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // 3. 获取尺寸
+                const rect = previewPane.getBoundingClientRect();
+                const scrollWidth = previewPane.scrollWidth || rect.width;
+                const scrollHeight = previewPane.scrollHeight || rect.height;
+                
+                console.log(`元素尺寸: ${rect.width}x${rect.height}, 滚动尺寸: ${scrollWidth}x${scrollHeight}`);
+                
+                // 4. 执行截图 - 使用最简单的配置
+                updateStatus('生成图片...');
+                
+                const canvas = await html2canvas(previewPane, {
                     backgroundColor: '#ffffff',
-                    scale: 2, // 降低scale以避免内存问题
-                    logging: true, // 开启日志以便调试
+                    scale: 1,
+                    useCORS: true,
+                    logging: true,
+                    width: Math.max(scrollWidth, 400),
+                    height: Math.max(scrollHeight, 300),
                     scrollX: 0,
                     scrollY: 0,
-                    width: fullWidth,
-                    height: fullHeight,
-                    windowWidth: fullWidth,
-                    windowHeight: fullHeight,
-                    ignoreElements: function(element) {
-                        // Only ignore clearly hidden elements
-                        return element.style.visibility === 'hidden' || 
-                               element.style.display === 'none';
-                    },
-                    // 添加额外的配置确保完整截图
-                    removeContainer: false,
-                    foreignObjectRendering: false,
-                    imageTimeout: 30000, // 增加超时时间
                     onclone: function(clonedDoc) {
-                        // Minimal clone processing - just ensure visibility, no deduplication
-                        console.log('Minimal MathJax clone processing...');
+                        // 简单的克隆处理
+                        console.log('处理克隆文档...');
                         
-                        // Remove only clearly legacy elements
-                        const legacyElements = clonedDoc.querySelectorAll('.MathJax, .MathJax_Display');
-                        legacyElements.forEach(el => el.remove());
-                        
-                        // Just ensure all math containers are visible - NO deduplication
-                        const mathContainers = clonedDoc.querySelectorAll('mjx-container');
-                        mathContainers.forEach(container => {
-                            // Only fix visibility issues
-                            container.style.visibility = 'visible';
-                            container.style.opacity = '1';
+                        // 确保所有元素可见
+                        const body = clonedDoc.body;
+                        if (body) {
+                            body.style.visibility = 'visible';
+                            body.style.display = 'block';
+                            body.style.opacity = '1';
                             
-                            // Don't modify display properties - keep as-is from original cleanup
-                        });
-                        
-                        console.log(`Clone processing complete. Made ${mathContainers.length} containers visible.`);
-                    }
-                }).then(canvas => {
-                    // Check if canvas is valid and has content
-                    const context = canvas.getContext('2d');
-                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                    const data = imageData.data;
-                    
-                    // Check if all pixels are transparent/white (indicating blank image)
-                    let isBlank = true;
-                    for (let i = 0; i < data.length; i += 4) {
-                        // Check if pixel is not white/transparent
-                        if (data[i] !== 255 || data[i+1] !== 255 || data[i+2] !== 255 || data[i+3] !== 255) {
-                            isBlank = false;
-                            break;
+                            // 确保所有子元素可见
+                            const allElements = body.querySelectorAll('*');
+                            allElements.forEach(el => {
+                                if (el.style.visibility === 'hidden') el.style.visibility = 'visible';
+                                if (el.style.display === 'none') el.style.display = 'block';
+                                if (el.style.opacity === '0') el.style.opacity = '1';
+                            });
                         }
                     }
-                    
-                    if (isBlank) {
-                        throw new Error('生成的图片为空白，请确保内容已正确渲染');
-                    }
-                    
-                    const a = document.createElement('a');
-                    a.href = canvas.toDataURL('image/png');
-                    a.download = `markdown-${theme.replace('.css', '')}-${Date.now()}.png`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    hideLoading();
-                    updateStatus('PNG生成完成');
-                    }).catch(error => {
-                        console.error('PNG生成失败:', error);
-                        alert('PNG生成失败: ' + error.message);
-                        hideLoading();
-                        updateStatus('PNG生成失败', true);
-                    });
-                }).catch(error => {
-                    console.error('MathJax等待失败:', error);
-                    alert('数学公式渲染失败: ' + error.message);
-                    hideLoading();
-                    updateStatus('PNG生成失败', true);
-                }).finally(() => {
-                    // Restore original MathJax after PNG generation
-                    const iframeWindow = iframe.contentWindow;
-                    if (iframeWindow._originalMathJax) {
-                        iframeWindow.MathJax = iframeWindow._originalMathJax;
-                        delete iframeWindow._originalMathJax;
-                        console.log('MathJax functionality restored');
-                    }
                 });
-            } else {
-                // Fallback to capturing the entire preview pane
-                // Fix: Increase scale and ensure full height capture
-                const fullHeight = Math.max(
-                    previewPane.scrollHeight,
-                    previewPane.offsetHeight,
-                    document.documentElement.scrollHeight,
-                    document.documentElement.offsetHeight
-                );
-                const fullWidth = Math.max(
-                    previewPane.scrollWidth,
-                    previewPane.offsetWidth,
-                    document.documentElement.scrollWidth,
-                    document.documentElement.offsetWidth
-                );
                 
-                html2canvas(previewPane, {
-                    useCORS: true,
-                    allowTaint: true,
-                    backgroundColor: '#ffffff',
-                    scale: 2, // 降低scale以避免内存问题
-                    logging: true, // 开启日志以便调试
-                    scrollX: 0,
-                    scrollY: 0,
-                    width: fullWidth,
-                    height: fullHeight,
-                    windowWidth: fullWidth,
-                    windowHeight: fullHeight,
-                    // 添加额外的配置确保完整截图
-                    removeContainer: false,
-                    foreignObjectRendering: false,
-                    imageTimeout: 30000, // 增加超时时间
-                    onclone: function(clonedDoc) {
-                        // Clean up duplicate MathJax elements in fallback clone
-                        const mathElements = clonedDoc.querySelectorAll('mjx-container');
-                        const processedPositions = new Set();
-                        
-                        mathElements.forEach((el, index) => {
-                            const position = `${el.offsetTop}-${el.offsetLeft}-${el.offsetWidth}-${el.offsetHeight}`;
-                            
-                            if (processedPositions.has(position)) {
-                                el.remove();
-                            } else {
-                                processedPositions.add(position);
-                                el.style.visibility = 'visible';
-                                el.style.display = 'inline-block';
-                            }
-                        });
+                // 5. 验证结果
+                if (!canvas || canvas.width === 0 || canvas.height === 0) {
+                    throw new Error('生成的画布无效');
+                }
+                
+                console.log(`画布生成成功: ${canvas.width}x${canvas.height}`);
+                
+                // 检查画布内容
+                const ctx = canvas.getContext('2d');
+                const imageData = ctx.getImageData(0, 0, Math.min(canvas.width, 100), Math.min(canvas.height, 100));
+                const pixels = imageData.data;
+                
+                let hasContent = false;
+                for (let i = 0; i < pixels.length; i += 4) {
+                    if (pixels[i] < 240 || pixels[i+1] < 240 || pixels[i+2] < 240) {
+                        hasContent = true;
+                        break;
                     }
-                }).then(canvas => {
-                    // Check if canvas is valid and has content
-                    const context = canvas.getContext('2d');
-                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                    const data = imageData.data;
+                }
+                
+                if (!hasContent) {
+                    // 尝试强制渲染一个简单测试
+                    console.warn('画布似乎为空白，添加调试信息...');
+                    console.log('Preview innerHTML:', previewPane.innerHTML.substring(0, 500));
+                    console.log('Preview computed style:', window.getComputedStyle(previewPane));
                     
-                    // Check if all pixels are transparent/white (indicating blank image)
-                    let isBlank = true;
-                    for (let i = 0; i < data.length; i += 4) {
-                        // Check if pixel is not white/transparent
-                        if (data[i] !== 255 || data[i+1] !== 255 || data[i+2] !== 255 || data[i+3] !== 255) {
-                            isBlank = false;
-                            break;
-                        }
-                    }
-                    
-                    if (isBlank) {
-                        throw new Error('生成的图片为空白，请确保内容已正确渲染');
-                    }
-                    
-                    const a = document.createElement('a');
-                    a.href = canvas.toDataURL('image/png');
-                    a.download = `markdown-${theme.replace('.css', '')}-${Date.now()}.png`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    hideLoading();
-                    updateStatus('PNG生成完成');
-                }).catch(error => {
-                    console.error('PNG生成失败:', error);
-                    alert('PNG生成失败: ' + error.message);
-                    hideLoading();
-                    updateStatus('PNG生成失败', true);
-                });
+                    // 继续下载，让用户自己判断
+                }
+                
+                // 6. 下载
+                updateStatus('下载图片...');
+                const dataURL = canvas.toDataURL('image/png', 1.0);
+                
+                const link = document.createElement('a');
+                link.href = dataURL;
+                link.download = `markdown-${theme}-${Date.now()}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                updateStatus('PNG下载完成');
+                console.log(`PNG下载完成: ${canvas.width}x${canvas.height}`);
+                
+            } catch (error) {
+                console.error('PNG生成失败:', error);
+                updateStatus('PNG生成失败', true);
+                
+                // 提供详细的错误信息和建议
+                let errorMsg = `PNG生成失败: ${error.message}\n\n`;
+                errorMsg += '可能的解决方案:\n';
+                errorMsg += '1. 确保已输入Markdown内容并完成预览\n';
+                errorMsg += '2. 尝试刷新页面后重试\n';
+                errorMsg += '3. 尝试使用更简单的内容测试\n';
+                errorMsg += '4. 检查浏览器控制台是否有其他错误';
+                
+                alert(errorMsg);
+            } finally {
+                hideLoading();
             }
         }
 
