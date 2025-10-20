@@ -2,6 +2,20 @@
 const STYLES = {
   "alibaba": {
     "name": "阿里橙",
+    "modes": [
+      {
+        "name": "浅色",
+        "id": "light-mode",
+        "class": "",
+        "background": "#ffffff"
+      },
+      {
+        "name": "深色",
+        "id": "dark-mode",
+        "class": "dark-mode",
+        "background": "#1a1a1a"
+      }
+    ],
     "styles": {
       "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: \n    \"Helvetica Neue\", Helvetica, Arial, \"PingFang SC\", \"Hiragino Sans GB\",\n    \"Microsoft YaHei\", sans-serif; font-size: 16px; line-height: 1.8 !important; color: #3f3f3f !important; background-color: #ffffff; word-wrap: break-word;",
       "innerContainer": "background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 250, 245, 0.95) 100%); border-radius: 16px; padding: 32px; margin: 24px 0; box-shadow: 0 8px 32px rgba(255, 106, 0, 0.15); border: 1px solid rgba(255, 106, 0, 0.1); position: relative; overflow: hidden;",
@@ -33,6 +47,38 @@ const STYLES = {
       "td": "padding: 16px 20px; border-bottom: 1px solid #f0f0f0; color: #555; line-height: 1.6;",
       "tr": "border-bottom-color: #ffeae0; transition: background-color 0.2s ease;",
       "tr:hover": "background-color: rgba(255, 106, 0, 0.03);"
+    },
+    "dark-mode": {
+      "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: \n    \"Helvetica Neue\", Helvetica, Arial, \"PingFang SC\", \"Hiragino Sans GB\",\n    \"Microsoft YaHei\", sans-serif; font-size: 16px; line-height: 1.8 !important; color: #d1d1d1 !important; background-color: #1a1a1a; word-wrap: break-word;",
+      "innerContainer": "background: linear-gradient(135deg, rgba(42, 42, 42, 0.95) 0%, rgba(35, 30, 30, 0.95) 100%); border-radius: 16px; padding: 32px; margin: 24px 0; box-shadow: 0 8px 32px rgba(255, 106, 0, 0.25); border: 1px solid rgba(255, 106, 0, 0.2); position: relative; overflow: hidden;",
+      "innerContainer::before": "content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #ff6a00, #ff8c00); opacity: 0.9;",
+      "innerContainer:hover": "box-shadow: 0 12px 36px rgba(255, 106, 0, 0.35); transform: translateY(-2px);",
+      "h1": "\n  font-size: 28px;\n  line-height: 1.4;\n  font-weight: 700;\n  color: #f0f0f0;\n  position: relative;\n  padding-bottom: 16px;\n  border-bottom: 2px solid #ff6a00;\n  margin: 32px 0 24px;\n  letter-spacing: 0.5px;\n",
+      "h2": "\n  display: table;\n  padding: 0.6em 1.5em;\n  margin: 2.8em auto 1.5em;\n  font-size: 1.3em;\n  font-weight: 700;\n  text-align: center;\n  color: #fff;\n  background: linear-gradient(135deg, #ff6a00, #ff8c00);\n  border-radius: 30px;\n  position: relative;\n  box-shadow: 0 6px 16px rgba(255, 106, 0, 0.35);\n  letter-spacing: 0.03em;\n  border: 2px solid rgba(255, 255, 255, 0.2);\n  z-index: 1;\n  transition: all 0.3s ease;\n",
+      "h2:hover": "transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255, 106, 0, 0.45);",
+      "h3": "\n  font-size: 1.2em;\n  font-weight: 600;\n  color: #e0e0e0;\n  margin: 2.2em 0 1em;\n  padding-left: 16px;\n  border-left: 4px solid #ff8c00;\n  line-height: 1.5;\n  position: relative;\n",
+      "h4": "font-size: 20px; font-weight: 600; color: #c0c0c0 !important; line-height: 1.4 !important; margin: 24px 0 12px;",
+      "h5": "font-size: 18px; font-weight: 600; color: #c0c0c0 !important; line-height: 1.4 !important; margin: 20px 0 10px;",
+      "h6": "font-size: 16px; font-weight: 600; color: #a0b0a0; margin-top: 1.5em; margin-bottom: 0.8em; border-bottom: 1px solid #505050; padding-bottom: 0.4em;",
+      "p": "color: #b0b0b0; margin: 20px 0; line-height: 1.8;",
+      "strong": "font-weight: 700; color: #ff9a4d; background-color: rgba(255, 106, 0, 0.15); padding: 2px 4px; border-radius: 3px;",
+      "em": "color: #00f2fe; font-style: italic;",
+      "a": "font-family: \n    \"Helvetica Neue\", Helvetica, Arial, \"PingFang SC\", \"Hiragino Sans GB\",\n    \"Microsoft YaHei\", sans-serif; color: #ff9a4d; text-decoration: none; font-weight: 600; border-bottom: 2px solid rgba(255, 106, 0, 0.4); padding: 0 2px; transition: all 0.3s ease;",
+      "a:hover": "border-bottom-color: #ff9a4d;",
+      "ul": "padding: 16px 16px 16px 36px; background: rgba(255, 106, 0, 0.1); border-radius: 12px; border: 1px solid rgba(255, 106, 0, 0.2); margin: 20px 0;",
+      "ol": "padding: 16px 16px 16px 36px; background: rgba(255, 140, 0, 0.1); border-radius: 12px; border: 1px solid rgba(255, 140, 0, 0.2); margin: 20px 0; list-style: none; counter-reset: item;",
+      "li": "font-size: 16px; line-height: 1.8; color: #b0b0b0; position: relative; margin: 12px 0;",
+      "li::before": "content: counter(item); position: absolute; left: -24px; top: 0; color: #ff9a4d; font-weight: 600;",
+      "blockquote": "padding: 20px 25px 20px 30px; background: #2a2220; border-left: 5px solid #ff6a00; border-radius: 0 12px 12px 0; position: relative; color: #c0c0c0; margin: 24px 0; font-style: italic;",
+      "code": "font-family: \"SFMono-Regular\", Consolas, \"Liberation Mono\", Menlo, monospace; background: rgba(255, 106, 0, 0.15); padding: 4px 8px; border-radius: 6px; font-size: 14px; color: #ff9a4d; border: 1px solid rgba(255, 106, 0, 0.2);",
+      "pre": "background: #2a2a2a; border-radius: 12px; padding: 20px 24px; overflow-x: auto; position: relative; border: 1px solid #404040; margin: 24px 0; line-height: 1.6; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);",
+      "hr": "border: 0; height: 2px; background: linear-gradient(90deg, transparent, #ff6a00, transparent); margin: 36px 0; position: relative;",
+      "img": "max-width: 100%; border: 2px solid #ff6a00; padding: 8px; background-color: #2a2a2a; position: relative; border-radius: 8px; box-shadow: 0 4px 12px rgba(255, 106, 0, 0.25); margin: 24px auto;",
+      "table": "width: 100%; border-collapse: collapse; font-size: 15px; border: 1px solid #505050; border-radius: 12px; overflow: hidden; margin: 24px 0;",
+      "th": "background: rgba(255, 106, 0, 0.2); font-weight: 600; text-align: left; padding: 16px 20px; color: #e0e0e0; border-bottom: 2px solid rgba(255, 106, 0, 0.3);",
+      "td": "padding: 16px 20px; border-bottom: 1px solid #404040; color: #b0b0b0; line-height: 1.6;",
+      "tr": "border-bottom-color: #503020; transition: background-color 0.2s ease;",
+      "tr:hover": "background-color: rgba(255, 106, 0, 0.1);"
     }
   },
   "apple-notes": {
@@ -686,6 +732,20 @@ const STYLES = {
  
   "darktech": {
     "name": "暗黑科技",
+    "modes": [
+      {
+        "name": "浅色",
+        "id": "light-mode",
+        "class": "",
+        "background": "#0f1218"
+      },
+      {
+        "name": "深色",
+        "id": "dark-mode",
+        "class": "dark-mode",
+        "background": "#000000"
+      }
+    ],
     "styles": {
       "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: \"JetBrains Mono\", \"SFMono-Regular\", monospace; font-size: 16px; line-height: 1.8 !important; color: #3f3f3f !important; background-color: #0f1218; word-wrap: break-word;",
       "h1": "\n  font-size: 28px;\n  color: #00e6ff;\n  margin-bottom: 15px;\n  letter-spacing: 1px;\n  font-weight: 600;\n\n  text-shadow: 0 0 10px rgba(0, 230, 255, 0.5);\n  position: relative;\n  padding-bottom: 10px;\n",
@@ -710,6 +770,31 @@ const STYLES = {
       "th": "\n  background: rgba(0, 230, 255, 0.1);\n  color: #00e6ff;\n  border-bottom: 1px solid rgba(0, 230, 255, 0.2);\n  padding: 10px;\n  font-weight: 600;\n  text-align: left;\n",
       "td": "\n  color: #a4b1cd;\n  padding: 10px;\n  border-bottom: 1px solid rgba(0, 230, 255, 0.1);\n",
       "tr": "border-bottom: 1px solid #e0e0e0;"
+    },
+    "dark-mode": {
+      "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: \"JetBrains Mono\", \"SFMono-Regular\", monospace; font-size: 16px; line-height: 1.8 !important; color: #d0d8e0 !important; background-color: #000000; word-wrap: break-word;",
+      "h1": "\n  font-size: 28px;\n  color: #00ffff;\n  margin-bottom: 15px;\n  letter-spacing: 1px;\n  font-weight: 600;\n\n  text-shadow: 0 0 12px rgba(0, 255, 255, 0.6);\n  position: relative;\n  padding-bottom: 10px;\n",
+      "h2": "\n  font-size: 16px;\n  color: #8fefff;\n  margin-bottom: 24px;\n  font-weight: 400;\n  letter-spacing: 1px;\n\n  opacity: 0.9;\n",
+      "h3": "\n  display: block;\n  color: #00ffff;\n  margin-bottom: 6px;\n  font-size: 16px;\n  font-weight: 600;\n  letter-spacing: 0.5px;\n",
+      "h4": "font-size: 18px; font-weight: 600; color: #b0c0d0 !important; line-height: 1.4 !important; margin: 20px 0 10px;",
+      "h5": "font-size: 17px; font-weight: 600; color: #b0c0d0 !important; line-height: 1.4 !important; margin: 18px 0 9px;",
+      "h6": "\n  color: #8aa890;\n  margin-top: 1.2em;\n  margin-bottom: 0.5em;\n  font-weight: 700;\n  border-bottom: 1px solid #303540;\n  padding-bottom: 0.3em;\n",
+      "p": "\n  color: #c0c8d8;\n  font-size: 14px;\n  position: relative;\n",
+      "strong": "\n  color: #00ffff;\n  font-weight: 600;\n",
+      "em": "\n  color: #ff22ff;\n  font-style: italic;\n",
+      "a": "\n  color: #00ffff;\n  text-decoration: none;\n  border-bottom: 1px dashed rgba(0, 255, 255, 0.6);\n  transition: all 0.3s ease;\n  position: relative;\n",
+      "ul": "\n  padding-left: 0;\n",
+      "ol": "\n  list-style: none;\n  padding: 0.5em 3.5em;\n  counter-reset: decorated-counter;\n  margin-bottom: 1.5em;\n",
+      "li": "\n  position: relative;\n  counter-increment: item;\n  list-style: none;\n  margin-bottom: 16px;\n  padding-left: 40px;\n  color: #c0c8d8;\n  line-height: 1.6;\n  font-size: 14px;\n",
+      "blockquote": "\n  background: rgba(0, 20, 30, 0.3);\n  border-left: 3px solid #00ffff;\n  color: #8fefff;\n  padding: 15px 20px;\n  margin: 20px 0;\n  font-style: italic;\n  position: relative;\n  border-radius: 0 4px 4px 0;\n",
+      "code": "\n  display: block;\n  padding-left: 15px;\n  line-height: 1.5;\n",
+      "pre": "\n  background: rgba(0, 10, 20, 0.4);\n  border: 1px solid rgba(0, 255, 255, 0.3);\n  border-radius: 4px;\n  padding: 15px;\n  overflow-x: auto;\n  position: relative;\n",
+      "hr": "\n  border: 0;\n  height: 1px;\n  background: linear-gradient(90deg, transparent, #00ffff, transparent);\n  margin: 25px 0;\n  opacity: 0.6;\n",
+      "img": "\n  max-width: 100%;\n  border: 1px solid rgba(0, 255, 255, 0.4);\n  border-radius: 4px;\n  box-shadow:\n    0 0 18px rgba(0, 0, 0, 0.6),\n    0 0 8px rgba(0, 255, 255, 0.3);\n  margin: 20px auto;\n",
+      "table": "\n  width: 100%;\n  border-collapse: collapse;\n  margin: 20px 0;\n  background: rgba(0, 10, 20, 0.6);\n  border: 1px solid rgba(0, 255, 255, 0.3);\n  box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);\n",
+      "th": "\n  background: rgba(0, 255, 255, 0.15);\n  color: #00ffff;\n  border-bottom: 1px solid rgba(0, 255, 255, 0.3);\n  padding: 10px;\n  font-weight: 600;\n  text-align: left;\n",
+      "td": "\n  color: #c0c8d8;\n  padding: 10px;\n  border-bottom: 1px solid rgba(0, 255, 255, 0.15);\n",
+      "tr": "border-bottom: 1px solid #202530;"
     }
   },
 
@@ -744,32 +829,96 @@ const STYLES = {
   },
   "dreamy": {
     "name": "Blue Dream",
+    "modes": [
+      {
+        "name": "浅色",
+        "id": "light-mode",
+        "class": "",
+        "background": "linear-gradient(135deg, #f5f7ff 0%, #e8f0ff 100%)"
+      },
+      {
+        "name": "深色",
+        "id": "dark-mode",
+        "class": "dark-mode",
+        "background": "linear-gradient(135deg, #0a0c2a 0%, #1a1f4a 100%)"
+      }
+    ],
     "styles": {
       "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: \"PingFang SC\", sans-serif; font-size: 16px; line-height: 1.8 !important; color: #3f3f3f !important; background-color: linear-gradient(135deg, #f5f7ff 0%, #e8f0ff 100%); word-wrap: break-word;",
-      "h1": "\n  font-size: 28px;\n  color: #5e6fff;\n  margin-bottom: 8px;\n  letter-spacing: 0.5px;\n  font-weight: 600;\n",
-      "h2": "\n  font-size: 18px;\n  color: #8c9eff;\n  margin-bottom: 28px;\n  font-weight: 400;\n  letter-spacing: 0.5px;\n",
-      "h3": "\n  display: block;\n  color: #5e6fff;\n  margin-bottom: 6px;\n  font-size: 17px;\n",
-      "h4": "font-size: 18px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 20px 0 10px;",
-      "h5": "font-size: 17px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 18px 0 9px;",
-      "h6": "\n  color: #6b8c42;\n  margin-top: 1.2em;\n  margin-bottom: 0.5em;\n  font-weight: 700;\n  border-bottom: 1px solid #d4d9c9;\n  padding-bottom: 0.3em;\n",
-      "p": "\n  color: #666;\n  font-size: 15px;\n",
-      "strong": "\n  color: #5e6fff;\n  font-weight: 600;\n",
-      "em": "\n  color: #8c9eff;\n  font-style: italic;\n",
-      "a": "\n  color: #7c8dff;\n  text-decoration: none;\n  border-bottom: 1px dashed #d8e1ff;\n  transition: all 0.3s ease;\n",
-      "ul": "\n  padding-left: 0;\n",
-      "ol": "\n  background: white;\n  border-radius: 12px;\n  padding: 20px 25px;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);\n",
-      "li": "\n  position: relative;\n  counter-increment: item;\n  list-style: none;\n  margin: 16px 0;\n  padding-left: 46px;\n  color: #666;\n  font-size: 15px;\n",
-      "blockquote": "\n  background: linear-gradient(135deg, #f5f7ff 0%, #e8f0ff 100%);\n  border-left: 4px solid #7c8dff;\n  color: #7c8dff;\n",
-      "code": "\n  display: block;\n  padding-left: 15px;\n  line-height: 1.5;\n",
-      "pre": "\n  border: 1px solid #e5e7eb;\n  box-shadow: 0 4px 15px rgba(149, 175, 255, 0.15);\n",
-      "hr": "\n  background: linear-gradient(to right, transparent, #7c8dff, transparent);\n",
-      "img": "\n  border: 2px solid #f5f0ff;\n  box-shadow: 0 4px 15px rgba(136, 99, 207, 0.1);\n",
-      "table": "\n  box-shadow: 0 4px 15px rgba(149, 175, 255, 0.15);\n",
-      "th": "\n  background: linear-gradient(135deg, #f5f7ff 0%, #e8f0ff 100%);\n  color: #7c8dff;\n  border-bottom: 2px solid #d8e1ff;\n",
-      "td": "\n  color: #666;\n",
-      "tr": "\n  border-bottom-color: #e8f0ff;\n"
+      "innerContainer": "background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(245, 247, 255, 0.85) 100%); border-radius: 20px; padding: 32px; margin: 28px 0; box-shadow: 0 12px 40px rgba(124, 141, 255, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(124, 141, 255, 0.2); position: relative; overflow: hidden; transition: all 0.4s ease;",
+      "innerContainer::before": "content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #5e6fff, #8c9eff); opacity: 0.7;",
+      "innerContainer::after": "content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #8c9eff, #5e6fff); opacity: 0.4;",
+      "innerContainer:hover": "box-shadow: 0 16px 48px rgba(124, 141, 255, 0.3); transform: translateY(-2px);",
+      "h1": "\n  font-size: 32px;\n  color: #5e6fff;\n  margin-bottom: 12px;\n  letter-spacing: 0.5px;\n  font-weight: 700;\n  text-align: center;\n  position: relative;\n  padding-bottom: 16px;\n  transition: all 0.3s ease;\n",
+      "h1:hover": "color: #7c8dff;",
+      "h1::after": "content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 80px; height: 3px; background: linear-gradient(90deg, #5e6fff, #8c9eff); border-radius: 2px;",
+      "h2": "\n  font-size: 24px;\n  color: #8c9eff;\n  margin-bottom: 24px;\n  font-weight: 600;\n  letter-spacing: 0.5px;\n  position: relative;\n  padding-left: 20px;\n  border-left: 4px solid #7c8dff;\n  transition: all 0.3s ease;\n",
+      "h2:hover": "border-left-color: #5e6fff;",
+      "h3": "\n  font-size: 20px;\n  color: #5e6fff;\n  margin-bottom: 16px;\n  font-weight: 600;\n  position: relative;\n  padding-left: 16px;\n  border-left: 3px solid #8c9eff;\n  transition: all 0.3s ease;\n",
+      "h3:hover": "border-left-color: #7c8dff;",
+      "h4": "font-size: 18px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 20px 0 10px; transition: all 0.3s ease;",
+      "h5": "font-size: 17px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 18px 0 9px; transition: all 0.3s ease;",
+      "h6": "\n  color: #6b8c42;\n  margin-top: 1.2em;\n  margin-bottom: 0.5em;\n  font-weight: 700;\n  border-bottom: 1px solid #d4d9c9;\n  padding-bottom: 0.3em;\n  transition: all 0.3s ease;\n",
+      "p": "\n  color: #666;\n  font-size: 15px;\n  line-height: 1.8;\n  margin: 16px 0;\n  transition: all 0.3s ease;\n",
+      "strong": "\n  color: #5e6fff;\n  font-weight: 600;\n  background-color: rgba(94, 111, 255, 0.1);\n  padding: 2px 6px;\n  border-radius: 4px;\n  transition: all 0.3s ease;\n",
+      "em": "\n  color: #8c9eff;\n  font-style: italic;\n  transition: all 0.3s ease;\n",
+      "a": "\n  color: #7c8dff;\n  text-decoration: none;\n  border-bottom: 1px dashed #d8e1ff;\n  transition: all 0.3s ease;\n  padding: 0 2px;\n",
+      "a:hover": "border-bottom: 1px solid #7c8dff; background-color: rgba(124, 141, 255, 0.1);",
+      "ul": "\n  padding-left: 0;\n  background: rgba(255, 255, 255, 0.7);\n  border-radius: 12px;\n  padding: 20px 25px;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);\n  border: 1px solid rgba(124, 141, 255, 0.1);\n  transition: all 0.3s ease;\n",
+      "ol": "\n  background: rgba(255, 255, 255, 0.7);\n  border-radius: 12px;\n  padding: 20px 25px;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);\n  border: 1px solid rgba(124, 141, 255, 0.1);\n  counter-reset: item;\n  transition: all 0.3s ease;\n",
+      "li": "\n  position: relative;\n  counter-increment: item;\n  list-style: none;\n  margin: 16px 0;\n  padding-left: 46px;\n  color: #666;\n  font-size: 15px;\n  transition: all 0.3s ease;\n",
+      "li::before": "content: counter(item); position: absolute; left: 0; top: 0; color: #5e6fff; font-weight: 600; background: rgba(94, 111, 255, 0.1); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;",
+      "blockquote": "\n  background: linear-gradient(135deg, #f5f7ff 0%, #e8f0ff 100%);\n  border-left: 4px solid #7c8dff;\n  color: #7c8dff;\n  padding: 20px 24px;\n  margin: 24px 0;\n  border-radius: 0 12px 12px 0;\n  position: relative;\n  transition: all 0.3s ease;\n",
+      "code": "\n  display: inline-block;\n  padding: 4px 8px;\n  line-height: 1.5;\n  background: rgba(94, 111, 255, 0.1);\n  color: #5e6fff;\n  border-radius: 6px;\n  font-family: \"SFMono-Regular\", Consolas, \"Liberation Mono\", Menlo, monospace;\n  font-size: 14px;\n  transition: all 0.3s ease;\n",
+      "pre": "\n  background: rgba(245, 247, 255, 0.9);\n  border: 1px solid #e5e7eb;\n  box-shadow: 0 4px 15px rgba(149, 175, 255, 0.15);\n  border-radius: 12px;\n  padding: 20px 24px;\n  overflow-x: auto;\n  line-height: 1.6;\n  transition: all 0.3s ease;\n",
+      "hr": "\n  background: linear-gradient(to right, transparent, #7c8dff, transparent);\n  height: 2px;\n  margin: 32px 0;\n  border: none;\n  transition: all 0.3s ease;\n",
+      "img": "\n  max-width: 100%;\n  border: 2px solid #f5f0ff;\n  box-shadow: 0 4px 15px rgba(136, 99, 207, 0.1);\n  border-radius: 12px;\n  margin: 24px auto;\n  display: block;\n  transition: all 0.3s ease;\n",
+      "img:hover": "transform: scale(1.02); box-shadow: 0 6px 20px rgba(136, 99, 207, 0.15);",
+      "table": "\n  box-shadow: 0 4px 15px rgba(149, 175, 255, 0.15);\n  border-radius: 12px;\n  overflow: hidden;\n  width: 100%;\n  margin: 24px 0;\n  border-collapse: collapse;\n  transition: all 0.3s ease;\n",
+      "th": "\n  background: linear-gradient(135deg, #f5f7ff 0%, #e8f0ff 100%);\n  color: #7c8dff;\n  border-bottom: 2px solid #d8e1ff;\n  padding: 16px 20px;\n  text-align: left;\n  font-weight: 600;\n  transition: all 0.3s ease;\n",
+      "td": "\n  color: #666;\n  padding: 14px 20px;\n  border-bottom: 1px solid #e8f0ff;\n  transition: all 0.3s ease;\n",
+      "tr": "\n  border-bottom-color: #e8f0ff;\n  transition: background-color 0.2s ease;\n",
+      "tr:hover": "background-color: rgba(124, 141, 255, 0.05);"
+    },
+    "dark-mode": {
+      "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: \"PingFang SC\", sans-serif; font-size: 16px; line-height: 1.8 !important; color: #c0c8ff !important; background-color: linear-gradient(135deg, #0a0c2a 0%, #1a1f4a 100%); word-wrap: break-word;",
+      "innerContainer": "background: linear-gradient(135deg, rgba(26, 31, 58, 0.85) 0%, rgba(10, 12, 42, 0.85) 100%); border-radius: 20px; padding: 32px; margin: 28px 0; box-shadow: 0 12px 40px rgba(124, 141, 255, 0.25); backdrop-filter: blur(10px); border: 1px solid rgba(124, 141, 255, 0.3); position: relative; overflow: hidden; transition: all 0.4s ease;",
+      "innerContainer::before": "content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #8c9eff, #aabbff); opacity: 0.8;",
+      "innerContainer::after": "content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #aabbff, #8c9eff); opacity: 0.6;",
+      "innerContainer:hover": "box-shadow: 0 16px 48px rgba(124, 141, 255, 0.35); transform: translateY(-2px);",
+      "h1": "\n  font-size: 32px;\n  color: #8c9eff;\n  margin-bottom: 12px;\n  letter-spacing: 0.5px;\n  font-weight: 700;\n  text-align: center;\n  position: relative;\n  padding-bottom: 16px;\n  transition: all 0.3s ease;\n",
+      "h1:hover": "color: #9aacff;",
+      "h1::after": "content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 80px; height: 3px; background: linear-gradient(90deg, #8c9eff, #aabbff); border-radius: 2px;",
+      "h2": "\n  font-size: 24px;\n  color: #aabbff;\n  margin-bottom: 24px;\n  font-weight: 600;\n  letter-spacing: 0.5px;\n  position: relative;\n  padding-left: 20px;\n  border-left: 4px solid #9aacff;\n  transition: all 0.3s ease;\n",
+      "h2:hover": "border-left-color: #8c9eff;",
+      "h3": "\n  font-size: 20px;\n  color: #8c9eff;\n  margin-bottom: 16px;\n  font-weight: 600;\n  position: relative;\n  padding-left: 16px;\n  border-left: 3px solid #aabbff;\n  transition: all 0.3s ease;\n",
+      "h3:hover": "border-left-color: #9aacff;",
+      "h4": "font-size: 18px; font-weight: 600; color: #a0b0e0 !important; line-height: 1.4 !important; margin: 20px 0 10px; transition: all 0.3s ease;",
+      "h5": "font-size: 17px; font-weight: 600; color: #a0b0e0 !important; line-height: 1.4 !important; margin: 18px 0 9px; transition: all 0.3s ease;",
+      "h6": "\n  color: #8aa890;\n  margin-top: 1.2em;\n  margin-bottom: 0.5em;\n  font-weight: 700;\n  border-bottom: 1px solid #404560;\n  padding-bottom: 0.3em;\n  transition: all 0.3s ease;\n",
+      "p": "\n  color: #a0a8c0;\n  font-size: 15px;\n  line-height: 1.8;\n  margin: 16px 0;\n  transition: all 0.3s ease;\n",
+      "strong": "\n  color: #8c9eff;\n  font-weight: 600;\n  background-color: rgba(140, 158, 255, 0.15);\n  padding: 2px 6px;\n  border-radius: 4px;\n  transition: all 0.3s ease;\n",
+      "em": "\n  color: #aabbff;\n  font-style: italic;\n  transition: all 0.3s ease;\n",
+      "a": "\n  color: #9aacff;\n  text-decoration: none;\n  border-bottom: 1px dashed #405080;\n  transition: all 0.3s ease;\n  padding: 0 2px;\n",
+      "a:hover": "border-bottom: 1px solid #9aacff; background-color: rgba(154, 172, 255, 0.15);",
+      "ul": "\n  padding-left: 0;\n  background: rgba(26, 31, 58, 0.7);\n  border-radius: 12px;\n  padding: 20px 25px;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);\n  border: 1px solid rgba(124, 141, 255, 0.2);\n  transition: all 0.3s ease;\n",
+      "ol": "\n  background: rgba(26, 31, 58, 0.7);\n  border-radius: 12px;\n  padding: 20px 25px;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);\n  border: 1px solid rgba(124, 141, 255, 0.2);\n  counter-reset: item;\n  transition: all 0.3s ease;\n",
+      "li": "\n  position: relative;\n  counter-increment: item;\n  list-style: none;\n  margin: 16px 0;\n  padding-left: 46px;\n  color: #a0a8c0;\n  font-size: 15px;\n  transition: all 0.3s ease;\n",
+      "li::before": "content: counter(item); position: absolute; left: 0; top: 0; color: #8c9eff; font-weight: 600; background: rgba(140, 158, 255, 0.15); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;",
+      "blockquote": "\n  background: linear-gradient(135deg, #1a1f3a 0%, #2a2f5a 100%);\n  border-left: 4px solid #9aacff;\n  color: #9aacff;\n  padding: 20px 24px;\n  margin: 24px 0;\n  border-radius: 0 12px 12px 0;\n  position: relative;\n  transition: all 0.3s ease;\n",
+      "code": "\n  display: inline-block;\n  padding: 4px 8px;\n  line-height: 1.5;\n  background: rgba(140, 158, 255, 0.15);\n  color: #8c9eff;\n  border-radius: 6px;\n  font-family: \"SFMono-Regular\", Consolas, \"Liberation Mono\", Menlo, monospace;\n  font-size: 14px;\n  transition: all 0.3s ease;\n",
+      "pre": "\n  background: rgba(26, 31, 58, 0.9);\n  border: 1px solid #303550;\n  box-shadow: 0 4px 15px rgba(100, 120, 200, 0.2);\n  border-radius: 12px;\n  padding: 20px 24px;\n  overflow-x: auto;\n  line-height: 1.6;\n  transition: all 0.3s ease;\n",
+      "hr": "\n  background: linear-gradient(to right, transparent, #9aacff, transparent);\n  height: 2px;\n  margin: 32px 0;\n  border: none;\n  transition: all 0.3s ease;\n",
+      "img": "\n  max-width: 100%;\n  border: 2px solid #1a1f3a;\n  box-shadow: 0 4px 15px rgba(100, 120, 200, 0.2);\n  border-radius: 12px;\n  margin: 24px auto;\n  display: block;\n  transition: all 0.3s ease;\n",
+      "img:hover": "transform: scale(1.02); box-shadow: 0 6px 20px rgba(100, 120, 200, 0.3);",
+      "table": "\n  box-shadow: 0 4px 15px rgba(100, 120, 200, 0.2);\n  border-radius: 12px;\n  overflow: hidden;\n  width: 100%;\n  margin: 24px 0;\n  border-collapse: collapse;\n  transition: all 0.3s ease;\n",
+      "th": "\n  background: linear-gradient(135deg, #1a1f3a 0%, #2a2f5a 100%);\n  color: #9aacff;\n  border-bottom: 2px solid #405080;\n  padding: 16px 20px;\n  text-align: left;\n  font-weight: 600;\n  transition: all 0.3s ease;\n",
+      "td": "\n  color: #a0a8c0;\n  padding: 14px 20px;\n  border-bottom: 1px solid #303550;\n  transition: all 0.3s ease;\n",
+      "tr": "\n  border-bottom-color: #303550;\n  transition: background-color 0.2s ease;\n",
+      "tr:hover": "background-color: rgba(140, 158, 255, 0.1);"
     }
   },
+
   "fairytale": {
     "name": "儿童童话",
     "styles": {
@@ -2373,6 +2522,20 @@ const STYLES = {
   },
   "xiaohongshu": {
     "name": "紫色小红书",
+    "modes": [
+      {
+        "name": "浅色",
+        "id": "light-mode",
+        "class": "",
+        "background": "#8863cf"
+      },
+      {
+        "name": "深色",
+        "id": "dark-mode",
+        "class": "dark-mode",
+        "background": "#2a1a4a"
+      }
+    ],
     "styles": {
       "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: \"PingFang SC\", sans-serif; font-size: 16px; line-height: 1.8 !important; color: #3f3f3f !important; background-color: #8863cf; word-wrap: break-word;",
       "innerContainer": "background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(249, 247, 252, 0.96) 100%); border-radius: 22px; padding: 34px; margin: 28px 0; box-shadow: 0 14px 40px rgba(136, 99, 207, 0.2); backdrop-filter: blur(8px); border: 1px solid rgba(136, 99, 207, 0.4); position: relative; overflow: hidden; transition: all 0.4s ease;",
@@ -2400,6 +2563,34 @@ const STYLES = {
       "th": "\n  background-color: #f5f0ff;\n  color: #8863cf;\n  border-bottom: 2px solid #d5c8f0;\n",
       "td": "\n  color: #333;\n",
       "tr": "\n  border-bottom-color: #f5f0ff;\n"
+    },
+    "dark-mode": {
+      "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: \"PingFang SC\", sans-serif; font-size: 16px; line-height: 1.8 !important; color: #d0c0f0 !important; background-color: #2a1a4a; word-wrap: break-word;",
+      "innerContainer": "background: linear-gradient(135deg, rgba(42, 26, 74, 0.96) 0%, rgba(35, 20, 60, 0.96) 100%); border-radius: 22px; padding: 34px; margin: 28px 0; box-shadow: 0 14px 40px rgba(136, 99, 207, 0.3); backdrop-filter: blur(8px); border: 1px solid rgba(136, 99, 207, 0.6); position: relative; overflow: hidden; transition: all 0.4s ease;",
+      "innerContainer::before": "content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #a080d0, #8863cf, #a080d0); opacity: 0.9;",
+      "innerContainer:hover": "transform: translateY(-3px); box-shadow: 0 18px 48px rgba(136, 99, 207, 0.4);",
+      "h1": "\n  font-family: \"Ma Shan Zheng\", \"PingFang SC\", cursive;\n  font-size: 28px;\n  position: relative;\n  color: rgb(220, 190, 250); /* 文字颜色 */\n  margin-bottom: 8px;\n  letter-spacing: 4px;\n  font-weight: 600;\n  text-align: center;\n  z-index: 1;\n  position: relative;\n",
+      "h2": "\n  font-size: 16px;\n  color: #e0d0f0;\n  margin-bottom: 24px;\n  font-weight: 600;\n  text-align: center;\n  position: relative;\n  padding-bottom: 10px;\n",
+      "h3": "\n  display: block;\n  color: #e0d0f0;\n  margin-bottom: 6px;\n  font-size: 16px;\n  font-weight: 600;\n",
+      "h4": "font-size: 18px; font-weight: 600; color: #c0b0d0 !important; line-height: 1.4 !important; margin: 20px 0 10px;",
+      "h5": "font-size: 17px; font-weight: 600; color: #c0b0d0 !important; line-height: 1.4 !important; margin: 18px 0 9px;",
+      "h6": "\n  color: #a0c0a0;\n  margin-top: 1.2em;\n  margin-bottom: 0.5em;\n  font-weight: 700;\n  border-bottom: 1px solid #504070;\n  padding-bottom: 0.3em;\n",
+      "p": "\n  color: #e0d0f0;\n  font-size: 15px;\n",
+      "strong": "\n  font-weight: 600;\n  text-decoration: underline;\n  text-decoration-color: #f06c5c;\n  text-decoration-style: wavy;\n  text-underline-offset: 4px;\n",
+      "em": "\n  color: #a080d0;\n  font-style: italic;\n",
+      "a": "\n  color: #a080d0;\n  text-decoration: none;\n  border-bottom: 1px dashed #605080;\n  transition: all 0.3s ease;\n",
+      "ul": "\n  padding-left: 0;\n",
+      "ol": "\n  padding-left: 20px;\n",
+      "li": "\n  position: relative;\n  counter-increment: item;\n  list-style: none;\n  margin-bottom: 20px;\n  padding-left: 40px;\n  color: #e0d0f0;\n  font-size: 15px;\n",
+      "blockquote": "\n  background-color: #3a2a5a;\n  border-left: 4px solid #a080d0;\n  color: #c0a0f0;\n",
+      "code": "\n  display: block;\n  padding-left: 15px;\n  line-height: 1.5;\n",
+      "pre": "\n  border: 1px solid #605080;\n  box-shadow: 0 4px 15px rgba(136, 99, 207, 0.2);\n  background-color: #3a2a5a;\n",
+      "hr": "\n  background: linear-gradient(to right, transparent, #a080d0, transparent);\n  height: 1px;\n  opacity: 0.7;\n",
+      "img": "\n  border: 2px solid #3a2a5a;\n  box-shadow: 0 4px 15px rgba(136, 99, 207, 0.2);\n",
+      "table": "\n  box-shadow: 0 4px 15px rgba(136, 99, 207, 0.2);\n  border-radius: 8px;\n  overflow: hidden;\n",
+      "th": "\n  background-color: #3a2a5a;\n  color: #a080d0;\n  border-bottom: 2px solid #605080;\n",
+      "td": "\n  color: #e0d0f0;\n",
+      "tr": "\n  border-bottom-color: #3a2a5a;\n"
     }
   }
 };
