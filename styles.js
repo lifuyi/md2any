@@ -31,7 +31,8 @@ const STYLES = {
   "apple-notes": {
     "name": "苹果备忘录",
     "styles": {
-      "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: \n    -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial,\n    sans-serif; font-size: 16px; line-height: 1.8 !important; color: var(--notes-bg); background-color: var(--notes-bg); word-wrap: break-word;",
+      "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial,sans-serif; font-size: 16px; line-height: 1.8 !important; color: var(--notes-bg); background-color: var(--notes-bg); word-wrap: break-word;",
+      "innerContainer": "background: rgba(255, 255, 255, 0.95); border-radius: 16px; padding: 32px; margin: 24px 0; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2);",
       "h1": "\n  font-size: 30px;\n  font-weight: 600;\n  color: var(--notes-text);\n  border-bottom: 1px solid var(--notes-border);\n  padding-bottom: 8px;\n",
       "h2": "\n  font-size: 24px;\n  font-weight: 600;\n  color: var(--notes-text);\n",
       "h3": "\n  font-size: 20px;\n  font-weight: 600;\n  color: var(--notes-text);\n",
@@ -60,6 +61,9 @@ const STYLES = {
     "name": "艺术装饰",
     "styles": {
       "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: \"Playfair Display\", \"Times New Roman\", serif; font-size: 16px; line-height: 1.8 !important; color: #0a0a0a; background-color: #0a0a0a; word-wrap: break-word;",
+      "innerContainer": "background: linear-gradient(135deg, rgba(212, 175, 55, 0.12) 0%, rgba(26, 26, 26, 0.9) 100%); border-radius: 12px; padding: 40px; margin: 32px 0; box-shadow: 0 16px 48px rgba(212, 175, 55, 0.15); border: 2px solid rgba(212, 175, 55, 0.3); position: relative; overflow: hidden; transition: all 0.4s ease;",
+      "innerContainer::before": "content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, #d4af37, transparent); opacity: 0.8;",
+      "innerContainer:hover": "border-color: rgba(212, 175, 55, 0.6); box-shadow: 0 20px 56px rgba(212, 175, 55, 0.25); transform: translateY(-2px);",
       "h1": "\n  font-size: 42px;\n  font-weight: 700;\n  color: #f5f5f5;\n  margin-top: 20px;\n  margin-bottom: 30px;\n  text-transform: uppercase;\n  letter-spacing: 3px;\n  text-align: center;\n  position: relative;\n  padding-bottom: 20px;\n",
       "h2": "\n  font-size: 32px;\n  font-weight: 600;\n  color: #d4af37;\n  margin-top: 30px;\n  margin-bottom: 20px;\n  text-transform: uppercase;\n  letter-spacing: 2px;\n  position: relative;\n  padding-left: 20px;\n",
       "h3": "\n  font-size: 24px;\n  font-weight: 600;\n  color: #f5f5f5;\n  margin-top: 25px;\n  margin-bottom: 15px;\n  position: relative;\n  padding-bottom: 10px;\n  border-bottom: 1px solid #d4af37;\n",
@@ -145,6 +149,8 @@ const STYLES = {
     "enName": "Instagram Style·Classic Gradient",
     "styles": {
       "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif; font-size: 16px; line-height: 1.8 !important; color: #1a1a1a !important; background: linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%) !important; word-wrap: break-word;",
+      "innerContainer": "background: rgba(255, 255, 255, 0.92); border-radius: 20px; padding: 40px; margin: 30px 0; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.3); position: relative; overflow: hidden;",
+      "innerContainer::before": "content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #833ab4, #fd1d1d, #fcb045); opacity: 0.6;",
       "h1": "font-size: 32px; font-weight: 800; color: #1a1a1a; text-transform: uppercase; letter-spacing: 1px; text-shadow: 3px 3px 0 #833ab4; padding-bottom: 10px; margin: 32px 0 16px;",
       "h2": "font-size: 24px; font-weight: 700; color: #1a1a1a; background: linear-gradient(45deg, #fd1d1d, #e91e63); padding: 4px 10px; transform: rotate(-2deg); margin: 28px 0 14px;",
       "h3": "font-size: 20px; font-weight: 600; color: #1a1a1a; border-left: 4px solid #e91e63; padding-left: 12px; margin: 24px 0 12px;",
@@ -457,6 +463,9 @@ const STYLES = {
     "name": "儿童童话",
     "styles": {
       "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: \"Comic Sans MS\", \"PingFang SC\", sans-serif; font-size: 16px; line-height: 1.8 !important; color: #3f3f3f !important; background-color: #f8f0ff; word-wrap: break-word;",
+      "innerContainer": "background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 240, 255, 0.96) 100%); border-radius: 24px; padding: 32px; margin: 28px 0; box-shadow: 0 12px 36px rgba(94, 124, 255, 0.18); border: 2px dashed #a5c7fe; transform: rotate(-1deg); transition: all 0.4s ease; position: relative; overflow: hidden;",
+      "innerContainer::before": "content: '✨'; position: absolute; top: 12px; right: 16px; color: #5e7cff; font-size: 24px; opacity: 0.6; animation: sparkle 2s infinite;",
+      "innerContainer:hover": "transform: rotate(0deg) scale(1.02); box-shadow: 0 16px 42px rgba(94, 124, 255, 0.25);",
       "h1": "\n  font-family: \"Comic Sans MS\", \"Ma Shan Zheng\", \"PingFang SC\", cursive;\n  font-size: 28px;\n  position: relative;\n  color: #5e7cff;\n  margin-bottom: 15px;\n  letter-spacing: 1px;\n  font-weight: 600;\n  text-align: center;\n  padding: 5px 0;\n  text-shadow: 1px 1px 2px rgba(165, 199, 254, 0.5);\n",
       "h2": "\n  font-size: 18px;\n  color: #7a6cb0;\n  margin-bottom: 20px;\n  font-weight: 500;\n  letter-spacing: 0.5px;\n  text-align: center;\n  position: relative;\n  padding-bottom: 15px;\n  font-family: \"Comic Sans MS\", \"PingFang SC\", sans-serif;\n",
       "h3": "\n  display: block;\n  color: #5e7cff;\n  margin-bottom: 6px;\n  font-size: 17px;\n  font-weight: 600;\n  font-family: \"Comic Sans MS\", \"PingFang SC\", sans-serif;\n",
@@ -485,6 +494,9 @@ const STYLES = {
     "name": "玻璃拟态",
     "styles": {
       "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: \"SF Pro Display\", \"PingFang SC\", sans-serif; font-size: 16px; line-height: 1.8 !important; color: rgba(255, 255, 255, 0.85); background-color: #161616; word-wrap: break-word;",
+      "innerContainer": "background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%); border-radius: 24px; padding: 36px; margin: 30px 0; box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.15); position: relative; overflow: hidden; transition: all 0.4s ease;",
+      "innerContainer::before": "content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(0, 242, 254, 0.6), transparent); opacity: 0.8;",
+      "innerContainer:hover": "border-color: rgba(0, 242, 254, 0.3); box-shadow: 0 20px 56px rgba(0, 242, 254, 0.15); transform: translateY(-2px);",
       "h1": "\n  font-size: 28px;\n  color: #00f2fe;\n  margin-bottom: 15px;\n  letter-spacing: 0.5px;\n  font-weight: 600;\n  position: relative;\n  text-align: center;\n",
       "h2": "\n  font-size: 16px;\n  color: rgba(255, 255, 255, 0.8);\n  margin-bottom: 24px;\n  font-weight: 400;\n  letter-spacing: 0.5px;\n  text-align: center;\n  position: relative;\n",
       "h3": "\n  display: block;\n  color: #00f2fe;\n  margin-bottom: 6px;\n  font-size: 16px;\n  font-weight: 600;\n  letter-spacing: 0.5px;\n",
@@ -514,6 +526,8 @@ const STYLES = {
     "enName": "Instagram Style·Aurora",
     "styles": {
       "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif; font-size: 16px; line-height: 1.8 !important; color: #1a1a1a !important; background: linear-gradient(135deg, #00c9ff 0%, #92fe9d 50%, #00d2ff 100%) !important; word-wrap: break-word;",
+      "innerContainer": "background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(224, 255, 240, 0.9) 100%); border-radius: 24px; padding: 36px; margin: 28px 0; box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.4); position: relative; overflow: hidden;",
+      "innerContainer::before": "content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(45deg, transparent, rgba(0, 201, 255, 0.1), transparent); animation: shimmer 3s infinite;",
       "h1": "font-size: 32px; font-weight: 800; color: #1a1a1a; text-transform: uppercase; letter-spacing: 1px; text-shadow: 3px 3px 0 #00c9ff; padding-bottom: 10px; margin: 32px 0 16px;",
       "h2": "font-size: 24px; font-weight: 700; color: #1a1a1a; background: linear-gradient(45deg, #92fe9d, #26c6da); padding: 4px 10px; margin: 28px 0 14px;",
       "h3": "font-size: 20px; font-weight: 600; color: #1a1a1a; border-left: 4px solid #26c6da; padding-left: 12px; margin: 24px 0 12px;",
@@ -655,6 +669,8 @@ const STYLES = {
     "name": "Instagram风格 - 深蓝夜空",
     "styles": {
       "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.8 !important; color: #3f3f3f !important; word-wrap: break-word; background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #4a69bd 100%) !important;;",
+      "innerContainer": "background: linear-gradient(135deg, rgba(255, 255, 255, 0.93) 0%, rgba(245, 248, 255, 0.93) 100%); border-radius: 20px; padding: 32px; margin: 26px 0; box-shadow: 0 12px 36px rgba(0, 0, 0, 0.14); backdrop-filter: blur(8px); border: 1px solid rgba(74, 105, 189, 0.3); position: relative;",
+      "innerContainer::before": "content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #2c3e50, #4a69bd, #2c3e50); opacity: 0.7;",
       "h1": "font-size: 24px; font-weight: 600; color: #2c3e50 !important; line-height: 1.4 !important; margin: 32px 0 16px;",
       "h2": "font-size: 22px; font-weight: 600; color: #2c3e50 !important; line-height: 1.4 !important; margin: 28px 0 14px;",
       "h3": "font-size: 20px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 24px 0 12px;",
@@ -992,6 +1008,8 @@ const STYLES = {
     "name": "青野晨光",
     "styles": {
       "container": "max-width: 440px; margin: 0px; padding: 20px; font-family: \"Noto Serif JP\", serif; font-size: 16px; line-height: 28px !important; color: rgb(90, 74, 63); background-color: rgba(255, 253, 245, 0.9); word-wrap: break-word; width: 440px;",
+      "innerContainer": "background: linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(248, 245, 240, 0.92) 100%); border-radius: 18px; padding: 28px; margin: 24px 0; box-shadow: 0 8px 28px rgba(107, 140, 66, 0.15); border: 1px solid rgba(139, 154, 122, 0.3); position: relative; backdrop-filter: blur(4px); transition: all 0.4s ease;",
+      "innerContainer:hover": "box-shadow: 0 12px 36px rgba(107, 140, 66, 0.2); transform: translateY(-2px);",
       "h1": "font-size: 32px; color: rgb(107, 140, 66); font-weight: 700; line-height: 40px; margin: 19.2px 0px 8px; padding: 0px 0px 4.8px;",
       "h2": "font-size: 25.6px; color: rgb(107, 140, 66); font-weight: 700; line-height: 32px; margin: 19.2px 0px 8px; padding: 0px 0px 4.8px;",
       "h3": "\n  font-size: 1.4rem;\n",
@@ -1220,6 +1238,8 @@ const STYLES = {
     "name": "波普艺术 - 默认",
     "styles": {
       "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.8 !important; color: #3f3f3f !important; word-wrap: break-word; background: #fde041 !important;",
+      "innerContainer": "background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 245, 215, 0.95) 100%); border-radius: 24px; padding: 36px; margin: 28px 0; box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12); border: 3px solid #000; position: relative; transform: rotate(-1deg); transition: transform 0.3s ease;",
+      "innerContainer:hover": "transform: rotate(0deg) scale(1.02);",
       "h1": "font-size: 24px; font-weight: 600; color: #2c3e50 !important; line-height: 1.4 !important; margin: 32px 0 16px;",
       "h2": "font-size: 22px; font-weight: 600; color: #2c3e50 !important; line-height: 1.4 !important; margin: 28px 0 14px;",
       "h3": "font-size: 20px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 24px 0 12px;",
@@ -1248,6 +1268,8 @@ const STYLES = {
     "name": "波普艺术 - 薄荷糖 无字体",
     "styles": {
       "container": "width: 440px; margin: 0 auto; padding: 30px; font-family: \"Comic Sans MS\", \"Chalkboard SE\", \"Comic Neue\", sans-serif; font-size: 16px; line-height: 28px !important; color: #252a34 !important; background-color: #e0f7fa !important; border-radius: 15px; box-shadow: 0 8px 0 #4dd0e1; border: 3px solid #000; position: relative; overflow: visible; word-wrap: break-word; display: block;",
+      "innerContainer": "background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(224, 247, 250, 0.98) 100%); border-radius: 20px; padding: 28px; margin: 24px 0; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15); border: 2px dashed #4dd0e1; transform: rotate(1deg); transition: all 0.3s ease;",
+      "innerContainer:hover": "transform: rotate(0deg) translateY(-2px); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);",
       "h1": "font-size: 24px; font-weight: 600; color: #2c3e50 !important; line-height: 1.4 !important; margin: 32px 0 16px;",
       "h2": "font-size: 22px; font-weight: 600; color: #2c3e50 !important; line-height: 1.4 !important; margin: 28px 0 14px;",
       "h3": "font-size: 20px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 24px 0 12px;",
@@ -1276,6 +1298,8 @@ const STYLES = {
     "name": "波普艺术 - 粉蓝 无字体",
     "styles": {
       "container": "width: 440px; margin: 0 auto; padding: 30px; font-family: \"Comic Sans MS\", \"Chalkboard SE\", \"Comic Neue\", sans-serif; font-size: 16px; line-height: 28px !important; color: #252a34 !important; background-color: #a6dcef !important; border-radius: 15px; box-shadow: 0 8px 0 #5f9fd8; border: 3px solid #000; position: relative; overflow: visible; word-wrap: break-word; display: block;",
+      "innerContainer": "background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(166, 220, 239, 0.96) 100%); border-radius: 18px; padding: 32px; margin: 26px 0; box-shadow: 0 14px 36px rgba(0, 0, 0, 0.16); border: 2px dotted #5f9fd8; transform: rotate(-2deg); transition: all 0.3s ease;",
+      "innerContainer:hover": "transform: rotate(0deg) scale(1.01); box-shadow: 0 18px 42px rgba(0, 0, 0, 0.2);",
       "h1": "font-size: 24px; font-weight: 600; color: #2c3e50 !important; line-height: 1.4 !important; margin: 32px 0 16px;",
       "h2": "font-size: 22px; font-weight: 600; color: #2c3e50 !important; line-height: 1.4 !important; margin: 28px 0 14px;",
       "h3": "font-size: 20px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 24px 0 12px;",
@@ -1304,6 +1328,8 @@ const STYLES = {
     "name": "波普艺术 - 紫色星空",
     "styles": {
       "container": "width: 440px; margin: 0 auto; padding: 30px; font-family: \"Comic Sans MS\", \"Chalkboard SE\", \"Comic Neue\", sans-serif; font-size: 16px; line-height: 28px !important; color: #252a34 !important; background-color: #3a1f75 !important; border-radius: 15px; box-shadow: 0 8px 0 #1a0e3d; border: 3px solid #000; position: relative; overflow: visible; word-wrap: break-word; display: block;",
+      "innerContainer": "background: linear-gradient(135deg, rgba(255, 255, 255, 0.94) 0%, rgba(255, 171, 64, 0.94) 100%); border-radius: 22px; padding: 34px; margin: 28px 0; box-shadow: 0 15px 42px rgba(0, 0, 0, 0.18); border: 2px solid #1a1042; transform: rotate(2deg); transition: all 0.3s ease; position: relative;",
+      "innerContainer::after": "content: '★'; position: absolute; top: 8px; right: 12px; color: #ff4e79; font-size: 20px; opacity: 0.7;",
       "h1": "font-size: 24px; font-weight: 600; color: #2c3e50 !important; line-height: 1.4 !important; margin: 32px 0 16px;",
       "h2": "font-size: 22px; font-weight: 600; color: #2c3e50 !important; line-height: 1.4 !important; margin: 28px 0 14px;",
       "h3": "font-size: 20px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 24px 0 12px;",
@@ -1502,7 +1528,10 @@ const STYLES = {
   "watercolor": {
     "name": "大字",
     "styles": {
-      "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: \"Ma Shan Zheng\", \"PingFang SC\", sans-serif; font-size: 16px; line-height: 1.8 !important; color: #3f3f3f !important; background-color: linear-gradient(\n    to right,\n    rgba(173, 216, 230, 0.6),\n    rgba(221, 160, 221, 0.6),\n    rgba(255, 182, 193, 0.6),\n    rgba(173, 216, 230, 0.6)\n  ); word-wrap: break-word;",
+      "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: \"Ma Shan Zheng\", \"PingFang SC\", sans-serif; font-size: 16px; line-height: 1.8 !important; color: #3f3f3f !important; background-color: linear-gradient(to right,rgba(173, 216, 230, 0.6),rgba(221, 160, 221, 0.6),rgba(255, 182, 193, 0.6),rgba(173, 216, 230, 0.6)); word-wrap: break-word;",
+      "innerContainer": "background: linear-gradient(135deg, rgba(255, 255, 255, 0.94) 0%, rgba(248, 248, 255, 0.94) 100%); border-radius: 20px; padding: 30px; margin: 26px 0; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12); backdrop-filter: blur(6px); border: 1px solid rgba(173, 216, 230, 0.4); position: relative; overflow: hidden; transition: all 0.4s ease;",
+      "innerContainer::before": "content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #add8e6, #dda0dd, #ffb6c1, #add8e6); opacity: 0.7;",
+      "innerContainer:hover": "transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.16);",
       "h1": "\n  font-family: \"Ma Shan Zheng\", \"PingFang SC\", cursive;\n  font-size: 32px;\n  position: relative;\n  color: #333;\n  margin-bottom: 20px;\n  font-weight: 500;\n  text-align: center;\n  padding: 10px 0;\n",
       "h2": "\n  font-size: 18px;\n  color: #555;\n  margin-bottom: 24px;\n  font-weight: 400;\n  text-align: center;\n  position: relative;\n  padding-bottom: 15px;\n  font-family: \"Xingkai SC\", \"STKaiti\", serif;\n",
       "h3": "\n  display: block;\n  color: #333;\n  margin-bottom: 6px;\n  font-size: 17px;\n  font-weight: 600;\n  font-family: \"Xingkai SC\", \"STKaiti\", serif;\n",
@@ -2035,6 +2064,9 @@ const STYLES = {
     "name": "紫色小红书",
     "styles": {
       "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: \"PingFang SC\", sans-serif; font-size: 16px; line-height: 1.8 !important; color: #3f3f3f !important; background-color: #8863cf; word-wrap: break-word;",
+      "innerContainer": "background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(249, 247, 252, 0.96) 100%); border-radius: 22px; padding: 34px; margin: 28px 0; box-shadow: 0 14px 40px rgba(136, 99, 207, 0.2); backdrop-filter: blur(8px); border: 1px solid rgba(136, 99, 207, 0.4); position: relative; overflow: hidden; transition: all 0.4s ease;",
+      "innerContainer::before": "content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #c9a8ee, #8863cf, #c9a8ee); opacity: 0.8;",
+      "innerContainer:hover": "transform: translateY(-3px); box-shadow: 0 18px 48px rgba(136, 99, 207, 0.3);",
       "h1": "\n  font-family: \"Ma Shan Zheng\", \"PingFang SC\", cursive;\n  font-size: 28px;\n  position: relative;\n  color: rgb(201, 168, 238); /* 文字颜色 */\n  margin-bottom: 8px;\n  letter-spacing: 4px;\n  font-weight: 600;\n  text-align: center;\n  z-index: 1;\n  position: relative;\n",
       "h2": "\n  font-size: 16px;\n  color: #333;\n  margin-bottom: 24px;\n  font-weight: 600;\n  text-align: center;\n  position: relative;\n  padding-bottom: 10px;\n",
       "h3": "\n  display: block;\n  color: #333;\n  margin-bottom: 6px;\n  font-size: 16px;\n  font-weight: 600;\n",
