@@ -704,13 +704,20 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
             URL.revokeObjectURL(url);
         }
 
-                // 下载PNG
+                // 下载PNG - 修复空白图片问题的简化版本
         async function downloadPNG() {
             const previewPane = document.getElementById('preview');
             const theme = themeSelector.value;
 
-            if (!previewPane.innerHTML) {
-                alert('请先渲染内容');
+            // 基本检查
+            if (!previewPane || !previewPane.innerHTML.trim()) {
+                alert('请先输入Markdown内容并等待预览加载完成');
+                return;
+            }
+
+            // 检查html2canvas是否可用
+            if (typeof html2canvas === 'undefined') {
+                alert('PNG导出功能不可用，html2canvas库未加载');
                 return;
             }
 
