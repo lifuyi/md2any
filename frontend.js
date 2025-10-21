@@ -375,30 +375,107 @@ async function downloadHTML() {
 }
 
 async function downloadPNG() {
-    const preview = document.getElementById('preview');
+    const editor = document.getElementById('editor');
     const themeSelector = document.getElementById('theme-selector');
     
-    if (!preview || !preview.innerHTML.trim()) {
-        alert('请先输入Markdown内容并等待预览加载完成');
+    if (!editor || !editor.value.trim()) {
+        alert('请先输入Markdown内容');
         return;
     }
 
     if (typeof html2canvas === 'undefined') {
+        console.error('html2canvas未定义');
         alert('PNG导出功能不可用，html2canvas库未加载');
         return;
     }
 
+    console.log('html2canvas已加载，开始生成PNG');
     showLoading();
     updateStatus('正在生成PNG...');
 
     try {
-        const canvas = await html2canvas(preview, {
-            backgroundColor: '#ffffff',
-            scale: 1,
-            useCORS: true,
-            width: preview.scrollWidth,
-            height: preview.scrollHeight
+        // 从后端API获取渲染后的完整HTML
+        const response = await fetch(`${API_BASE_URL}/render`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                markdown_text: editor.value,
+                theme: themeSelector?.value || 'wechat-default',
+                mode: 'light-mode',
+                platform: 'wechat'
+            })
         });
+        
+        if (!response.ok) {
+            throw new Error(`渲染失败: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // 创建一个临时iframe来渲染完整内容
+        const iframe = document.createElement('iframe');
+        iframe.style.position = 'absolute';
+        iframe.style.left = '-9999px';
+        iframe.style.top = '0';
+        iframe.style.width = '800px';
+        iframe.style.height = 'auto';
+        iframe.style.backgroundColor = '#ffffff';
+        iframe.style.border = 'none';
+        
+        document.body.appendChild(iframe);
+        
+        // 在iframe中渲染内容
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+        iframeDoc.open();
+        iframeDoc.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { 
+                        margin: 0; 
+                        padding: 20px; 
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                        background-color: #ffffff;
+                        width: 760px;
+                    }
+                </style>
+            </head>
+            <body>
+                ${data.html}
+            </body>
+            </html>
+        `);
+        iframeDoc.close();
+        
+        // 等待内容渲染
+        await new Promise(resolve => {
+            iframe.onload = resolve;
+            setTimeout(resolve, 1000); // 最多等待1秒
+        });
+        
+        // 获取iframe的body元素
+        const iframeBody = iframeDoc.body;
+        iframeBody.style.height = 'auto';
+        
+        const canvas = await html2canvas(iframeBody, {
+            backgroundColor: '#ffffff',
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            width: iframeBody.scrollWidth,
+            height: iframeBody.scrollHeight,
+            scrollX: 0,
+            scrollY: 0
+        });
+        
+        // 移除iframe
+        document.body.removeChild(iframe);
+        
+        console.log('Canvas生成成功，尺寸:', canvas.width, 'x', canvas.height);
         
         const dataURL = canvas.toDataURL('image/png', 1.0);
         const link = document.createElement('a');
@@ -409,6 +486,7 @@ async function downloadPNG() {
         document.body.removeChild(link);
         
         updateStatus('PNG下载完成');
+        console.log('PNG下载完成');
         
     } catch (error) {
         console.error('PNG生成失败:', error);

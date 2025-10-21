@@ -6,6 +6,8 @@ Built with FastAPI and managed by uv
 
 import re
 import os
+import requests
+import logging
 from typing import Dict, Any
 from pathlib import Path
 
@@ -66,6 +68,39 @@ class TextToMarkdownResponse(BaseModel):
     message: str = "Text converted to markdown successfully"
 
 
+class WeChatTokenRequest(BaseModel):
+    """Request model for WeChat access token"""
+    appid: str
+    secret: str
+
+
+class WeChatDraftRequest(BaseModel):
+    """Request model for sending to WeChat draft"""
+    appid: str
+    secret: str
+    markdown: str
+    style: str = "wechat-default"
+    thumb_media_id: str = ""
+    author: str = ""
+    digest: str = ""
+    content_source_url: str = ""
+    need_open_comment: int = 1
+    only_fans_can_comment: int = 1
+
+
+class WeChatDirectDraftRequest(BaseModel):
+    """Request model for direct WeChat draft submission"""
+    access_token: str
+    title: str
+    content: str
+    author: str = ""
+    digest: str = ""
+    content_source_url: str = ""
+    thumb_media_id: str = ""
+    need_open_comment: int = 1
+    only_fans_can_comment: int = 1
+
+
 # Initialize DeepSeek client
 deepseek_client = OpenAI(
     api_key="sk-3d45b1b21d094700a8a528a8905bbb9f",
@@ -91,6 +126,10 @@ app.add_middleware(
 # Mount static files
 app.mount("/static", StaticFiles(directory="."), name="static")
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Load themes configuration
 def load_themes() -> Dict[str, Any]:
     """Load theme configurations from styles.py module"""
@@ -100,9 +139,6 @@ def load_themes() -> Dict[str, Any]:
     except Exception as e:
         print(f"Warning: Could not load themes from styles.py: {e}")
         return get_default_themes()
-
-
-
 
 
 def get_enhanced_default_styles() -> Dict[str, str]:
@@ -154,12 +190,9 @@ def get_enhanced_dark_styles() -> Dict[str, str]:
         "pre": "background: #2c3e50; border-radius: 12px; padding: 20px 24px; overflow-x: auto; border: 1px solid #34495e; margin: 24px 0; line-height: 1.6;",
         "table": "width: 100%; border-collapse: collapse; font-size: 15px; border: 1px solid #34495e; border-radius: 12px; overflow: hidden; margin: 24px 0;",
         "th": "background: rgba(52, 152, 219, 0.2); font-weight: 600; text-align: left; padding: 16px 20px; color: #ffffff;",
-        "td": "padding: 16px 20px; border-bottom: 1px solid #34495e; color: #bdc3c7; line-height: 1.6;",
+        "td": "padding: 16px 20px; border-bottom: 1px solid #34495e; color: #b0b3c7; line-height: 1.6;",
         "img": "max-width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); margin: 24px auto;"
     }
-
-
-
 
 
 def get_default_themes() -> Dict[str, Any]:
@@ -301,104 +334,6 @@ class MarkdownRenderer:
         
         return str(container)
     
-    def _apply_dark_mode_adjustments(self, css_styles: str) -> str:
-        """Apply dark mode adjustments to CSS"""
-        # Basic dark mode transformations
-        dark_adjustments = {
-            '#ffffff': '#1a1a1a',
-            '#fff': '#1a1a1a',
-            '#333333': '#e8e8e8',
-            '#333': '#e8e8e8',
-            '#555555': '#b0b0b0',
-            '#555': '#b0b0b0',
-            '#000000': '#ffffff',
-            '#000': '#ffffff',
-            '#f8f9fa': '#2c3e50',
-            '#ecf0f1': '#2c3e50',
-            '#f7f7f7': '#2c3e50'
-        }
-        
-        adjusted_css = css_styles
-        for light_color, dark_color in dark_adjustments.items():
-            adjusted_css = adjusted_css.replace(light_color, dark_color)
-        
-        return adjusted_css
-    
-    def _generate_css_from_theme_styles(self, styles: Dict[str, str]) -> str:
-        """Generate CSS from theme styles configuration"""
-        css_rules = []
-        
-        for selector, css_properties in styles.items():
-            if selector in ['container', 'innerContainer']:
-                # Skip container styles as they're handled separately
-                continue
-            elif selector == 'body':
-                css_rules.append(f".markdown-content {{ {css_properties} }}")
-            elif selector.startswith('inner-container'):
-                css_rules.append(f".markdown-content .inner-container{selector[15:]} {{ {css_properties} }}")
-            else:
-                # Handle complex selectors and pseudo-elements
-                if '::' in selector or ':' in selector:
-                    # For pseudo-elements and pseudo-classes
-                    css_rules.append(f".markdown-content {selector} {{ {css_properties} }}")
-                else:
-                    # Regular selectors
-                    css_rules.append(f".markdown-content {selector} {{ {css_properties} }}")
-        
-        return "\n".join(css_rules)
-    
-    def _adjust_for_wechat(self, css_styles: str) -> str:
-        """Adjust CSS for WeChat platform"""
-        # Add !important to all style declarations for WeChat compatibility, but avoid duplicates
-        # Process each CSS declaration and add !important if not already present
-        def add_important(match):
-            declaration = match.group(0)
-            if '!important' not in declaration:
-                # Add !important before the semicolon
-                declaration = declaration.rstrip(';') + ' !important;'
-            return declaration
-            
-        # Match CSS declarations (property: value;)
-        css_styles = re.sub(r'[^{}:]+:\s*[^{};]+;', add_important, css_styles)
-        
-        # Additional WeChat-specific adjustments
-        wechat_additions = """
-        .markdown-content table {
-            display: table !important;
-            border-collapse: collapse !important;
-        }
-        .markdown-content img {
-            max-width: 100% !important;
-            height: auto !important;
-        }
-        """
-        
-        return css_styles + wechat_additions
-    
-    def _adjust_for_xiaohongshu(self, css_styles: str) -> str:
-        """Adjust CSS for XiaoHongShu platform"""
-        xiaohongshu_additions = """
-        .markdown-content {
-            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
-            border-radius: 15px;
-            padding: 20px;
-        }
-        """
-        return css_styles + xiaohongshu_additions
-    
-    def _adjust_for_zhihu(self, css_styles: str) -> str:
-        """Adjust CSS for Zhihu platform"""
-        zhihu_additions = """
-        .markdown-content {
-            font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, PingFang SC, Microsoft YaHei, Source Han Sans SC, Noto Sans CJK SC, WenQuanYi Micro Hei, sans-serif;
-        }
-        .markdown-content pre {
-            background: #f6f6f6;
-            border: 1px solid #e5e5e5;
-        }
-        """
-        return css_styles + zhihu_additions
-    
     def _apply_dark_mode_adjustments_to_style(self, style: str) -> str:
         """Apply dark mode adjustments to inline style"""
         # Basic dark mode transformations
@@ -479,6 +414,25 @@ class MarkdownRenderer:
 renderer = MarkdownRenderer()
 
 
+def extract_title_from_markdown(markdown_content: str) -> str:
+    """Extract title from markdown content"""
+    lines = markdown_content.split('\n')
+    for line in lines:
+        if line.startswith('#') and not line.startswith('##'):
+            return line.replace('#', '', 1).strip()
+    return '默认标题'
+
+
+def preprocess_markdown(content: str) -> str:
+    """Preprocess markdown content for better rendering"""
+    # Normalize list item format
+    content = re.sub(r'^(\s*(?:\d+\.|\-|\*)\s+[^:\n]+)\n\s*:\s*(.+?)$', r'\1: \2', content, flags=re.MULTILINE)
+    content = re.sub(r'^(\s*(?:\d+\.|\-|\*)\s+.+?:)\s*\n\s+(.+?)$', r'\1 \2', content, flags=re.MULTILINE)
+    content = re.sub(r'^(\s*(?:\d+\.|\-|\*)\s+[^:\n]+)\n:\s*(.+?)$', r'\1: \2', content, flags=re.MULTILINE)
+    content = re.sub(r'^(\s*(?:\d+\.|\-|\*)\s+.+?)\n\n\s+(.+?)$', r'\1 \2', content, flags=re.MULTILINE)
+    return content
+
+
 @app.get("/")
 async def index():
     """Serve the index.html file"""
@@ -504,11 +458,14 @@ async def root():
     return {
         "name": "md2any API",
         "version": "1.0.0",
-        "description": "Markdown to HTML API with theme support and AI assistance",
+        "description": "Markdown to HTML API with theme support, AI assistance, and WeChat integration",
         "endpoints": {
             "/render": "POST - Render markdown to HTML",
             "/ai": "POST - AI assistance for markdown writing",
             "/text-to-markdown": "POST - Convert plain text to markdown format",
+            "/wechat/access_token": "POST - Get WeChat access token",
+            "/wechat/send_draft": "POST - Send markdown to WeChat draft",
+            "/wechat/draft": "POST - Send content directly to WeChat draft",
             "/themes": "GET - List available themes",
             "/health": "GET - Health check"
         }
@@ -552,7 +509,7 @@ async def ai_assist(request: AIRequest):
     try:
         # Prepare messages for DeepSeek API
         messages = [
-            {"role": "system", "content": "You are a helpful assistant specialized in markdown writing and formatting.请基于以下规则，将目标TXT文本完整、精准地转换为Markdown（MD）格式，核心需实现“结构识别、内容保真、重点突出、格式适配”四大目标，具体要求如下：\n\n## 一、文本结构识别与MD标题转换\n1. **标题层级判定**：先通读TXT全文，根据文本逻辑（如内容从属关系、标题前后空行、文字语义权重）和格式特征（如TXT中可能的“#”“##”标记、“【】”包裹标题、字号暗示性文字），精准区分**一级标题（H1）、二级标题（H2）、三级标题（H3）** 及以下层级（最多识别至H6，避免层级冗余）；\n2. **MD标题格式适配**：严格按MD语法转换，一级标题用“# 标题内容”，二级标题用“## 标题内容”，以此类推，标题文本需完整保留原TXT表述，不增删语义；\n3. **标题与段落区分**：若TXT中标题与正文无明显分隔（如无空行），需通过“是否为核心观点句、是否统领后续内容”判断，标题下方需空1行再接正文，确保结构清晰。\n\n\n## 二、正文段落与重点内容处理\n1. **段落完整性保真**：TXT中的正文段落需完整迁移至MD，段落间若有明确空行（原TXT中换行分隔），MD中需保留同等空行间距，避免段落合并或拆分；\n2. **核心信息标注**：结合对文章涵义的分析（如核心论点、关键结论、重要数据、限定条件），用**加粗（`**重点内容**`）** 标注重点，标注原则：\n   - 不滥用加粗，仅针对“支撑文章主旨的关键句、影响理解的核心概念、需要强调的结论”；\n   - 若TXT中有“注意”“重点”“核心”等提示词，其引导的内容需优先标注；\n3. **特殊表述处理**：对TXT中的强调性表述（如“必须”“禁止”“唯一”等限定词引导的内容）、专业术语（如技术文档中的概念），可补充用**下划线（`_术语_`）** 辅助突出，增强可读性。\n\n\n## 三、列表结构识别与MD格式转换\n1. **无序列表处理**：若TXT中出现“-”“·”“○”“□”等符号引导的并列内容，或语义上为“多个并列要点、分类项”（如“优势包括：第一点...第二点...”），统一转换为MD无序列表（用“- 列表内容”表示），列表项需对齐，嵌套列表（如“要点1下的子项”）用缩进+“-”表示；\n2. **有序列表处理**：若TXT中出现“1. ”“2. ”“（1）”“第一”“第二”等带序号的引导内容，且语义上为“步骤、流程、优先级排序”，统一转换为MD有序列表（用“1. 列表内容”“2. 列表内容”表示），序号需连续，避免断号或错序；\n3. **列表与正文衔接**：列表前后需与正文空1行，列表项内部若有长文本换行，需保持缩进对齐，确保视觉连贯。\n\n\n## 四、代码内容与图片URL适配\n1. **代码段识别与转换**：\n   - 若TXT中出现“代码如下”“示例代码”等提示语，或内容为编程语言语法（如`print()`、`function`、SQL语句、命令行指令），需用MD代码块格式包裹：单行代码用“`代码内容`”，多行代码用“```语言类型\\n代码内容\\n```”（如Python代码标注为“```python”，Shell命令标注为“```shell”）；\n   - 代码段需完整保留原TXT中的语法格式（如缩进、空格、符号），不修改代码逻辑；\n2. **图片URL转换**：若TXT中包含图片链接（如以`http://`、`https://`开头，后缀为`.jpg`、`.png`、`.gif`的URL），需转换为MD图片语法：`![图片描述](图片URL)`，其中“图片描述”优先提取TXT中对图片的说明（如“系统架构图”“数据可视化结果”），若无说明则填“图片”，确保链接可直接访问。\n\n\n## 五、其他格式的MD适配规则\n1. **引用内容处理**：若TXT中出现“某某说”“正如XX文献所述”等引用语句，或内容为外部观点、文献摘录，用MD引用格式（`> 引用内容`）表示，引用内容若有多段，每段前均需加“>”；\n2. **链接处理**：若TXT中包含非图片的URL（如文档链接、网页链接），且有对应描述文本（如“参考文档：https://xxx”），转换为MD链接语法：`[链接描述](URL)`（如“[参考文档](https://xxx)”）；\n3. **表格处理**：若TXT中有用空格、逗号分隔的结构化数据（如“姓名 年龄 性别”“产品,价格,库存”），且语义上为“对比数据、分类统计”，需转换为MD表格格式，确保表头与内容对齐（如：\n   | 姓名 | 年龄 | 性别 |\n   | ---- | ---- | ---- |\n   | 张三 | 25   | 男   |）；\n4. **格式优先级**：若同一内容同时符合多种格式规则（如“带序号的代码步骤”），优先按“核心语义”判定——若为“步骤”则用有序列表，列表项内的代码用单行代码格式包裹，避免格式冲突。\n\n\n## 六、整体输出要求\n1. 转换后的MD文本需确保“语义无偏差、格式无错误”，可直接在MD编辑器（如Typora、VS Code）中正常渲染；\n2. 若TXT中存在模糊结构（如难以判定的标题层级、列表类型），需基于“贴近原文逻辑、提升可读性”的原则处理，并在转换后标注“此处基于文本语义判定为XX格式”，确保透明性；\n3. 最终MD文本需去除原TXT中的无效格式（如多余空格、乱码字符），但保留有意义的格式符号（如引号、括号），整体排版整洁、层次分明。 "}
+            {"role": "system", "content": "You are a helpful assistant specialized in markdown writing and formatting.请基于以下规则,将目标TXT文本完整、精准地转换为Markdown(MD)格式,核心需实现\"结构识别、内容保真、重点突出、格式适配\"四大目标,具体要求如下:\n\n## 一、文本结构识别与MD标题转换\n1. **标题层级判定**:先通读TXT全文,根据文本逻辑(如内容从属关系、标题前后空行、文字语义权重)和格式特征(如TXT中可能的\"#\"\"##\"标记、\"【】\"包裹标题、字号暗示性文字),精准区分**一级标题(H1)、二级标题(H2)、三级标题(H3)**及以下层级(最多识别至H6,避免层级冗余);\n2. **MD标题格式适配**:严格按MD语法转换,一级标题用\"# 标题内容\",二级标题用\"## 标题内容\",以此类推,标题文本需完整保留原TXT表述,不增删语义;\n3. **标题与段落区分**:若TXT中标题与正文无明显分隔(如无空行),需通过\"是否为核心观点句、是否统领后续内容\"判断,标题下方需空1行再接正文,确保结构清晰。\n\n\n## 二、正文段落与重点内容处理\n1. **段落完整性保真**:TXT中的正文段落需完整迁移至MD,段落间若有明确空行(原TXT中换行分隔),MD中需保留同等空行间距,避免段落合并或拆分;\n2. **核心信息标注**:结合对文章涵义的分析(如核心论点、关键结论、重要数据、限定条件),用**加粗(``**重点内容**``)**标注重点,标注原则:\n   - 不滥用加粗,仅针对\"支撑文章主旨的关键句、影响理解的核心概念、需要强调的结论\";\n   - 若TXT中有\"注意\"\"重点\"\"核心\"等提示词,其引导的内容需优先标注;\n3. **特殊表述处理**:对TXT中的强调性表述(如\"必须\"\"禁止\"\"唯一\"等限定词引导的内容)、专业术语(如技术文档中的概念),可补充用**下划线(``_术语_``)**辅助突出,增强可读性。\n\n\n## 三、列表结构识别与MD格式转换\n1. **无序列表处理**:若TXT中出现\"-\"\"·\"\"○\"\"□\"等符号引导的并列内容,或语义上为\"多个并列要点、分类项\"(如\"优势包括:第一点...第二点...\"),统一转换为MD无序列表(用\"- 列表内容\"表示),列表项需对齐,嵌套列表(如\"要点1下的子项\")用缩进+\"-\"表示;\n2. **有序列表处理**:若TXT中出现\"1. \"\"2. \"\"(1)\"\"第一\"\"第二\"等带序号的引导内容,且语义上为\"步骤、流程、优先级排序\",统一转换为MD有序列表(用\"1. 列表内容\"\"2. 列表内容\"表示),序号需连续,避免断号或错序;\n3. **列表与正文衔接**:列表前后需与正文空1行,列表项内部若有长文本换行,需保持缩进对齐,确保视觉连贯。\n\n\n## 四、代码内容与图片URL适配\n1. **代码段识别与转换**:\n   - 若TXT中出现\"代码如下\"\"示例代码\"等提示语,或内容为编程语言语法(如``print()``、``function``、SQL语句、命令行指令),需用MD代码块格式包裹:单行代码用\"``代码内容``\",多行代码用\"```语言类型\\\\n代码内容\\\\n```\"(如Python代码标注为\"```python\",Shell命令标注为\"```shell\");\n   - 代码段需完整保留原TXT中的语法格式(如缩进、空格、符号),不修改代码逻辑;\n2. **图片URL转换**:若TXT中包含图片链接(如以``http://``、``https://``开头,后缀为``.jpg``、``.png``、``.gif``的URL),需转换为MD图片语法:``![图片描述](图片URL)``,其中\"图片描述\"优先提取TXT中对图片的说明(如\"系统架构图\"\"数据可视化结果\"),若无说明则填\"图片\",确保链接可直接访问。\n\n\n## 五、其他格式的MD适配规则\n1. **引用内容处理**:若TXT中出现\"某某说\"\"正如XX文献所述\"等引用语句,或内容为外部观点、文献摘录,用MD引用格式(``> 引用内容``)表示,引用内容若有多段,每段前均需加\">\";\n2. **链接处理**:若TXT中包含非图片的URL(如文档链接、网页链接),且有对应描述文本(如\"参考文档:https://xxx\"),转换为MD链接语法:``[链接描述](URL)``(如\"``[参考文档](https://xxx)``\");\n3. **表格处理**:若TXT中有用空格、逗号分隔的结构化数据(如\"姓名 年龄 性别\"\"产品,价格,库存\"),且语义上为\"对比数据、分类统计\",需转换为MD表格格式,确保表头与内容对齐(如:\n   | 姓名 | 年龄 | 性别 |\n   | ---- | ---- | ---- |\n   | 张三 | 25   | 男   |);\n4. **格式优先级**:若同一内容同时符合多种格式规则(如\"带序号的代码步骤\"),优先按\"核心语义\"判定——若为\"步骤\"则用有序列表,列表项内的代码用单行代码格式包裹,避免格式冲突。\n\n\n## 六、整体输出要求\n1. 转换后的MD文本需确保\"语义无偏差、格式无错误\",可直接在MD编辑器(如Typora、VS Code)中正常渲染;\n2. 若TXT中存在模糊结构(如难以判定的标题层级、列表类型),需基于\"贴近原文逻辑、提升可读性\"的原则处理,并在转换后标注\"此处基于文本语义判定为XX格式\",确保透明性;\n3. 最终MD文本需去除原TXT中的无效格式(如多余空格、乱码字符),但保留有意义的格式符号(如引号、括号),整体排版整洁、层次分明。 "}
         ]
         
         # Add context if provided
@@ -627,6 +584,204 @@ async def text_to_markdown(request: TextToMarkdownRequest):
         raise HTTPException(
             status_code=500,
             detail=f"Text to markdown conversion error: {str(e)}"
+        )
+
+
+@app.post("/wechat/access_token")
+async def get_wechat_access_token(request: WeChatTokenRequest):
+    """Get WeChat access token"""
+    try:
+        logger.info(f"Getting access token for appid: {request.appid}")
+        
+        # Construct WeChat API request
+        url = f'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={request.appid}&secret={request.secret}'
+        
+        response = requests.get(url, timeout=10)
+        result = response.json()
+        
+        # Check if WeChat API returned an error
+        if 'errcode' in result and result['errcode'] != 0:
+            logger.error(f"WeChat API error: {result}")
+            raise HTTPException(
+                status_code=400,
+                detail=result
+            )
+        
+        logger.info("Successfully obtained access token")
+        return result
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Exception getting access token: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"获取access_token失败: {str(e)}"
+        )
+
+
+@app.post("/wechat/send_draft")
+async def send_markdown_to_wechat_draft(request: WeChatDraftRequest):
+    """Send markdown content to WeChat draft box"""
+    try:
+        logger.info("Received request to send markdown to WeChat draft")
+        
+        # 1. Get access token
+        token_url = f'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={request.appid}&secret={request.secret}'
+        
+        token_response = requests.get(token_url, timeout=10)
+        token_result = token_response.json()
+        
+        if 'errcode' in token_result and token_result['errcode'] != 0:
+            logger.error(f"Failed to get access token: {token_result}")
+            raise HTTPException(
+                status_code=400,
+                detail=token_result
+            )
+        
+        access_token = token_result['access_token']
+        logger.info("Successfully obtained access token")
+        
+        # 2. Extract title
+        title = extract_title_from_markdown(request.markdown)
+        logger.info(f"Extracted title: {title}")
+        
+        # 3. Render markdown to HTML
+        logger.info("Rendering markdown to HTML")
+        processed_content = preprocess_markdown(request.markdown)
+        
+        # Convert markdown to HTML
+        html_content = markdown.markdown(
+            processed_content,
+            extensions=[
+                'fenced_code',
+                'tables',
+                'nl2br'
+            ]
+        )
+        
+        # Apply theme styling
+        theme_name = request.style
+        if theme_name.endswith('.css'):
+            theme_name = theme_name.replace('.css', '')
+        
+        styled_html = renderer.render(
+            processed_content,
+            theme_name,
+            "light-mode",
+            "wechat"
+        )
+        
+        # Wrap in markdown-body div for WeChat compatibility
+        final_html = f'<div class="markdown-body">{styled_html}</div>'
+        
+        # 4. Send to WeChat draft
+        logger.info("Sending to WeChat draft")
+        draft_url = f'https://api.weixin.qq.com/cgi-bin/draft/add?access_token={access_token}'
+        
+        # Handle Unicode encoding
+        encoded_title = title.encode('utf-8').decode('latin-1')
+        encoded_content = final_html.encode('utf-8').decode('latin-1')
+        
+        article = {
+            'title': encoded_title,
+            'author': request.author,
+            'digest': request.digest,
+            'content': encoded_content,
+            'content_source_url': request.content_source_url,
+            'need_open_comment': request.need_open_comment,
+            'only_fans_can_comment': request.only_fans_can_comment
+        }
+        
+        # Add thumb_media_id if provided
+        if request.thumb_media_id and request.thumb_media_id.strip():
+            article['thumb_media_id'] = request.thumb_media_id
+        
+        articles = {'articles': [article]}
+        
+        draft_response = requests.post(draft_url, json=articles, timeout=10)
+        result = draft_response.json()
+        
+        if 'errcode' in result and result['errcode'] != 0:
+            logger.error(f"WeChat API error: {result}")
+            raise HTTPException(
+                status_code=400,
+                detail=result
+            )
+        
+        logger.info("Successfully sent to WeChat draft")
+        return result
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Exception sending to WeChat draft: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"发送到微信草稿箱失败: {str(e)}"
+        )
+
+
+@app.post("/wechat/draft")
+async def send_to_wechat_draft(request: WeChatDirectDraftRequest):
+    """Send content directly to WeChat draft box"""
+    try:
+        logger.info("Received direct draft request")
+        
+        if not request.access_token:
+            raise HTTPException(
+                status_code=400,
+                detail="缺少access_token"
+            )
+        
+        if not request.content:
+            raise HTTPException(
+                status_code=400,
+                detail="缺少内容"
+            )
+        
+        # Construct WeChat API request
+        url = f'https://api.weixin.qq.com/cgi-bin/draft/add?access_token={request.access_token}'
+        
+        # Construct article content
+        article = {
+            'title': request.title,
+            'author': request.author,
+            'digest': request.digest,
+            'content': request.content,
+            'content_source_url': request.content_source_url,
+            'need_open_comment': request.need_open_comment,
+            'only_fans_can_comment': request.only_fans_can_comment
+        }
+        
+        # Add thumb_media_id if provided
+        if request.thumb_media_id and request.thumb_media_id.strip():
+            article['thumb_media_id'] = request.thumb_media_id
+        
+        articles = {'articles': [article]}
+        
+        logger.info(f"Sending article to WeChat: {articles}")
+        
+        response = requests.post(url, json=articles, timeout=10)
+        result = response.json()
+        
+        if 'errcode' in result and result['errcode'] != 0:
+            logger.error(f"WeChat API error: {result}")
+            raise HTTPException(
+                status_code=400,
+                detail=result
+            )
+        
+        logger.info("Successfully sent to WeChat draft")
+        return result
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Exception sending to WeChat draft: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"请求微信API失败: {str(e)}"
         )
 
 
