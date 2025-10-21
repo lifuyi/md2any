@@ -772,6 +772,105 @@ function configureWeChat() {
     console.log('Configure WeChat - to be implemented');
 }
 
+// Left drawer functions
+function openLeftDrawer() {
+    const drawer = document.getElementById('left-drawer');
+    const overlay = document.getElementById('drawer-overlay');
+    
+    if (drawer) {
+        drawer.classList.add('open');
+    }
+    
+    if (overlay) {
+        overlay.classList.add('show');
+    }
+}
+
+function closeLeftDrawer() {
+    const drawer = document.getElementById('left-drawer');
+    const overlay = document.getElementById('drawer-overlay');
+    
+    if (drawer) {
+        drawer.classList.remove('open');
+    }
+    
+    if (overlay) {
+        overlay.classList.remove('show');
+    }
+}
+
+function generateMarkdown() {
+    const input = document.getElementById('ai-input');
+    const editor = document.getElementById('editor');
+    
+    if (!input || !editor) {
+        console.error('Input or editor element not found');
+        return;
+    }
+    
+    const userInput = input.value.trim();
+    if (!userInput) {
+        alert('请输入您想要的内容描述');
+        return;
+    }
+    
+    // 简单的示例生成逻辑
+    let generatedMarkdown = `# ${userInput}
+
+## 概述
+
+这里是对"${userInput}"的简要概述。
+
+## 主要内容
+
+### 第一点
+这是关于${userInput}的第一个要点。
+
+### 第二点  
+这是关于${userInput}的第二个要点。
+
+### 第三点
+这是关于${userInput}的第三个要点。
+
+## 总结
+
+综上所述，${userInput}是一个值得深入探讨的话题。
+
+## 参考资料
+
+- 相关链接1
+- 相关链接2
+- 相关链接3
+`;
+
+    // 将生成的内容插入到编辑器
+    editor.value = generatedMarkdown;
+    
+    // 关闭抽屉
+    closeLeftDrawer();
+    
+    // 清空输入框
+    input.value = '';
+    
+    // 触发重新渲染
+    if (typeof renderMarkdown === 'function') {
+        renderMarkdown();
+    }
+    
+    // 更新状态
+    updateStatus('Markdown已生成');
+}
+
+// Add keyboard shortcut for ESC to close drawer
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        const drawer = document.getElementById('left-drawer');
+        if (drawer && drawer.classList.contains('open')) {
+            closeLeftDrawer();
+        }
+    }
+});
+
 // Make functions globally available
 window.loadSample = loadSample;
 window.downloadHTML = downloadHTML;
@@ -781,3 +880,6 @@ window.downloadTXT = downloadTXT;
 window.copyToClipboard = copyToClipboard;
 window.sendToWeChatDraft = sendToWeChatDraft;
 window.configureWeChat = configureWeChat;
+window.openLeftDrawer = openLeftDrawer;
+window.closeLeftDrawer = closeLeftDrawer;
+window.generateMarkdown = generateMarkdown;

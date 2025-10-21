@@ -567,6 +567,130 @@
             right: 0;
             z-index: 50;
         }
+        
+        /* Left Drawer Styles */
+        .left-drawer {
+            position: fixed;
+            top: 0;
+            left: -400px;
+            width: 400px;
+            height: 100vh;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: left 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .left-drawer.open {
+            left: 0;
+        }
+        
+        .drawer-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+        }
+        
+        .drawer-header h3 {
+            margin: 0;
+            color: #333;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .drawer-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .input-group textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #D86E4F;
+            box-shadow: 0 0 0 2px rgba(216, 110, 79, 0.2);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .button-group .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .button-group .btn-primary {
+            background: #D86E4F;
+            color: white;
+        }
+        
+        .button-group .btn-primary:hover {
+            background: #c05a3a;
+        }
+        
+        .button-group .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .button-group .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        /* Overlay for drawer */
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .drawer-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
 
         @media (max-width: 768px) {
             .main-content {
@@ -588,6 +712,16 @@
                 width: 100%;
                 height: auto;
                 z-index: 1000;
+            }
+            
+            /* Mobile responsive for left drawer */
+            .left-drawer {
+                width: 100%;
+                left: -100%;
+            }
+            
+            .left-drawer.open {
+                left: 0;
             }
         }
         
@@ -679,9 +813,14 @@
         <div class="editor-pane">
             <div class="pane-header">
                 <i class="fas fa-edit"></i> 编辑器
-                <button id="clear-editor" class="btn btn-secondary" style="float: right; padding: 2px 8px;" title="清空编辑器">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
+                <div style="float: right; display: flex; gap: 8px; align-items: center;">
+                    <button id="ai-assistant-btn" class="btn btn-primary" style="background-color: #6c757d; color: white; padding: 6px 10px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer; transition: all 0.2s ease; height: 32px; display: flex; align-items: center;" onclick="openLeftDrawer()">
+                        <i class="fas fa-robot"></i> 不会写MD?
+                    </button>
+                    <button id="clear-editor" class="btn btn-secondary" style="padding: 2px 8px;" title="清空编辑器">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
             </div>
             <div class="image-paste-area" id="imagePasteArea" style="display: none;">
                 <p><i class="fas fa-image"></i> 拖拽图片到此处或按 Ctrl+V 粘贴图片</p>
@@ -955,6 +1094,31 @@
                         </div>
                     </div>
                    </div>    
+            </div>
+        </div>
+    </div>
+
+    <!-- Drawer Overlay -->
+    <div class="drawer-overlay" id="drawer-overlay" onclick="closeLeftDrawer()"></div>
+
+    <!-- Left Drawer for AI Assistant -->
+    <div class="left-drawer" id="left-drawer">
+        <div class="drawer-header">
+            <h3><i class="fas fa-robot"></i> AI 助手</h3>
+            <button class="close-btn" onclick="closeLeftDrawer()">×</button>
+        </div>
+        <div class="drawer-content">
+            <div class="input-group">
+                <label for="ai-input">描述您想要的内容：</label>
+                <textarea id="ai-input" placeholder="例如：写一篇关于人工智能的文章，包含标题、段落和列表" rows="4"></textarea>
+            </div>
+            <div class="button-group">
+                <button id="ai-submit" class="btn btn-primary" onclick="generateMarkdown()">
+                    <i class="fas fa-magic"></i> 生成Markdown
+                </button>
+                <button class="btn btn-secondary" onclick="closeLeftDrawer()">
+                    取消
+                </button>
             </div>
         </div>
     </div>
