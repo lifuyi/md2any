@@ -799,9 +799,10 @@ function closeLeftDrawer() {
     }
 }
 
-function generateMarkdown() {
+async function generateMarkdown() {
     const input = document.getElementById('ai-input');
     const editor = document.getElementById('editor');
+    const submitBtn = document.getElementById('ai-submit');
     
     if (!input || !editor) {
         console.error('Input or editor element not found');
@@ -814,51 +815,79 @@ function generateMarkdown() {
         return;
     }
     
-    // 简单的示例生成逻辑
-    let generatedMarkdown = `# ${userInput}
-
-## 概述
-
-这里是对"${userInput}"的简要概述。
-
-## 主要内容
-
-### 第一点
-这是关于${userInput}的第一个要点。
-
-### 第二点  
-这是关于${userInput}的第二个要点。
-
-### 第三点
-这是关于${userInput}的第三个要点。
-
-## 总结
-
-综上所述，${userInput}是一个值得深入探讨的话题。
-
-## 参考资料
-
-- 相关链接1
-- 相关链接2
-- 相关链接3
-`;
-
-    // 将生成的内容插入到编辑器
-    editor.value = generatedMarkdown;
-    
-    // 关闭抽屉
-    closeLeftDrawer();
-    
-    // 清空输入框
-    input.value = '';
-    
-    // 触发重新渲染
-    if (typeof renderMarkdown === 'function') {
-        renderMarkdown();
+    // 禁用按钮并显示加载状态
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 生成中...';
     }
     
-    // 更新状态
-    updateStatus('Markdown已生成');
+    try {
+        // 更新状态
+        updateStatus('正在生成Markdown...');
+        
+        // 构建AI请求
+        const aiRequest = {
+            prompt: `请基于"${userInput}"生成一篇完整的Markdown格式文章。要求：
+1. 使用合适的Markdown语法，包括标题、段落、列表、加粗等
+2. 内容结构清晰，逻辑连贯
+3. 根据主题选择合适的内容深度和风格
+4. 包含引言、主体内容和总结
+5. 使用中文撰写，语言流畅自然
+6. 直接输出Markdown内容，不要包含其他说明
+
+主题：${userInput}`,
+            context: "用户需要生成高质量的Markdown内容用于发布和分享，要求内容专业且有结构。"
+        };
+        
+        // 调用后端AI API
+        const response = await fetch(`${API_BASE_URL}/ai`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(aiRequest)
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('AI API error:', errorText);
+            throw new Error(`AI生成失败: ${response.status} - ${errorText}`);
+        }
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.message || 'AI生成失败');
+        }
+        
+        // 将生成的内容插入到编辑器
+        editor.value = data.response;
+        
+        // 关闭抽屉
+        closeLeftDrawer();
+        
+        // 清空输入框
+        input.value = '';
+        
+        // 触发重新渲染
+        if (typeof renderMarkdown === 'function') {
+            renderMarkdown();
+        }
+        
+        // 更新状态
+        updateStatus('Markdown已生成');
+        
+    } catch (error) {
+        console.error('生成Markdown失败:', error);
+        alert('生成失败: ' + error.message);
+        updateStatus('生成失败', true);
+    } finally {
+        // 恢复按钮状态
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-magic"></i> 生成Markdown';
+        }
+    }
 }
 
 // Add keyboard shortcut for ESC to close drawer
