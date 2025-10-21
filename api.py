@@ -750,9 +750,24 @@ async def send_markdown_to_wechat_draft(request: WeChatDraftRequest):
         
         if 'errcode' in token_result and token_result['errcode'] != 0:
             logger.error(f"Failed to get access token: {token_result}")
+            # Add more descriptive error messages for common errors
+            error_msg = token_result.get('errmsg', 'Unknown error')
+            if token_result['errcode'] == 40013:
+                error_msg = "无效的AppID，请检查微信公众号AppID是否正确"
+            elif token_result['errcode'] == 40001:
+                error_msg = "AppSecret错误，请检查微信公众号AppSecret是否正确"
+            elif token_result['errcode'] == 40002:
+                error_msg = "请检查公众号权限，确保已开通草稿箱功能"
+            elif token_result['errcode'] == 40164:
+                error_msg = "IP地址未在白名单中，请在微信公众号后台添加IP: 101.246.231.55"
+            
             raise HTTPException(
                 status_code=400,
-                detail=token_result
+                detail={
+                    "errcode": token_result['errcode'],
+                    "errmsg": error_msg,
+                    "original": token_result
+                }
             )
         
         access_token = token_result['access_token']

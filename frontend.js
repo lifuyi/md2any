@@ -820,8 +820,7 @@ async function sendToWeChatDraft() {
             secret: appSecret,
             markdown: finalMarkdown,
             style: themeSelector?.value || 'wechat-default',
-            thumb_media_id: thumbMediaId,
-            dashseparator: false  // 前端已处理
+            thumb_media_id: thumbMediaId
         };
         
         const response = await fetch(`${API_BASE_URL}/wechat/send_draft`, {
@@ -844,10 +843,9 @@ async function sendToWeChatDraft() {
         } else {
             updateStatus('发送失败', true);
             let errorMsg = data.errmsg;
-            try {
-                errorMsg = JSON.parse('"' + data.errmsg.replace(/"/g, '\\"') + '"');
-            } catch (e) {
-                errorMsg = data.errmsg;
+            // For WeChat API errors, the errmsg is already in Chinese
+            if (data.detail && data.detail.errmsg) {
+                errorMsg = data.detail.errmsg;
             }
             alert('发送到微信草稿箱失败: ' + errorMsg);
         }
