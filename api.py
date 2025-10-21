@@ -13,6 +13,7 @@ import markdown
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
@@ -605,6 +606,25 @@ renderer = MarkdownRenderer()
 
 
 @app.get("/")
+async def index():
+    """Serve the index.html file"""
+    from fastapi.staticfiles import StaticFiles
+    from fastapi import Response
+    import os
+    
+    try:
+        # Read and return the index.html file
+        if os.path.exists('index.html'):
+            with open('index.html', 'r', encoding='utf-8') as f:
+                content = f.read()
+            return HTMLResponse(content=content)
+        else:
+            return HTMLResponse(content="<h1>md2any API</h1><p>Index file not found. API is running.</p>")
+    except Exception as e:
+        return HTMLResponse(content=f"<h1>Error</h1><p>{str(e)}</p>")
+
+
+@app.get("/api")
 async def root():
     """Root endpoint with API information"""
     return {
@@ -792,17 +812,66 @@ class ExampleClass:
     return HTMLResponse(content=rendered_html)
 
 
+def check_uv():
+    """Check if uv is installed"""
+    try:
+        import subprocess
+        subprocess.run(["uv", "--version"], check=True, capture_output=True)
+        return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return False
+
+def install_dependencies():
+    """Install dependencies using uv"""
+    import subprocess
+    print("Installing dependencies with uv...")
+    subprocess.run(["uv", "sync"], check=True)
+
+def run_server():
+    """Run the API server"""
+    import subprocess
+    print("Starting API server...")
+    subprocess.run(["uv", "run", "uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000", "--reload"], check=True)
+
 def main():
     """Main entry point for running the server"""
     import uvicorn
+    import sys
+    from pathlib import Path
     
-    uvicorn.run(
-        "api:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True,
-        log_level="info"
-    )
+    # Check if we should use the development runner
+    use_runner = "--runner" in sys.argv
+    
+    if use_runner:
+        # Use the development runner from run_api.py
+        if not check_uv():
+            print("Error: uv is not installed. Please install uv first:")
+            print("curl -LsSf https://astral.sh/uv/install.sh | sh")
+            sys.exit(1)
+        
+        # Check if pyproject.toml exists
+        if not Path("pyproject.toml").exists():
+            print("Error: pyproject.toml not found")
+            sys.exit(1)
+        
+        try:
+            install_dependencies()
+            run_server()
+        except KeyboardInterrupt:
+            print("\nServer stopped by user")
+            sys.exit(0)
+        except subprocess.CalledProcessError as e:
+            print(f"Error running command: {e}")
+            sys.exit(1)
+    else:
+        # Direct uvicorn execution
+        uvicorn.run(
+            "api:app",
+            host="0.0.0.0",
+            port=8000,
+            reload=True,
+            log_level="info"
+        )
 
 
 if __name__ == "__main__":
