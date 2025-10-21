@@ -464,7 +464,8 @@ async function renderMarkdown() {
         // Initialize MathJax if present
         initializeMathJax();
         
-        updateStatus('渲染完成');
+        const charCount = document.getElementById('editor').value.length;
+        updateStatus(`渲染完成 ${charCount} 字符`);
         
     } catch (error) {
         console.error('渲染失败:', error);
@@ -606,11 +607,13 @@ function updateStatus(message, isError = false) {
 
 function updateCharCount() {
     const editor = document.getElementById('editor');
-    const charCount = document.getElementById('char-count');
+    const status = document.getElementById('status');
     
-    if (editor && charCount) {
+    if (editor && status) {
         const count = editor.value.length;
-        charCount.textContent = `${count} 字符`;
+        if (status.textContent.includes('渲染完成')) {
+            status.textContent = `渲染完成 ${count} 字符`;
+        }
     }
 }
 

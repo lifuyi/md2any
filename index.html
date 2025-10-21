@@ -72,6 +72,8 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
+            position: relative;
         }
 
         header {
@@ -327,12 +329,16 @@
             100% { transform: rotate(360deg); }
         }
 
-        .container {
+        .main-content {
             flex: 1;
             display: flex;
             gap: 20px;
             padding: 20px;
+            padding-bottom: 60px; /* 为固定状态栏留出空间 */
             overflow: hidden;
+            position: relative;
+            min-height: 0;
+            box-sizing: border-box;
         }
 
         .editor-pane, .preview-pane, .settings-pane {
@@ -347,19 +353,26 @@
             flex: 1;
             max-width: 50%;
             min-width: 0;
+            min-height: 500px;
+            height: 100%;
         }
 
         .settings-pane {
             width: 0;
-            margin-left: 0;
             overflow: hidden;
-            flex-shrink: 0;
-            transition: width 0.3s ease, margin-left 0.3s ease;
+            transition: width 0.3s ease;
+            position: fixed;
+            top: 50px; /* 头部高度 */
+            right: 0;
+            width: 0;
+            height: calc(100vh - 50px - 40px); /* 减去头部和状态栏高度 */
+            background: white;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+            z-index: 100;
         }
         
         .settings-pane.visible {
-            width: 250px;
-            margin-left: 20px;
+            width: 300px;
             overflow-y: auto;
         }
         
@@ -536,24 +549,45 @@
             margin: 10px;
         }
 
-        .status-bar {
+         .status-bar {
             background: white;
             padding: 10px 20px;
             border-top: 1px solid #eee;
             font-size: 12px;
             color: #666;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            height: 40px;
+            flex-shrink: 0;
+            box-sizing: border-box;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
         }
 
         @media (max-width: 768px) {
-            .container {
+            .main-content {
                 flex-direction: column;
+                padding-bottom: 60px; /* 为固定状态栏留出空间 */
             }
             
-            .editor-pane, .preview-pane, .settings-pane {
+            .editor-pane, .preview-pane {
+                max-width: 100%;
                 min-height: 300px;
+            }
+            
+            .settings-pane.visible {
+                position: fixed;
+                top: 50px; /* 头部高度 */
+                left: 0;
+                right: 0;
+                bottom: 40px; /* 状态栏高度 */
                 width: 100%;
-                margin-left: 0;
-                margin-top: 20px;
+                height: auto;
+                z-index: 1000;
             }
         }
         
@@ -641,7 +675,7 @@
         </div>
     </header>
 
-    <div class="container">
+    <div class="main-content">
         <div class="editor-pane">
             <div class="pane-header">
                 <i class="fas fa-edit"></i> 编辑器
@@ -809,11 +843,124 @@
                    </div>    
             </div>
         </div>
+    <div class="settings-pane" id="settings-pane">
+            <div class="pane-header">
+                <i class="fas fa-cog"></i> 编辑器设置
+                <button class="close-btn" id="settings-close">×</button>
+            </div>
+            <div class="settings-content">
+                   <div class="settings-content">
+                   <div class="setting-group">
+                    <h3>格式自定义 <button id="load-default-format" class="btn btn-secondary" style="margin-left: 10px; padding: 4px 12px; font-size: 12px;">加载阿里橙样式</button></h3>
+                    <div class="format-customization">
+                        <div class="format-option">
+                            <label for="format-container">Container:</label>
+                            <textarea id="format-container" class="format-textarea" placeholder="输入Container的CSS样式..."></textarea>
+                        </div>
+                        <div class="format-option">
+                            <label for="format-h1">H1:</label>
+                            <textarea id="format-h1" class="format-textarea" placeholder="输入H1的CSS样式..."></textarea>
+                        </div>
+                        <div class="format-option">
+                            <label for="format-h2">H2:</label>
+                            <textarea id="format-h2" class="format-textarea" placeholder="输入H2的CSS样式..."></textarea>
+                        </div>
+                        <div class="format-option">
+                            <label for="format-h3">H3:</label>
+                            <textarea id="format-h3" class="format-textarea" placeholder="输入H3的CSS样式..."></textarea>
+                        </div>
+                        <div class="format-option">
+                            <label for="format-h4">H4:</label>
+                            <textarea id="format-h4" class="format-textarea" placeholder="输入H4的CSS样式..."></textarea>
+                        </div>
+                        <div class="format-option">
+                            <label for="format-h5">H5:</label>
+                            <textarea id="format-h5" class="format-textarea" placeholder="输入H5的CSS样式..."></textarea>
+                        </div>
+                        <div class="format-option">
+                            <label for="format-h6">H6:</label>
+                            <textarea id="format-h6" class="format-textarea" placeholder="输入H6的CSS样式..."></textarea>
+                        </div>
+                        <div class="format-option">
+                            <label for="format-p">P:</label>
+                            <textarea id="format-p" class="format-textarea" placeholder="输入P的CSS样式..."></textarea>
+                        </div>
+                        <div class="format-option">
+                            <label for="format-strong">Strong:</label>
+                            <textarea id="format-strong" class="format-textarea" placeholder="输入Strong的CSS样式..."></textarea>
+                        </div>
+                        <div class="format-option">
+                            <label for="format-em">Em:</label>
+                            <textarea id="format-em" class="format-textarea" placeholder="输入Em的CSS样式..."></textarea>
+                        </div>
+                        <div class="format-option">
+                            <label for="format-a">A:</label>
+                            <textarea id="format-a" class="format-textarea" placeholder="输入A的CSS样式..."></textarea>
+                        </div>
+                        <div class="format-option">
+                            <label for="format-ul">Ul:</label>
+                            <textarea id="format-ul" class="format-textarea" placeholder="输入Ul的CSS样式..."></textarea>
+                        </div>
+                        <div class="format-option">
+                            <label for="format-ol">Ol:</label>
+                            <textarea id="format-ol" class="format-textarea" placeholder="输入Ol的CSS样式..."></textarea>
+                        </div>
+                        <div class="format-option">
+                            <label for="format-li">Li:</label>
+                            <textarea id="format-li" class="format-textarea" placeholder="输入Li的CSS样式..."></textarea>
+                        </div>
+                        <div class="format-option">
+                            <label for="format-blockquote">Blockquote:</label>
+                            <textarea id="format-blockquote" class="format-textarea" placeholder="输入Blockquote的CSS样式..."></textarea>
+                        </div>
+                        <div class="format-option">
+                            <label for="format-code">Code:</label>
+                            <textarea id="format-code" class="format-textarea" placeholder="输入Code的CSS样式..."></textarea>
+                        </div>
+                        <div class="format-option">
+                            <label for="format-pre">Pre:</label>
+                            <textarea id="format-pre" class="format-textarea" placeholder="输入Pre的CSS样式..."></textarea>
+                        </div>
+                        <div class="format-option">
+                            <label for="format-hr">Hr:</label>
+                            <textarea id="format-hr" class="format-textarea" placeholder="输入Hr的CSS样式..."></textarea>
+                        </div>
+                        <div class="format-option">
+                            <label for="format-img">Img:</label>
+                            <textarea id="format-img" class="format-textarea" placeholder="输入Img的CSS样式..."></textarea>
+                        </div>
+                        <div class="format-option">
+                            <label for="format-table">Table:</label>
+                            <textarea id="format-table" class="format-textarea" placeholder="输入Table的CSS样式..."></textarea>
+                        </div>
+                        <div class="format-option">
+                            <label for="format-th">Th:</label>
+                            <textarea id="format-th" class="format-textarea" placeholder="输入Th的CSS样式..."></textarea>
+                        </div>
+                        <div class="format-option">
+                            <label for="format-td">Td:</label>
+                            <textarea id="format-td" class="format-textarea" placeholder="输入Td的CSS样式..."></textarea>
+                        </div>
+                        <div class="format-option">
+                            <label for="format-tr">Tr:</label>
+                            <textarea id="format-tr" class="format-textarea" placeholder="输入Tr的CSS样式..."></textarea>
+                        </div>
+                        <div class="format-option">
+                            <label for="format-innercontainer">Inner Container:</label>
+                            <textarea id="format-innercontainer" class="format-textarea" placeholder="输入Inner Container的CSS样式..."></textarea>
+                        </div>
+                        <div class="format-buttons">
+                            <button id="save-format" class="btn btn-primary">保存格式</button>
+                            <button id="reset-format" class="btn btn-secondary">重置格式</button>
+                        </div>
+                    </div>
+                   </div>    
+            </div>
+        </div>
     </div>
 
     <div class="status-bar">
         <span id="status">就绪</span>
-        <span id="char-count">0 字符</span>
     </div>
 
     <div class="loading" id="loading">
