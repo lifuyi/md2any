@@ -115,6 +115,9 @@ function initializeUI() {
     
     // Check backend status
     checkBackendStatus();
+    
+    // Initialize format customization
+    initializeFormatCustomization();
 }
 
 // Set up event listeners
@@ -157,7 +160,7 @@ function setupEventListeners() {
     setupKeyboardShortcuts();
 }
 
-// Setup settings panel
+// Settings panel
 function setupSettingsPanel() {
     const settingsToggle = document.getElementById('settings-toggle');
     const settingsClose = document.getElementById('settings-close');
@@ -168,6 +171,15 @@ function setupSettingsPanel() {
             if (settingsPane) {
                 settingsPane.classList.toggle('visible');
                 updateSettingsToggleText();
+                
+                // If opening settings panel, initialize format customization
+                if (settingsPane.classList.contains('visible')) {
+                    setTimeout(() => {
+                        if (typeof FormatCustomizer !== 'undefined' && !window.formatCustomizer) {
+                            window.formatCustomizer = new FormatCustomizer();
+                        }
+                    }, 100);
+                }
             }
         });
     }
@@ -220,6 +232,159 @@ function setupKeyboardShortcuts() {
     });
 }
 
+// Initialize format customization functionality
+function initializeFormatCustomization() {
+    const saveFormatBtn = document.getElementById('save-format');
+    const resetFormatBtn = document.getElementById('reset-format');
+    const loadDefaultBtn = document.getElementById('load-default-format');
+    
+    if (saveFormatBtn) {
+        saveFormatBtn.addEventListener('click', saveCustomFormat);
+    }
+    
+    if (resetFormatBtn) {
+        resetFormatBtn.addEventListener('click', resetCustomFormat);
+    }
+    
+    if (loadDefaultBtn) {
+        loadDefaultBtn.addEventListener('click', loadDefaultFormatValues);
+    }
+    
+    // Load saved custom formats
+    loadCustomFormats();
+}
+
+// Save custom format
+async function saveCustomFormat() {
+    const formatName = prompt('请输入自定义样式名称:');
+    if (!formatName) return;
+    
+    const customStyles = {};
+    const formatElements = [
+        'container', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+        'p', 'strong', 'em', 'a', 'ul', 'ol', 'li',
+        'blockquote', 'code', 'pre', 'hr', 'img', 'table', 'th', 'td', 'tr', 'innercontainer'
+    ];
+    
+    // Collect all custom styles
+    formatElements.forEach(element => {
+        const textarea = document.getElementById(`format-${element}`);
+        if (textarea && textarea.value.trim()) {
+            customStyles[element] = textarea.value.trim();
+        }
+    });
+    
+    if (Object.keys(customStyles).length === 0) {
+        alert('请至少设置一个样式');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/custom-styles`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                style_name: formatName,
+                styles: customStyles
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`保存失败: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        alert(result.message);
+        
+        // Refresh theme selector
+        await loadThemesFromAPI();
+        
+    } catch (error) {
+        console.error('保存自定义样式失败:', error);
+        alert(`保存失败: ${error.message}`);
+    }
+}
+
+// Reset custom format
+function resetCustomFormat() {
+    if (!confirm('确定要重置所有自定义样式吗？')) return;
+    
+    const formatElements = [
+        'container', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+        'p', 'strong', 'em', 'a', 'ul', 'ol', 'li',
+        'blockquote', 'code', 'pre', 'hr', 'img', 'table', 'th', 'td', 'tr', 'innercontainer'
+    ];
+    
+    formatElements.forEach(element => {
+        const textarea = document.getElementById(`format-${element}`);
+        if (textarea) {
+            textarea.value = '';
+        }
+    });
+    
+    alert('样式已重置');
+}
+
+// Load custom formats
+async function loadCustomFormats() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/custom-styles`);
+        if (!response.ok) return;
+        
+        const data = await response.json();
+        console.log('已加载的自定义样式:', data.custom_styles);
+        
+    } catch (error) {
+        console.error('加载自定义样式失败:', error);
+    }
+}
+
+// Load default format values (Alibaba Orange)
+function loadDefaultFormatValues() {
+    if (!confirm('确定要加载阿里橙样式吗？这将覆盖当前的所有自定义样式。')) {
+        return;
+    }
+    
+    const defaultValues = {
+        'format-container': 'max-width: 740px; margin: 0 auto; padding: 20px; font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; font-size: 16px; line-height: 1.8 !important; color: #3f3f3f !important; background-color: #ffffff; word-wrap: break-word;',
+        'format-h1': 'font-size: 28px; line-height: 1.4; font-weight: 700; color: #111111; position: relative; padding-bottom: 16px; border-bottom: 2px solid #ff6a00; margin: 32px 0 24px; letter-spacing: 0.5px;',
+        'format-h2': 'display: table; padding: 0.6em 1.5em; margin: 2.8em auto 1.5em; font-size: 1.3em; font-weight: 700; text-align: center; color: #fff; background: linear-gradient(135deg, #ff6a00, #ff8c00); border-radius: 30px; position: relative; box-shadow: 0 6px 16px rgba(255, 106, 0, 0.25); letter-spacing: 0.03em; border: 2px solid rgba(255, 255, 255, 0.3); z-index: 1; transition: all 0.3s ease;',
+        'format-h3': 'font-size: 1.2em; font-weight: 600; color: #333; margin: 2.2em 0 1em; padding-left: 16px; border-left: 4px solid #ff8c00; line-height: 1.5; position: relative;',
+        'format-h4': 'font-size: 20px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 24px 0 12px;',
+        'format-h5': 'font-size: 18px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 20px 0 10px;',
+        'format-h6': 'font-size: 16px; font-weight: 600; color: #6b8c42; margin-top: 1.5em; margin-bottom: 0.8em; border-bottom: 1px solid #d4d9c9; padding-bottom: 0.4em;',
+        'format-p': 'color: #555555; margin: 20px 0; line-height: 1.8;',
+        'format-strong': 'font-weight: 700; color: #ff6a00; background-color: rgba(255, 106, 0, 0.08); padding: 2px 4px; border-radius: 3px;',
+        'format-em': 'color: #00f2fe; font-style: italic;',
+        'format-a': 'color: #ff6a00; text-decoration: none; font-weight: 600; border-bottom: 2px solid rgba(255, 106, 0, 0.3); padding: 0 2px; transition: all 0.3s ease;',
+        'format-ul': 'padding: 16px 16px 16px 36px; background: rgba(255, 106, 0, 0.05); border-radius: 12px; border: 1px solid rgba(255, 106, 0, 0.1); margin: 20px 0;',
+        'format-ol': 'padding: 16px 16px 16px 36px; background: rgba(255, 140, 0, 0.05); border-radius: 12px; border: 1px solid rgba(255, 140, 0, 0.1); margin: 20px 0; list-style: none; counter-reset: item;',
+        'format-li': 'font-size: 16px; line-height: 1.8; color: #555555; position: relative; margin: 12px 0;',
+        'format-blockquote': 'padding: 20px 25px 20px 30px; background: #fffaf5; border-left: 5px solid #ff6a00; border-radius: 0 12px 12px 0; position: relative; color: #444; margin: 24px 0; font-style: italic;',
+        'format-code': 'font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; background: rgba(255, 106, 0, 0.08); padding: 4px 8px; border-radius: 6px; font-size: 14px; color: #d9480f; border: 1px solid rgba(255, 106, 0, 0.1);',
+        'format-pre': 'background: #f7f7f7; border-radius: 12px; padding: 20px 24px; overflow-x: auto; position: relative; border: 1px solid #e0e0e0; margin: 24px 0; line-height: 1.6; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);',
+        'format-hr': 'border: 0; height: 2px; background: linear-gradient(90deg, transparent, #ff6a00, transparent); margin: 36px 0; position: relative;',
+        'format-img': 'max-width: 100%; border: 2px solid #ff6a00; padding: 8px; background-color: #ffffff; position: relative; border-radius: 8px; box-shadow: 0 4px 12px rgba(255, 106, 0, 0.15); margin: 24px auto;',
+        'format-table': 'width: 100%; border-collapse: collapse; font-size: 15px; border: 1px solid #e8e8e8; border-radius: 12px; overflow: hidden; margin: 24px 0;',
+        'format-th': 'background: rgba(255, 106, 0, 0.1); font-weight: 600; text-align: left; padding: 16px 20px; color: #333; border-bottom: 2px solid rgba(255, 106, 0, 0.2);',
+        'format-td': 'padding: 16px 20px; border-bottom: 1px solid #f0f0f0; color: #555; line-height: 1.6;',
+        'format-tr': 'border-bottom-color: #ffeae0; transition: background-color 0.2s ease;',
+        'format-innercontainer': 'background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 250, 245, 0.95) 100%); border-radius: 16px; padding: 32px; margin: 24px 0; box-shadow: 0 8px 32px rgba(255, 106, 0, 0.15); border: 1px solid rgba(255, 106, 0, 0.1); position: relative; overflow: hidden;'
+    };
+    
+    // Set default values to textareas
+    Object.keys(defaultValues).forEach(id => {
+        const textarea = document.getElementById(id);
+        if (textarea) {
+            textarea.value = defaultValues[id];
+        }
+    });
+    
+    alert('阿里橙样式已加载！您可以基于此样式进行修改。');
+}
+
 // Render markdown using backend API
 async function renderMarkdown() {
     const editor = document.getElementById('editor');
@@ -227,7 +392,7 @@ async function renderMarkdown() {
     
     if (!editor || !preview) return;
     
-    const markdown = editor.value.trim();
+    let markdown = editor.value.trim();
     const theme = currentTheme;
     
     if (!markdown) {
@@ -244,30 +409,54 @@ async function renderMarkdown() {
     updateStatus('渲染中...');
     
     try {
-        const requestData = {
-            markdown_text: markdown,
-            theme: theme,
-            mode: 'light-mode',
-            platform: 'wechat'
-        };
-        console.log('Sending render request:', `${API_BASE_URL}/render`, requestData);
+        // Handle dash separator splitting in frontend
+        const splitCheckbox = document.getElementById('split-checkbox');
+        const shouldSplit = splitCheckbox && splitCheckbox.checked;
         
-        const response = await fetch(`${API_BASE_URL}/render`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestData)
-        });
-        
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Render error response:', errorText);
-            throw new Error(`渲染失败: ${response.status} - ${errorText}`);
+        if (shouldSplit && markdown.includes('---')) {
+            // Split markdown by dash separators and render each section
+            const sections = markdown.split(/^---$/gm).filter(section => section.trim());
+            
+            if (sections.length > 1) {
+                let sectionedHtml = '';
+                
+                for (let i = 0; i < sections.length; i++) {
+                    const sectionMarkdown = sections[i].trim();
+                    if (sectionMarkdown) {
+                        const requestData = {
+                            markdown_text: sectionMarkdown,
+                            theme: theme,
+                            mode: 'light-mode',
+                            platform: 'wechat',
+                            dashseparator: false  // Don't split again on backend
+                        };
+                        
+                        const response = await fetch(`${API_BASE_URL}/render`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(requestData)
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error(`渲染第${i+1}部分失败: ${response.status}`);
+                        }
+                        
+                        const data = await response.json();
+                        sectionedHtml += `<section class="markdown-section" data-section="${i+1}">\n${data.html}\n</section>\n`;
+                    }
+                }
+                
+                preview.innerHTML = sectionedHtml;
+            } else {
+                // No valid sections found, render normally
+                await renderNormalMarkdown(markdown, theme, preview);
+            }
+        } else {
+            // No splitting needed, render normally
+            await renderNormalMarkdown(markdown, theme, preview);
         }
-        
-        const data = await response.json();
-        preview.innerHTML = data.html;
         
         // Initialize Mermaid diagrams if present
         initializeMermaid();
@@ -290,6 +479,34 @@ async function renderMarkdown() {
     } finally {
         hideLoading();
     }
+}
+
+// Helper function to render markdown normally
+async function renderNormalMarkdown(markdown, theme, preview) {
+    const requestData = {
+        markdown_text: markdown,
+        theme: theme,
+        mode: 'light-mode',
+        platform: 'wechat',
+        dashseparator: false  // Always false since we handle it in frontend
+    };
+    
+    const response = await fetch(`${API_BASE_URL}/render`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData)
+    });
+    
+    if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Render error response:', errorText);
+        throw new Error(`渲染失败: ${response.status} - ${errorText}`);
+    }
+    
+    const data = await response.json();
+    preview.innerHTML = data.html;
 }
 
 // Initialize Mermaid diagrams

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>阿里橙自定义样式演示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .demo-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .preview-section {
+            border: 2px solid #ff6a00;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            background: #fffaf5;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6a00, #ff8c00);
+            color: white;
+            font-weight: 600;
+        }
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="color: #ff6a00;">🍂 阿里橙自定义样式演示</h1>
+    
+    <div class="demo-section">
+        <h2>1. 测试内容</h2>
+        <textarea id="test-content"># 阿里橙标题样式
+
+这是一个使用阿里橙自定义样式的测试段落，展示了颜色、字体和间距的效果。
+
+## 二级标题展示
+
+### 三级标题展示
+
+这里有一些**粗体文字**和*斜体文字*的组合效果。
+
+- 列表项目1：展示了列表的样式
+- 列表项目2：带有橙色背景的列表容器
+- 列表项目3：统一的视觉风格
+
+> 这是一个引用块，展示了阿里橙风格的引用样式
+
+下面是代码示例：
+`const alibaba = { color: '#ff6a00', style: 'modern' };`
+
+---
+
+这是分隔线效果。
+
+| 功能 | 支持 | 备注 |
+|------|------|------|
+| 自定义样式 | ✅ | 完全支持 |
+| 实时预览 | ✅ | 即时反馈 |
+| 一键保存 | ✅ | 方便快捷 |</textarea>
+    </div>
+    
+    <div class="demo-section">
+        <h2>2. 操作按钮</h2>
+        <button onclick="loadAlibabaStyle()" class="btn-primary">加载阿里橙样式</button>
+        <button onclick="saveCustomStyle()" class="btn-primary">保存自定义样式</button>
+        <button onclick="renderPreview()" class="btn-secondary">预览效果</button>
+        <button onclick="resetStyles()" class="btn-secondary">重置样式</button>
+        <div id="status" class="status" style="display: none;"></div>
+    </div>
+    
+    <div class="demo-section">
+        <h2>3. 样式编辑器</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <h4>标题样式</h4>
+                <label>H1:</label>
+                <textarea id="format-h1" placeholder="输入H1的CSS样式..."></textarea>
+                
+                <label>H2:</label>
+                <textarea id="format-h2" placeholder="输入H2的CSS样式..."></textarea>
+                
+                <label>H3:</label>
+                <textarea id="format-h3" placeholder="输入H3的CSS样式..."></textarea>
+            </div>
+            
+            <div>
+                <h4>段落和文本样式</h4>
+                <label>P:</label>
+                <textarea id="format-p" placeholder="输入P的CSS样式..."></textarea>
+                
+                <label>Strong:</label>
+                <textarea id="format-strong" placeholder="输入Strong的CSS样式..."></textarea>
+                
+                <label>Container:</label>
+                <textarea id="format-container" placeholder="输入Container的CSS样式..."></textarea>
+            </div>
+        </div>
+    </div>
+    
+    <div class="demo-section">
+        <h2>4. 预览效果</h2>
+        <div id="preview" class="preview-section">
+            <p style="text-align: center; color: #999;">点击"预览效果"按钮查看渲染结果</p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5005';
+        
+        // 阿里橙默认样式
+        const alibabaStyles = {
+            'format-container': 'max-width: 740px; margin: 0 auto; padding: 20px; font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; font-size: 16px; line-height: 1.8 !important; color: #3f3f3f !important; background-color: #ffffff; word-wrap: break-word;',
+            'format-h1': 'font-size: 28px; line-height: 1.4; font-weight: 700; color: #111111; position: relative; padding-bottom: 16px; border-bottom: 2px solid #ff6a00; margin: 32px 0 24px; letter-spacing: 0.5px;',
+            'format-h2': 'display: table; padding: 0.6em 1.5em; margin: 2.8em auto 1.5em; font-size: 1.3em; font-weight: 700; text-align: center; color: #fff; background: linear-gradient(135deg, #ff6a00, #ff8c00); border-radius: 30px; position: relative; box-shadow: 0 6px 16px rgba(255, 106, 0, 0.25); letter-spacing: 0.03em; border: 2px solid rgba(255, 255, 255, 0.3); z-index: 1; transition: all 0.3s ease;',
+            'format-h3': 'font-size: 1.2em; font-weight: 600; color: #333; margin: 2.2em 0 1em; padding-left: 16px; border-left: 4px solid #ff8c00; line-height: 1.5; position: relative;',
+            'format-p': 'color: #555555; margin: 20px 0; line-height: 1.8;',
+            'format-strong': 'font-weight: 700; color: #ff6a00; background-color: rgba(255, 106, 0, 0.08); padding: 2px 4px; border-radius: 3px;'
+        };
+        
+        function showStatus(message, isError = false) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.style.display = 'block';
+            statusDiv.className = isError ? 'status error' : 'status success';
+            statusDiv.textContent = message;
+            
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 3000);
+        }
+        
+        function loadAlibabaStyle() {
+            Object.keys(alibabaStyles).forEach(id => {
+                const textarea = document.getElementById(id);
+                if (textarea) {
+                    textarea.value = alibabaStyles[id];
+                }
+            });
+            showStatus('✅ 阿里橙样式已加载！');
+        }
+        
+        async function saveCustomStyle() {
+            const styleName = prompt('请输入自定义样式名称:');
+            if (!styleName) return;
+            
+            const customStyles = {};
+            const formatElements = ['container', 'h1', 'h2', 'h3', 'p', 'strong'];
+            
+            formatElements.forEach(element => {
+                const textarea = document.getElementById(`format-${element}`);
+                if (textarea && textarea.value.trim()) {
+                    customStyles[element] = textarea.value.trim();
+                }
+            });
+            
+            if (Object.keys(customStyles).length === 0) {
+                showStatus('❌ 请至少设置一个样式', true);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/custom-styles`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        style_name: styleName,
+                        styles: customStyles
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showStatus(`✅ ${result.message}`);
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                showStatus(`❌ 保存失败: ${error.message}`, true);
+            }
+        }
+        
+        async function renderPreview() {
+            const content = document.getElementById('test-content').value;
+            if (!content.trim()) {
+                showStatus('❌ 请输入测试内容', true);
+                return;
+            }
+            
+            const customStyles = {};
+            const formatElements = ['container', 'h1', 'h2', 'h3', 'p', 'strong'];
+            
+            formatElements.forEach(element => {
+                const textarea = document.getElementById(`format-${element}`);
+                if (textarea && textarea.value.trim()) {
+                    customStyles[element] = textarea.value.trim();
+                }
+            });
+            
+            if (Object.keys(customStyles).length === 0) {
+                showStatus('❌ 请先设置样式或加载阿里橙样式', true);
+                return;
+            }
+            
+            try {
+                // 保存临时样式用于预览
+                await fetch(`${API_BASE_URL}/custom-styles`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        style_name: 'temp-preview',
+                        styles: customStyles
+                    })
+                });
+                
+                // 渲染预览
+                const response = await fetch(`${API_BASE_URL}/render`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        markdown_text: content,
+                        theme: 'temp-preview',
+                        mode: 'light-mode',
+                        platform: 'wechat'
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    document.getElementById('preview').innerHTML = result.html;
+                    showStatus('✅ 预览已更新！');
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                showStatus(`❌ 预览失败: ${error.message}`, true);
+            }
+        }
+        
+        function resetStyles() {
+            if (!confirm('确定要重置所有样式吗？')) return;
+            
+            const formatElements = ['container', 'h1', 'h2', 'h3', 'p', 'strong'];
+            formatElements.forEach(element => {
+                const textarea = document.getElementById(`format-${element}`);
+                if (textarea) {
+                    textarea.value = '';
+                }
+            });
+            
+            document.getElementById('preview').innerHTML = '<p style="text-align: center; color: #999;">点击"预览效果"按钮查看渲染结果</p>';
+            showStatus('✅ 样式已重置！');
+        }
+        
+        // 页面加载时自动加载阿里橙样式
+        window.addEventListener('load', () => {
+            loadAlibabaStyle();
+        });
+    </script>
+</body>
+</html>

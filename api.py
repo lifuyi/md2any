@@ -141,6 +141,23 @@ def load_themes() -> Dict[str, Any]:
         return get_default_themes()
 
 
+# Custom styles storage
+CUSTOM_STYLES = {}
+
+
+class CustomStyleRequest(BaseModel):
+    """Request model for custom style operations"""
+    style_name: str
+    styles: Dict[str, str]
+
+
+class CustomStyleResponse(BaseModel):
+    """Response model for custom style operations"""
+    success: bool = True
+    message: str = "Operation completed successfully"
+    style_name: str = ""
+
+
 def get_enhanced_default_styles() -> Dict[str, str]:
     """Get enhanced default styles"""
     return {
@@ -264,6 +281,20 @@ class MarkdownRenderer:
         
         return styled_html
     
+    def render_with_custom_styles(self, markdown_text: str, theme_name: str, mode: str, platform: str, custom_styles: Dict[str, str]) -> str:
+        """Render markdown with custom styles"""
+        
+        # Convert markdown to HTML
+        html_content = self.md.convert(markdown_text)
+        
+        # Apply custom styling
+        styled_html = self._apply_custom_styling(html_content, custom_styles, mode, platform)
+        
+        # Reset markdown instance for next use
+        self.md.reset()
+        
+        return styled_html
+    
     def _apply_theme_styling(self, html_content: str, theme: Dict[str, Any], mode: str, platform: str) -> str:
         """Apply theme styling to HTML content with inline styles"""
         
@@ -309,6 +340,73 @@ class MarkdownRenderer:
         # Get container styles
         container_style = styles.get("container", "")
         inner_container_style = styles.get("innerContainer", "")
+        
+        # Apply adjustments to container styles
+        if mode == "dark-mode":
+            container_style = self._apply_dark_mode_adjustments_to_style(container_style)
+            inner_container_style = self._apply_dark_mode_adjustments_to_style(inner_container_style)
+        if platform == "wechat":
+            container_style = self._adjust_for_wechat_style(container_style)
+            inner_container_style = self._adjust_for_wechat_style(inner_container_style)
+        
+        # Create container section
+        container = soup.new_tag('section', **{'class': 'markdown-content'})
+        if container_style:
+            container['style'] = container_style
+        
+        # Add inner container if needed
+        if inner_container_style:
+            inner_container = soup.new_tag('section', **{'class': 'inner-container'})
+            inner_container['style'] = inner_container_style
+            inner_container.extend(soup.contents)
+            container.append(inner_container)
+        else:
+            container.extend(soup.contents)
+        
+        return str(container)
+    
+    def _apply_custom_styling(self, html_content: str, custom_styles: Dict[str, str], mode: str, platform: str) -> str:
+        """Apply custom styling to HTML content"""
+        
+        # Handle image grid layouts first
+        html_content = self._process_image_grids(html_content)
+        
+        # Parse HTML with BeautifulSoup
+        soup = BeautifulSoup(html_content, 'html.parser')
+        
+        # Apply custom styles to each element
+        for selector, style_properties in custom_styles.items():
+            if selector in ['container', 'innerContainer']:
+                # Skip container styles as they're handled separately
+                continue
+            
+            # Apply mode and platform adjustments to styles
+            adjusted_style = style_properties
+            if mode == "dark-mode":
+                adjusted_style = self._apply_dark_mode_adjustments_to_style(adjusted_style)
+            if platform == "wechat":
+                adjusted_style = self._adjust_for_wechat_style(adjusted_style)
+            elif platform == "xiaohongshu":
+                adjusted_style = self._adjust_for_xiaohongshu_style(adjusted_style)
+            elif platform == "zhihu":
+                adjusted_style = self._adjust_for_zhihu_style(adjusted_style)
+            
+            # Find matching elements and apply inline styles
+            try:
+                elements = soup.select(selector)
+                for element in elements:
+                    existing_style = element.get('style', '')
+                    if existing_style and not existing_style.endswith(';'):
+                        existing_style += ';'
+                    combined_style = f"{existing_style} {adjusted_style}"
+                    element['style'] = combined_style.strip()
+            except Exception as e:
+                # Skip invalid selectors
+                continue
+        
+        # Get container styles
+        container_style = custom_styles.get("container", "")
+        inner_container_style = custom_styles.get("innerContainer", "")
         
         # Apply adjustments to container styles
         if mode == "dark-mode":
@@ -482,12 +580,15 @@ async def health_check():
 async def get_themes():
     """Get available themes with their modes"""
     theme_list = []
+    
+    # Add predefined themes
     for theme_id, theme_config in THEMES.items():
         theme_info = {
             "id": theme_id,
             "name": theme_config.get("name", theme_id),
             "description": theme_config.get("description", ""),
-            "modes": theme_config.get("modes", [])
+            "modes": theme_config.get("modes", []),
+            "type": "predefined"
         }
         
         # If no modes defined, add default light mode
@@ -498,6 +599,21 @@ async def get_themes():
                 "background": "#ffffff"
             }]
         
+        theme_list.append(theme_info)
+    
+    # Add custom themes
+    for style_name, style_config in CUSTOM_STYLES.items():
+        theme_info = {
+            "id": style_name,
+            "name": style_name,
+            "description": "用户自定义样式",
+            "modes": [{
+                "name": "默认",
+                "id": "light-mode",
+                "background": "#ffffff"
+            }],
+            "type": "custom"
+        }
         theme_list.append(theme_info)
     
     return {"themes": theme_list}
@@ -672,6 +788,8 @@ async def send_markdown_to_wechat_draft(request: WeChatDraftRequest):
             "wechat"
         )
         
+        
+        
         # Wrap in markdown-body div for WeChat compatibility
         final_html = f'<div class="markdown-body">{styled_html}</div>'
         
@@ -790,28 +908,40 @@ async def render_markdown(request: MarkdownRequest):
     """Render markdown to HTML with theme styling"""
     
     try:
-        # Validate theme and use fallback if needed
-        if request.theme not in THEMES:
+        # Check if theme exists in predefined themes or custom styles
+        theme_source = None
+        theme_config = None
+        
+        if request.theme in THEMES:
+            theme_source = "predefined"
+            theme_config = THEMES[request.theme]
+        elif request.theme in CUSTOM_STYLES:
+            theme_source = "custom"
+            # Create a temporary theme config for custom styles
+            theme_config = {
+                "name": request.theme,
+                "styles": CUSTOM_STYLES[request.theme],
+                "modes": [{
+                    "name": "默认",
+                    "id": "light-mode",
+                    "background": "#ffffff"
+                }]
+            }
+        
+        if not theme_config:
             # Use fallback theme if requested theme doesn't exist
             available_themes = list(THEMES.keys())
             if available_themes:
                 request.theme = available_themes[0]  # Use first available theme
+                theme_config = THEMES[request.theme]
+                theme_source = "predefined"
             else:
                 raise HTTPException(
                     status_code=400,
                     detail="No themes available"
                 )
         
-        # Final check to ensure fallback theme exists
-        if request.theme not in THEMES:
-            available_themes = list(THEMES.keys())
-            raise HTTPException(
-                status_code=400,
-                detail=f"No valid themes available. Available themes: {available_themes}"
-            )
-        
         # Validate mode for the theme
-        theme_config = THEMES[request.theme]
         available_modes = [mode["id"] for mode in theme_config.get("modes", [])]
         if available_modes and request.mode not in available_modes:
             raise HTTPException(
@@ -820,12 +950,23 @@ async def render_markdown(request: MarkdownRequest):
             )
         
         # Render markdown
-        rendered_html = renderer.render(
-            request.markdown_text,
-            request.theme,
-            request.mode,
-            request.platform
-        )
+        if theme_source == "custom":
+            # For custom styles, use a special renderer
+            rendered_html = renderer.render_with_custom_styles(
+                request.markdown_text,
+                request.theme,
+                request.mode,
+                request.platform,
+                CUSTOM_STYLES[request.theme]
+            )
+        else:
+            # Use normal renderer for predefined themes
+            rendered_html = renderer.render(
+                request.markdown_text,
+                request.theme,
+                request.mode,
+                request.platform
+            )
         
         return MarkdownResponse(
             html=rendered_html,
@@ -839,6 +980,76 @@ async def render_markdown(request: MarkdownRequest):
         raise HTTPException(
             status_code=500,
             detail=f"Rendering error: {str(e)}"
+        )
+
+
+@app.post("/custom-styles", response_model=CustomStyleResponse)
+async def save_custom_style(request: CustomStyleRequest):
+    """Save a custom style configuration"""
+    try:
+        CUSTOM_STYLES[request.style_name] = request.styles
+        logger.info(f"Saved custom style: {request.style_name}")
+        
+        return CustomStyleResponse(
+            success=True,
+            message=f"自定义样式 '{request.style_name}' 保存成功",
+            style_name=request.style_name
+        )
+    except Exception as e:
+        logger.error(f"Error saving custom style: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"保存自定义样式失败: {str(e)}"
+        )
+
+
+@app.get("/custom-styles/{style_name}")
+async def get_custom_style(style_name: str):
+    """Get a specific custom style configuration"""
+    if style_name not in CUSTOM_STYLES:
+        raise HTTPException(
+            status_code=404,
+            detail=f"自定义样式 '{style_name}' 不存在"
+        )
+    
+    return {
+        "style_name": style_name,
+        "styles": CUSTOM_STYLES[style_name]
+    }
+
+
+@app.get("/custom-styles")
+async def list_custom_styles():
+    """List all custom style names"""
+    return {
+        "custom_styles": list(CUSTOM_STYLES.keys()),
+        "count": len(CUSTOM_STYLES)
+    }
+
+
+@app.delete("/custom-styles/{style_name}", response_model=CustomStyleResponse)
+async def delete_custom_style(style_name: str):
+    """Delete a custom style configuration"""
+    if style_name not in CUSTOM_STYLES:
+        raise HTTPException(
+            status_code=404,
+            detail=f"自定义样式 '{style_name}' 不存在"
+        )
+    
+    try:
+        del CUSTOM_STYLES[style_name]
+        logger.info(f"Deleted custom style: {style_name}")
+        
+        return CustomStyleResponse(
+            success=True,
+            message=f"自定义样式 '{style_name}' 删除成功",
+            style_name=style_name
+        )
+    except Exception as e:
+        logger.error(f"Error deleting custom style: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"删除自定义样式失败: {str(e)}"
         )
 
 

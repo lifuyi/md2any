@@ -598,7 +598,6 @@ def send_markdown_to_wechat_draft():
     markdown_content = data.get('markdown')
     style = data.get('style', 'wechat-default.css')
     thumb_media_id = data.get('thumb_media_id', '')
-    dash_separator = data.get('dashseparator', False)
     
     # 验证必需参数
     if not appid:

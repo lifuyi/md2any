@@ -319,29 +319,70 @@ async function downloadHTML() {
             // Use rendered content from preview
             htmlContent = preview.innerHTML;
         } else {
-            // Render via API
-            const response = await fetch(`${API_BASE_URL}/render`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    markdown_text: editor.value,
-                    theme: themeSelector?.value || 'wechat-default',
-                    mode: 'light-mode',
-                    platform: 'wechat'
-                })
-            });
+            // 处理分隔线拆分（前端实现）
+            const splitCheckbox = document.getElementById('split-checkbox');
+            const shouldSplit = splitCheckbox && splitCheckbox.checked;
+            const markdown = editor.value;
             
-            if (!response.ok) {
-                throw new Error(`渲染失败: ${response.status}`);
+            if (shouldSplit && markdown.includes('---')) {
+                // 分段渲染并合并
+                const sections = markdown.split(/^---$/gm).filter(section => section.trim());
+                let sectionedHtml = '';
+                
+                for (let i = 0; i < sections.length; i++) {
+                    const sectionMarkdown = sections[i].trim();
+                    if (sectionMarkdown) {
+                        const response = await fetch(`${API_BASE_URL}/render`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                markdown_text: sectionMarkdown,
+                                theme: themeSelector?.value || 'wechat-default',
+                                mode: 'light-mode',
+                                platform: 'wechat',
+                                dashseparator: false  // 前端已处理
+                            })
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error(`渲染第${i+1}部分失败: ${response.status}`);
+                        }
+                        
+                        const data = await response.json();
+                        sectionedHtml += `<section class="markdown-section" data-section="${i+1}">\n${data.html}\n</section>\n`;
+                    }
+                }
+                
+                htmlContent = sectionedHtml;
+            } else {
+                // 正常渲染
+                const response = await fetch(`${API_BASE_URL}/render`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        markdown_text: markdown,
+                        theme: themeSelector?.value || 'wechat-default',
+                        mode: 'light-mode',
+                        platform: 'wechat',
+                        dashseparator: false  // 前端已处理
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`渲染失败: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                htmlContent = data.html;
             }
-            
-            const data = await response.json();
-            htmlContent = data.html;
         }
         
         const fullHtml = `
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -394,19 +435,67 @@ async function downloadPNG() {
     updateStatus('正在生成PNG...');
 
     try {
-        // 从后端API获取渲染后的完整HTML
-        const response = await fetch(`${API_BASE_URL}/render`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                markdown_text: editor.value,
-                theme: themeSelector?.value || 'wechat-default',
-                mode: 'light-mode',
-                platform: 'wechat'
-            })
-        });
+        // 处理分隔线拆分（前端实现）
+        let htmlContent;
+        const splitCheckbox = document.getElementById('split-checkbox');
+        const shouldSplit = splitCheckbox && splitCheckbox.checked;
+        const markdown = editor.value;
+        
+        if (shouldSplit && markdown.includes('---')) {
+            // 分段渲染并合并
+            const sections = markdown.split(/^---$/gm).filter(section => section.trim());
+            let sectionedHtml = '';
+            
+            for (let i = 0; i < sections.length; i++) {
+                const sectionMarkdown = sections[i].trim();
+                if (sectionMarkdown) {
+                    const response = await fetch(`${API_BASE_URL}/render`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            markdown_text: sectionMarkdown,
+                            theme: themeSelector?.value || 'wechat-default',
+                            mode: 'light-mode',
+                            platform: 'wechat',
+                            dashseparator: false  // 前端已处理
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`渲染第${i+1}部分失败: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    sectionedHtml += `<section class="markdown-section" data-section="${i+1}">\n${data.html}\n</section>\n`;
+                }
+            }
+            
+            htmlContent = sectionedHtml;
+        } else {
+            // 正常渲染
+            const response = await fetch(`${API_BASE_URL}/render`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    markdown_text: markdown,
+                    theme: themeSelector?.value || 'wechat-default',
+                    mode: 'light-mode',
+                    platform: 'wechat',
+                    dashseparator: false  // 前端已处理
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`渲染失败: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            htmlContent = data.html;
+        }
         
         if (!response.ok) {
             throw new Error(`渲染失败: ${response.status}`);
@@ -572,26 +661,66 @@ async function copyToClipboard() {
             // Use rendered content from preview
             htmlContent = preview.innerHTML;
         } else {
-            // Render via API
-            const response = await fetch(`${API_BASE_URL}/render`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    markdown_text: editor.value,
-                    theme: themeSelector?.value || 'wechat-default',
-                    mode: 'light-mode',
-                    platform: 'wechat'
-                })
-            });
+            // 处理分隔线拆分（前端实现）
+            const splitCheckbox = document.getElementById('split-checkbox');
+            const shouldSplit = splitCheckbox && splitCheckbox.checked;
+            const markdown = editor.value;
             
-            if (!response.ok) {
-                throw new Error(`渲染失败: ${response.status}`);
+            if (shouldSplit && markdown.includes('---')) {
+                // 分段渲染并合并
+                const sections = markdown.split(/^---$/gm).filter(section => section.trim());
+                let sectionedHtml = '';
+                
+                for (let i = 0; i < sections.length; i++) {
+                    const sectionMarkdown = sections[i].trim();
+                    if (sectionMarkdown) {
+                        const response = await fetch(`${API_BASE_URL}/render`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                markdown_text: sectionMarkdown,
+                                theme: themeSelector?.value || 'wechat-default',
+                                mode: 'light-mode',
+                                platform: 'wechat',
+                                dashseparator: false  // 前端已处理
+                            })
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error(`渲染第${i+1}部分失败: ${response.status}`);
+                        }
+                        
+                        const data = await response.json();
+                        sectionedHtml += `<section class="markdown-section" data-section="${i+1}">\n${data.html}\n</section>\n`;
+                    }
+                }
+                
+                htmlContent = sectionedHtml;
+            } else {
+                // 正常渲染
+                const response = await fetch(`${API_BASE_URL}/render`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        markdown_text: markdown,
+                        theme: themeSelector?.value || 'wechat-default',
+                        mode: 'light-mode',
+                        platform: 'wechat',
+                        dashseparator: false  // 前端已处理
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`渲染失败: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                htmlContent = data.html;
             }
-            
-            const data = await response.json();
-            htmlContent = data.html;
         }
         
         // Create temporary div to process HTML
@@ -668,16 +797,31 @@ async function sendToWeChatDraft() {
     updateStatus('正在发送到微信草稿箱...');
 
     try {
+        // 处理分隔线拆分（前端实现）
         const splitCheckbox = document.getElementById('split-checkbox');
-        const dashSeparator = splitCheckbox && splitCheckbox.checked;
+        const shouldSplit = splitCheckbox && splitCheckbox.checked;
+        const markdown = editor.value;
+        
+        let finalMarkdown = markdown;
+        if (shouldSplit && markdown.includes('---')) {
+            // 在前端处理分隔线拆分，保持原有markdown结构
+            // 但添加section标记以便后端识别
+            const sections = markdown.split(/^---$/gm).filter(section => section.trim());
+            if (sections.length > 1) {
+                // 添加section注释标记
+                finalMarkdown = sections.map((section, index) => 
+                    `<!-- SECTION ${index + 1} -->\n${section.trim()}`
+                ).join('\n\n---\n\n');
+            }
+        }
         
         const requestData = {
             appid: appId,
             secret: appSecret,
-            markdown: editor.value,
+            markdown: finalMarkdown,
             style: themeSelector?.value || 'wechat-default',
             thumb_media_id: thumbMediaId,
-            dashseparator: dashSeparator
+            dashseparator: false  // 前端已处理
         };
         
         const response = await fetch(`${API_BASE_URL}/wechat/send_draft`, {
@@ -775,6 +919,174 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initImagePaste, 100);
 });
 
+// Format Customization functionality
+class FormatCustomizer {
+    constructor() {
+        this.debounceTimer = null;
+        this.init();
+    }
+    
+    init() {
+        this.setupEventListeners();
+    }
+    
+    setupEventListeners() {
+        const formatElements = [
+            'container', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+            'p', 'strong', 'em', 'a', 'ul', 'ol', 'li',
+            'blockquote', 'code', 'pre', 'hr', 'img', 'table', 'th', 'td', 'tr', 'innercontainer'
+        ];
+        
+        formatElements.forEach(element => {
+            const textarea = document.getElementById(`format-${element}`);
+            if (textarea) {
+                textarea.addEventListener('input', () => {
+                    this.debouncePreview();
+                });
+            }
+        });
+    }
+    
+    debouncePreview() {
+        clearTimeout(this.debounceTimer);
+        this.debounceTimer = setTimeout(() => {
+            this.previewCustomFormat();
+        }, 500);
+    }
+    
+    async previewCustomFormat() {
+        const editor = document.getElementById('editor');
+        if (!editor || !editor.value.trim()) return;
+        
+        const customStyles = {};
+        const formatElements = [
+            'container', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+            'p', 'strong', 'em', 'a', 'ul', 'ol', 'li',
+            'blockquote', 'code', 'pre', 'hr', 'img', 'table', 'th', 'td', 'tr', 'innercontainer'
+        ];
+        
+        // Collect all custom styles
+        formatElements.forEach(element => {
+            const textarea = document.getElementById(`format-${element}`);
+            if (textarea && textarea.value.trim()) {
+                customStyles[element] = textarea.value.trim();
+            }
+        });
+        
+        if (Object.keys(customStyles).length === 0) return;
+        
+        try {
+            // Create a temporary custom style name for preview
+            const previewStyleName = 'preview-custom';
+            
+            // Save the preview style temporarily
+            const response = await fetch(`${API_BASE_URL}/custom-styles`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    style_name: previewStyleName,
+                    styles: customStyles
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`预览失败: ${response.status}`);
+            }
+            
+            // Render with the custom style
+            await this.renderWithCustomStyle(previewStyleName);
+            
+        } catch (error) {
+            console.error('预览自定义样式失败:', error);
+        }
+    }
+    
+    async renderWithCustomStyle(styleName) {
+        const editor = document.getElementById('editor');
+        const preview = document.getElementById('preview');
+        
+        if (!editor || !preview) return;
+        
+        const markdown = editor.value.trim();
+        if (!markdown) return;
+        
+        showLoading();
+        updateStatus('预览自定义样式...');
+        
+        try {
+            const requestData = {
+                markdown_text: markdown,
+                theme: styleName,
+                mode: 'light-mode',
+                platform: 'wechat'
+            };
+            
+            const response = await fetch(`${API_BASE_URL}/render`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`渲染失败: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            preview.innerHTML = data.html;
+            
+            // Initialize Mermaid diagrams if present
+            if (typeof mermaid !== 'undefined') {
+                setTimeout(() => {
+                    try {
+                        const mermaidElements = document.querySelectorAll('.mermaid, code.language-mermaid');
+                        if (mermaidElements.length > 0) {
+                            mermaid.run({
+                                nodes: mermaidElements
+                            }).catch(error => {
+                                console.error('Mermaid rendering failed:', error);
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Mermaid initialization failed:', error);
+                    }
+                }, 100);
+            }
+            
+            // Initialize MathJax if present
+            if (typeof window.MathJax !== 'undefined' && window.MathJax.typesetPromise) {
+                setTimeout(() => {
+                    try {
+                        window.MathJax.typesetPromise([document.getElementById('preview')]);
+                    } catch (error) {
+                        console.warn('MathJax rendering failed:', error);
+                    }
+                }, 100);
+            }
+            
+            updateStatus('预览完成');
+            
+        } catch (error) {
+            console.error('预览渲染失败:', error);
+            updateStatus('预览失败', true);
+        } finally {
+            hideLoading();
+        }
+    }
+}
+
+// Initialize format customizer when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        if (typeof FormatCustomizer !== 'undefined') {
+            window.formatCustomizer = new FormatCustomizer();
+        }
+    }, 200);
+});
+
 // Make functions globally available
 window.downloadHTML = downloadHTML;
 window.downloadPNG = downloadPNG;
@@ -785,3 +1097,4 @@ window.sendToWeChatDraft = sendToWeChatDraft;
 window.configureWeChat = configureWeChat;
 window.ImageStore = ImageStore;
 window.ImageCompressor = ImageCompressor;
+window.FormatCustomizer = FormatCustomizer;
