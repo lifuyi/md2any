@@ -1,0 +1,43 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "md2any-api"
+version = "1.0.0"
+description = "Markdown to HTML API server with theme support"
+authors = [
+    {name = "md2any", email = "admin@md2any.com"},
+]
+dependencies = [
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "markdown>=3.5.0",
+    "Pygments>=2.16.0",
+    "python-multipart>=0.0.6",
+    "pydantic>=2.4.0",
+    "jinja2>=3.1.0",
+]
+requires-python = ">=3.8"
+readme = "README.md"
+license = {text = "MIT"}
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "httpx>=0.25.0",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "httpx>=0.25.0",
+]
+
+[project.scripts]
+md2any-api = "api:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["api.py"]

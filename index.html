@@ -129,6 +129,62 @@
             background: #e0e0e0;
         }
 
+        /* Backend toggle button styles */
+        #backend-toggle {
+            transition: all 0.3s ease;
+            border: 1px solid #dee2e6;
+        }
+        
+        #backend-toggle.backend-online {
+            background-color: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        
+        #backend-toggle.backend-offline {
+            background-color: #6c757d;
+            color: white;
+            border-color: #6c757d;
+        }
+        
+        #backend-toggle.backend-error {
+            background-color: #dc3545;
+            color: white;
+            border-color: #dc3545;
+        }
+        
+        #backend-toggle:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .backend-status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-online {
+            background-color: #28a745;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-offline {
+            background-color: #6c757d;
+        }
+        
+        .status-error {
+            background-color: #dc3545;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
         /* Dropdown styles */
         .dropdown {
             position: relative;
@@ -577,6 +633,10 @@
             <button class="btn btn-secondary" id="settings-toggle">
                 <i class="fas fa-cog"></i> 设置面板
             </button>
+            <button class="btn btn-secondary backend-online" id="backend-status" title="后端渲染状态" style="margin-left: 5px;" disabled>
+                <span class="backend-status-indicator status-online"></span>
+                <i class="fas fa-server"></i> <span>后端渲染</span>
+            </button>
             
         </div>
     </header>
@@ -779,9 +839,7 @@
     <script src="fallback_libs.js"></script>
     
     <!-- Libraries for markdown processing -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <!-- 前端渲染库已移除，现在完全使用后端渲染 -->
     <script src="https://cdn.jsdelivr.net/npm/turndown/dist/turndown.min.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     
@@ -1003,7 +1061,47 @@
         document.addEventListener('DOMContentLoaded', () => {
             // Wait a bit to ensure other scripts are loaded
             setTimeout(initImagePaste, 100);
+            
+            // Check backend status
+            setTimeout(checkBackendStatus, 200);
         });
+        
+        // Backend status check (simplified since we only use backend now)
+        async function checkBackendStatus() {
+            const backendStatusBtn = document.getElementById('backend-status');
+            const statusIndicator = backendStatusBtn?.querySelector('.backend-status-indicator');
+            const statusText = backendStatusBtn?.querySelector('span:last-child');
+            
+            if (!backendStatusBtn) return;
+            
+            try {
+                const response = await fetch('http://localhost:8000/health');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Update UI to show backend is online
+                    backendStatusBtn.className = 'btn btn-secondary backend-online';
+                    if (statusText) statusText.textContent = '后端在线';
+                    if (statusIndicator) statusIndicator.className = 'backend-status-indicator status-online';
+                    
+                    console.log('✅ 后端API已连接:', data);
+                } else {
+                    throw new Error('Backend not responding');
+                }
+            } catch (error) {
+                console.warn('❌ 后端API离线:', error);
+                
+                // Show offline status
+                if (backendStatusBtn) {
+                    backendStatusBtn.className = 'btn btn-secondary backend-error';
+                    if (statusText) statusText.textContent = '后端离线';
+                    if (statusIndicator) statusIndicator.className = 'backend-status-indicator status-error';
+                }
+            }
+        }
+        
+        // Note: Now using backend-only rendering, no frontend fallback
     </script>
 </body>
 </html>
