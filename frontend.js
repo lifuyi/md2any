@@ -1,664 +1,347 @@
-// 配置
-        // Use the same host as the frontend is served from
-        const API_BASE_URL = window.location.hostname ? 
-            `http://${window.location.hostname}:8000` : 
-            'http://localhost:8000';
-            
-        // Add error handling for missing libraries
-            
-        // Initialize markdown-it with syntax highlighting
-        const md = window.markdownit({
-          html: true,
-          linkify: true,
-          typographer: true,
-          highlight: function (str, lang) {
-            // 特殊处理Mermaid图表
-            if (lang === 'mermaid') {
-              return '<pre class="mermaid"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
-            }
-            
-            if (lang && hljs.getLanguage(lang)) {
-              try {
-                return '<pre class="hljs"><code>' +
-                       hljs.highlight(str, { language: lang, ignoreIllegals: true }).value +
-                       '</code></pre>';
-              } catch (__) {}
-            }
+// Frontend functionality - works with Python backend
+// API_BASE_URL is defined in app.js
+
+// ImageStore class for handling image operations
+class ImageStore {
+    constructor() {
+        this.storageKey = 'md2any_images';
+        this.images = this.loadImages();
+    }
+    
+    init() {
+        return Promise.resolve();
+    }
+    
+    loadImages() {
+        try {
+            const stored = localStorage.getItem(this.storageKey);
+            return stored ? JSON.parse(stored) : {};
+        } catch (error) {
+            console.error('Error loading images:', error);
+            return {};
+        }
+    }
+    
+    saveImages() {
+        try {
+            localStorage.setItem(this.storageKey, JSON.stringify(this.images));
+        } catch (error) {
+            console.error('Error saving images:', error);
+        }
+    }
+    
+    async saveImage(id, blob, metadata = {}) {
+        const reader = new FileReader();
+        return new Promise((resolve, reject) => {
+            reader.onload = () => {
+                try {
+                    this.images[id] = {
+                        data: reader.result,
+                        metadata: {
+                            ...metadata,
+                            size: blob.size,
+                            type: blob.type,
+                            timestamp: Date.now()
+                        }
+                    };
+                    this.saveImages();
+                    resolve(id);
+                } catch (error) {
+                    reject(error);
+                }
+            };
+            reader.onerror = () => reject(reader.error);
+            reader.readAsDataURL(blob);
+        });
+    }
+    
+    getImage(id) {
+        return this.images[id] || null;
+    }
+    
+    deleteImage(id) {
+        delete this.images[id];
+        this.saveImages();
+    }
+    
+    clear() {
+        this.images = {};
+        this.saveImages();
+    }
+}
+
+// ImageCompressor class for handling image compression
+class ImageCompressor {
+    static formatSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    static async compress(file, options = {}) {
+        const {
+            maxWidth = 1920,
+            maxHeight = 1080,
+            quality = 0.8,
+            mimeType = 'image/jpeg'
+        } = options;
         
-            return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
-          }
+        return new Promise((resolve) => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            
+            img.onload = () => {
+                // Calculate new dimensions
+                let { width, height } = img;
+                
+                if (width > maxWidth || height > maxHeight) {
+                    const ratio = Math.min(maxWidth / width, maxHeight / height);
+                    width *= ratio;
+                    height *= ratio;
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                
+                // Draw and compress
+                ctx.drawImage(img, 0, 0, width, height);
+                canvas.toBlob(resolve, mimeType, quality);
+            };
+            
+            img.src = URL.createObjectURL(file);
+        });
+    }
+}
+
+// Initialize image functionality
+const imageStore = new ImageStore();
+let imageCounter = 0;
+
+// Image paste and drag-drop functionality
+function initImagePaste() {
+    const editor = document.getElementById('editor');
+    const pasteArea = document.getElementById('imagePasteArea');
+    
+    // Initialize ImageStore
+    imageStore.init().catch(err => {
+        console.error('Error initializing ImageStore:', err);
+    });
+    
+    // Paste event for the entire document
+    document.addEventListener('paste', async (event) => {
+        const items = event.clipboardData?.items;
+        if (!items) return;
+
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            if (item.type.indexOf('image') !== -1) {
+                event.preventDefault();
+                const file = item.getAsFile();
+                if (file) {
+                    await handleImageUpload(file);
+                }
+                break;
+            }
+        }
+    });
+
+    // Drag and drop events for editor
+    if (editor) {
+        editor.addEventListener('dragenter', (e) => {
+            e.preventDefault();
+            if (pasteArea) {
+                pasteArea.style.display = 'block';
+                pasteArea.classList.add('dragover');
+            }
+        });
+
+        editor.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        editor.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            if (!editor.contains(e.relatedTarget) && pasteArea) {
+                pasteArea.classList.remove('dragover');
+                setTimeout(() => {
+                    if (!pasteArea.classList.contains('dragover')) {
+                        pasteArea.style.display = 'none';
+                    }
+                }, 100);
+            }
+        });
+
+        editor.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            if (pasteArea) {
+                pasteArea.classList.remove('dragover');
+                pasteArea.style.display = 'none';
+            }
+            
+            const files = e.dataTransfer?.files;
+            if (!files || files.length === 0) return;
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (file.type.startsWith('image/')) {
+                    await handleImageUpload(file);
+                }
+            }
+        });
+    }
+
+    // Also handle paste area directly
+    if (pasteArea) {
+        pasteArea.addEventListener('dragenter', (e) => {
+            e.preventDefault();
+            pasteArea.classList.add('dragover');
+        });
+
+        pasteArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        pasteArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            if (!pasteArea.contains(e.relatedTarget)) {
+                pasteArea.classList.remove('dragover');
+            }
+        });
+
+        pasteArea.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            pasteArea.classList.remove('dragover');
+            pasteArea.style.display = 'none';
+            
+            const files = e.dataTransfer?.files;
+            if (!files || files.length === 0) return;
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (file.type.startsWith('image/')) {
+                    await handleImageUpload(file);
+                }
+            }
+        });
+    }
+}
+
+async function handleImageUpload(file) {
+    try {
+        showImageStatus('🔄 正在处理图片...', 'info');
+        
+        // Compress image
+        const compressedBlob = await ImageCompressor.compress(file);
+        const originalSize = file.size;
+        const compressedSize = compressedBlob.size;
+        
+        // Generate ID and save
+        const imageId = 'img_' + Date.now() + '_' + (++imageCounter);
+        await imageStore.saveImage(imageId, compressedBlob, {
+            name: file.name || 'pasted-image',
+            originalSize: originalSize,
+            type: compressedBlob.type
         });
         
-        // 获取DOM元素
+        // Create object URL and insert markdown
+        const objectURL = URL.createObjectURL(compressedBlob);
+        const markdownImage = `![${file.name || 'image'}](${objectURL})\n`;
+        
+        // Insert into editor
         const editor = document.getElementById('editor');
-        const preview = document.getElementById('preview');
-        const themeSelector = document.getElementById('theme-selector');
-        const status = document.getElementById('status');
-        const charCount = document.getElementById('char-count');
-        const loading = document.getElementById('loading');
-        const clearEditorBtn = document.getElementById('clear-editor');
-        const themeOptions = document.querySelectorAll('.theme-option');
-        const settingsPane = document.getElementById('settings-pane');
-        const settingsToggle = document.getElementById('settings-toggle');
-        const settingsClose = document.getElementById('settings-close');
-        
-        // Custom CSS Editor Elements
-        const editCustomCSSBtn = document.getElementById('edit-custom-css');
-        const cssFloatingPanel = document.getElementById('css-floating-panel');
-        const closeCssPanel = document.getElementById('close-css-panel');
-        const cancelCssEdit = document.getElementById('cancel-css-edit');
-        const saveCssEdit = document.getElementById('save-css-edit');
-        const cssExampleBtn = document.getElementById('css-example-btn');
-        const customCssEditor = document.getElementById('custom-css-editor');
-
-        // 存储处理后的内容，用于复制、下载、发送到微信等操作
-        let processedContent = {
-            html: '',
-            styledHtml: '',
-            markdown: '',
-            theme: ''
-        };
-
-        // 防抖函数
-        let debounceTimer;
-        function debounce(func, delay) {
-            return function(...args) {
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(() => func.apply(this, args), delay);
-            };
-        }
-
-        // 显示加载状态
-        function showLoading() {
-            loading.classList.add('active');
-        }
-
-        // 隐藏加载状态
-        function hideLoading() {
-            loading.classList.remove('active');
-        }
-
-        // 更新状态
-        function updateStatus(message, isError = false) {
-            status.textContent = message;
-            status.style.color = isError ? '#c33' : '#666';
-        }
-
-        // 更新字符计数
-        function updateCharCount() {
-            const count = editor.value.length;
-            charCount.textContent = `${count} 字符`;
-        }
-
-        // 分割Markdown文本为卡片
-        function splitMarkdownIntoCards(markdown) {
-            // 如果复选框未选中，则不进行分割
-            const splitCheckbox = document.getElementById('split-checkbox');
-            if (!splitCheckbox || !splitCheckbox.checked) {
-                return [markdown];
-            }
-
-            // 使用正则表达式分割文本，保留分隔符
-            const sections = markdown.split(/^---$/gm);
+        if (editor) {
+            const cursorPos = editor.selectionStart;
+            const textBefore = editor.value.substring(0, cursorPos);
+            const textAfter = editor.value.substring(cursorPos);
+            editor.value = textBefore + markdownImage + textAfter;
+            editor.setSelectionRange(cursorPos + markdownImage.length, cursorPos + markdownImage.length);
             
-            // 过滤掉空的部分，并去除每部分的前后空白
-            return sections
-                .map(section => section.trim())
-                .filter(section => section.length > 0);
-        }
-
-        // 渲染Markdown
-        async function renderMarkdown() {
-            const markdown = editor.value.trim();
-            const theme = themeSelector.value;
-
-            if (!markdown) {
-                preview.innerHTML = `
-                    <div style="text-align: center; color: #999; margin-top: 50px;">
-                        <i class="fas fa-arrow-left" style="font-size: 48px; margin-bottom: 20px; opacity: 0.3;"></i>
-                        <p>在左侧编辑器输入内容，右侧将实时预览</p>
-                    </div>
-                `;
-                return;
-            }
-
-            showLoading();
-            updateStatus('渲染中...');
-
-            try {
-                // 使用后端API进行渲染
-                const response = await fetch(`${API_BASE_URL}/render`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        markdown_text: markdown,
-                        theme: theme,
-                        mode: 'light-mode',
-                        platform: 'wechat'
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`后端渲染失败: ${response.status}`);
-                }
-
-                const data = await response.json();
-                let combinedContent = data.html;
-                
-                // 直接更新预览区域，不再使用iframe
-                preview.innerHTML = combinedContent;
-                
-                // 更新processedContent变量，供复制、下载、发送到微信等操作使用
-                processedContent = {
-                    html: combinedContent,
-                    styledHtml: combinedContent, // 这里存储的是已经应用了样式的HTML
-                    markdown: markdown,
-                    theme: theme
-                };
-                
-                // 重新初始化Mermaid图表 - 延迟执行确保DOM完全就绪
-                if (typeof mermaid !== 'undefined') {
-                    setTimeout(() => {
-                        try {
-                            
-                            // Find all mermaid code blocks with multiple selector patterns
-                            const mermaidSelectors = [
-                                'pre code.language-mermaid',
-                                'code.mermaid', 
-                                '.mermaid',
-                                'pre.mermaid',
-                                'div.mermaid'
-                            ];
-                            
-                            let mermaidElements = [];
-                            mermaidSelectors.forEach(selector => {
-                                const elements = preview.querySelectorAll(selector);
-                                mermaidElements.push(...elements);
-                            });
-                            
-                            // 去重并过滤掉已经渲染的元素
-                            mermaidElements = [...new Set(mermaidElements)].filter(el => {
-                                return !el.closest('.mermaid[data-processed="true"]');
-                            });
-                            
-                            
-                            if (mermaidElements.length > 0) {
-                                // 为每个元素添加data-processed标记避免重复渲染
-                                mermaidElements.forEach(el => {
-                                    el.setAttribute('data-processed', 'true');
-                                });
-                                
-                                mermaid.run({
-                                    nodes: mermaidElements
-                                }).then(() => {
-                                }).catch((error) => {
-                                    console.error('Mermaid rendering failed:', error);
-                                    console.error('Error details:', error.message, error.stack);
-                                    // 如果渲染失败，移除标记以便下次重试
-                                    mermaidElements.forEach(el => {
-                                        el.removeAttribute('data-processed');
-                                    });
-                                });
-                            } else {
-                            }
-                        } catch (error) {
-                            console.error('Mermaid initialization failed:', error);
-                            console.error('Error details:', error.message, error.stack);
-                        }
-                    }, 100); // 100ms延迟确保DOM完全加载
-                } else {
-                    console.warn('Mermaid is not defined');
-                }
-                
-                // 初始化 MathJax
-                initMathJax(preview);
-                
-                updateStatus('渲染完成');
-            } catch (error) {
-                console.error('渲染失败:', error);
-                preview.innerHTML = `
-                    <div class="error">
-                        <strong>渲染失败</strong><br>
-                        ${error.message}<br><br>
-                        <small>本地渲染，无需API服务</small>
-                    </div>
-                `;
-                updateStatus('渲染失败', true);
-            } finally {
-                hideLoading();
+            // Trigger preview update
+            if (window.renderMarkdown) {
+                window.renderMarkdown();
             }
         }
         
-        // Apply inline styles using the same logic as app.js
-        function applyInlineStyles(html, currentStyle) {
-  if (typeof STYLES === 'undefined') {
-    console.error('STYLES object not loaded');
-    return html;
-  }
-  const style = STYLES[currentStyle].styles;
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(html, 'text/html');
-
-          // 先处理图片网格布局（在应用样式之前）
-          groupConsecutiveImages(doc, currentStyle);
-
-          Object.keys(style).forEach(selector => {
-            if (selector === 'pre' || selector === 'code' || selector === 'pre code') {
-              return;
-            }
-
-            // 跳过已经在网格容器中的图片
-            const elements = doc.querySelectorAll(selector);
-            elements.forEach(el => {
-              // 如果是图片且在网格容器内，跳过样式应用
-              if (el.tagName === 'IMG' && el.closest('.image-grid')) {
-                return;
-              }
-
-              const currentStyle = el.getAttribute('style') || '';
-              el.setAttribute('style', currentStyle + '; ' + style[selector]);
-            });
-          });
-
-          // 创建外层容器
-          const container = doc.createElement('section');
-          container.setAttribute('style', style.container);
-          
-          // 如果有内层容器样式，创建内层容器
-          if (style.innerContainer) {
-            const innerContainer = doc.createElement('section');
-            innerContainer.setAttribute('style', style.innerContainer);
-            innerContainer.innerHTML = doc.body.innerHTML;
-            container.appendChild(innerContainer);
-          } else {
-            // 如果没有内层容器样式，直接使用外层容器
-            container.innerHTML = doc.body.innerHTML;
-          }
-
-          return container.outerHTML;
+        // Show preview in editor pane
+        const previewContainer = document.getElementById('imagePreviewContainer');
+        if (previewContainer) {
+            const previewDiv = document.createElement('section');
+            previewDiv.className = 'image-preview-container';
+            previewDiv.innerHTML = `
+                <img src="${objectURL}" class="image-preview" alt="${file.name || 'image'}">
+                <div class="image-info">
+                    ${file.name || '粘贴的图片'} (${ImageCompressor.formatSize(originalSize)} → ${ImageCompressor.formatSize(compressedSize)})
+                    <button onclick="this.parentElement.parentElement.remove()" style="margin-left: 10px; background: #f44336; color: white; border: none; padding: 2px 6px; border-radius: 2px; cursor: pointer;">删除</button>
+                </div>
+            `;
+            previewContainer.appendChild(previewDiv);
         }
         
-        // Group consecutive images using the same logic as app.js
-        function groupConsecutiveImages(doc, currentStyle) {
-          const body = doc.body;
-          const children = Array.from(body.children);
+        const compressionRatio = ((originalSize - compressedSize) / originalSize * 100).toFixed(1);
+        showImageStatus(`✅ 图片已插入！压缩率 ${compressionRatio}%`, 'success');
+        
+    } catch (error) {
+        showImageStatus('❌ 图片处理失败: ' + error.message, 'error');
+    }
+}
 
-          let imagesToProcess = [];
+function showImageStatus(message, type = 'info') {
+    const status = document.getElementById('imagePasteStatus');
+    if (status) {
+        status.textContent = message;
+        status.className = `image-paste-status ${type}`;
+        status.style.display = 'block';
+        
+        setTimeout(() => {
+            status.style.display = 'none';
+        }, 3000);
+    }
+}
 
-          // 找出所有图片元素，处理两种情况：
-          // 1. 多个图片在同一个<p>标签内（连续图片）
-          // 2. 每个图片在单独的<p>标签内（分隔的图片）
-          children.forEach((child, index) => {
-            if (child.tagName === 'P') {
-              const images = child.querySelectorAll('img');
-              if (images.length > 0) {
-                // 如果一个P标签内有多个图片，它们肯定是连续的
-                if (images.length > 1) {
-                  // 多个图片在同一个P标签内，作为一组
-                  const group = Array.from(images).map(img => ({
-                    element: child,
-                    img: img,
-                    index: index,
-                    inSameParagraph: true,
-                    paragraphImageCount: images.length
-                  }));
-                  imagesToProcess.push(...group);
-                } else if (images.length === 1) {
-                  // 单个图片在P标签内
-                  imagesToProcess.push({
-                    element: child,
-                    img: images[0],
-                    index: index,
-                    inSameParagraph: false,
-                    paragraphImageCount: 1
-                  });
-                }
-              }
-            } else if (child.tagName === 'IMG') {
-              // 直接是图片元素（少见情况）
-              imagesToProcess.push({
-                element: child,
-                img: child,
-                index: index,
-                inSameParagraph: false,
-                paragraphImageCount: 1
-              });
-            }
-          });
+// Export functions
+async function downloadHTML() {
+    const editor = document.getElementById('editor');
+    const preview = document.getElementById('preview');
+    const themeSelector = document.getElementById('theme-selector');
+    
+    if (!editor || !editor.value.trim()) {
+        alert('请先输入Markdown内容');
+        return;
+    }
 
-          // 分组逻辑
-          let groups = [];
-          let currentGroup = [];
-
-          imagesToProcess.forEach((item, i) => {
-            if (i === 0) {
-              currentGroup.push(item);
-            } else {
-              const prevItem = imagesToProcess[i - 1];
-
-              // 判断是否连续的条件：
-              // 1. 在同一个P标签内的图片肯定是连续的
-              // 2. 不同P标签的图片，要看索引是否相邻（差值为1表示相邻）
-              let isContinuous = false;
-
-              if (item.index === prevItem.index) {
-                // 同一个P标签内的图片
-                isContinuous = true;
-              } else if (item.index - prevItem.index === 1) {
-                // 相邻的P标签，表示连续（没有空行）
-                isContinuous = true;
-              }
-              // 如果索引差大于1，说明中间有其他元素或空行，不连续
-
-              if (isContinuous) {
-                currentGroup.push(item);
-              } else {
-                if (currentGroup.length > 0) {
-                  groups.push([...currentGroup]);
-                }
-                currentGroup = [item];
-              }
-            }
-          });
-
-          if (currentGroup.length > 0) {
-            groups.push(currentGroup);
-          }
-
-          // 对每组图片进行处理
-          groups.forEach(group => {
-            // 只有2张及以上的图片才需要特殊布局
-            if (group.length < 2) return;
-
-            const imageCount = group.length;
-            const firstElement = group[0].element;
-
-            // 创建容器
-            const gridContainer = doc.createElement('section');
-            gridContainer.setAttribute('class', 'image-grid');
-            gridContainer.setAttribute('data-image-count', imageCount);
-
-            // 根据图片数量设置网格样式
-            let gridStyle = '';
-            let columns = 2; // 默认2列
-
-            if (imageCount === 2) {
-              gridStyle = `
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 8px;
-                margin: 20px auto;
-                max-width: 100%;
-                align-items: start;
-              `;
-              columns = 2;
-            } else if (imageCount === 3) {
-              gridStyle = `
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 8px;
-                margin: 20px auto;
-                max-width: 100%;
-                align-items: start;
-              `;
-              columns = 3;
-            } else if (imageCount === 4) {
-              gridStyle = `
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 8px;
-                margin: 20px auto;
-                max-width: 100%;
-                align-items: start;
-              `;
-              columns = 2;
-            } else {
-              // 5张及以上，使用3列
-              gridStyle = `
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 8px;
-                margin: 20px auto;
-                max-width: 100%;
-                align-items: start;
-              `;
-              columns = 3;
-            }
-
-            gridContainer.setAttribute('style', gridStyle);
-            gridContainer.setAttribute('data-columns', columns);
-
-            // 将图片添加到容器中
-            group.forEach((item) => {
-              const imgWrapper = doc.createElement('section');
-
-              imgWrapper.setAttribute('style', `
-                width: 100%;
-                height: auto;
-                overflow: hidden;
-              `);
-
-              const img = item.img.cloneNode(true);
-              // 修改图片样式以适应容器，添加圆角
-              img.setAttribute('style', `
-                width: 100%;
-                height: auto;
-                display: block;
-                border-radius: 8px;
-              `.trim());
-
-              imgWrapper.appendChild(img);
-              gridContainer.appendChild(imgWrapper);
+    try {
+        let htmlContent;
+        
+        if (preview && preview.innerHTML.trim()) {
+            // Use rendered content from preview
+            htmlContent = preview.innerHTML;
+        } else {
+            // Render via API
+            const response = await fetch(`${API_BASE_URL}/render`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    markdown_text: editor.value,
+                    theme: themeSelector?.value || 'wechat-default',
+                    mode: 'light-mode',
+                    platform: 'wechat'
+                })
             });
-
-            // 替换原来的图片元素
-            firstElement.parentNode.insertBefore(gridContainer, firstElement);
-
-            // 删除原来的图片元素（需要去重，避免重复删除同一个元素）
-            const elementsToRemove = new Set();
-            group.forEach(item => {
-              elementsToRemove.add(item.element);
-            });
-            elementsToRemove.forEach(element => {
-              if (element.parentNode) {
-                element.parentNode.removeChild(element);
-              }
-            });
-          });
+            
+            if (!response.ok) {
+                throw new Error(`渲染失败: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            htmlContent = data.html;
         }
-
-        // 加载示例内容
-        function loadSample() {
-            const sampleMarkdown = `# 测试文档 - 完整功能演示
-
-## 标题层级测试
-
-### 三级标题示例
-
-#### 四级标题示例
-
-##### 五级标题示例
-
-###### 六级标题示例
----
-## 文本格式测试
-
-这是**加粗文字**的效果，这是*斜体文字*的效果，这是~~删除线文字~~的效果。
-
-### 组合效果
-**加粗和*斜体*的组合**，以及~~删除线和**加粗**的组合~~
-
-## 列表测试
-
-### 无序列表
-- 第一级项目1
-- 第一级项目2
-  - 第二级项目1
-  - 第二级项目2
-    - 第三级项目1
-    - 第三级项目2
-- 第一级项目3
-
-### 有序列表
-1. 第一步操作
-2. 第二步操作
-   1. 子步骤1
-   2. 子步骤2
-3. 第三步操作
-
-### 任务列表
-- [x] 已完成的任务
-- [ ] 待完成的任务1
-- [ ] 待完成的任务2
-
-## 代码测试
-
-### 行内
-
-const result = calculateSum(5, 3);
-
-
-## Mermaid图表测试
-
-
-  
-
-## 表格测试
-
-### 基础表格
-| 姓名 | 年龄 | 城市 | 职业 |
-|------|------|------|------|
-| 张三 | 25   | 北京 | 工程师 |
-| 李四 | 30   | 上海 | 设计师 |
-| 王五 | 28   | 广州 | 产品经理 |
-
-### 对齐表格
-| 左对齐 | 居中对齐 | 右对齐 |
-|:-------|:--------:|-------:|
-| 文本1  | 文本2    | 文本3  |
-| 数据1  | 数据2    | 数据3  |
-
-## 引用测试
-
-### 单行引用
-> 这是一个简单的引用。
-
-### 多行引用
-> 这是一个较长的引用，
-> 可以跨越多行显示。
-> 
-> 支持**格式**和*样式*的引用。
-
-### 嵌套引用
-> 外层引用
-> > 内层引用
-> > 可以继续嵌套
-> 回到外层
-
-## 链接和图片测试
-
-### 普通链接
-[百度一下](https://www.baidu.com)
-
-### 带标题的链接
-[GitHub](https://github.com "全球最大的代码托管平台")
-
-### 自动链接
-https://www.example.com
-
-## 分割线测试
-
----
-
-## 特殊元素测试
-
-### Emoji支持
-🎉 🚀 💡 📊 ✨
-
-### 数学公式测试
-
-当 $a \\ne 0$ 时, 方程 $ax^2 + bx + c = 0$ 的解是
-$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
-
-### 特殊符号
-© ® ™ → ← ↑ ↓ ↔ ↕
-
-### 数学符号
-± × ÷ ≤ ≥ ≠ ∞ ∑ ∏ √ ∛ ∛
-`;
-
-            editor.value = sampleMarkdown;
-            updateCharCount();
-            renderMarkdown();
-        }
-
-        // 下载HTML
-        function downloadHTML() {
-            const markdown = editor.value.trim();
-            const theme = themeSelector.value;
-
-            if (!markdown) {
-                alert('请先输入Markdown内容');
-                return;
-            }
-
-            // 如果processedContent中没有当前主题的内容，或者内容为空，则重新处理
-            if (!processedContent.styledHtml || processedContent.theme !== theme) {
-                try {
-                    // 渲染 markdown
-                    let html = md.render(markdown);
-                    
-                    // 获取样式配置
-                    const styleConfig = (typeof STYLES !== 'undefined') ? (STYLES[theme] || STYLES['wechat-default']) : null;
-                    if (!styleConfig) {
-                        console.error('No style configuration available');
-                        preview.innerHTML = html;
-                        return;
-                    }
-                    const styles = styleConfig.styles;
-                    
-                    // 应用内联样式
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    
-                    // 应用样式到各个元素
-                    Object.keys(styles).forEach(selector => {
-                        if (selector === 'pre' || selector === 'code' || selector === 'pre code') {
-                            return;
-                        }
-                        
-                        const elements = doc.querySelectorAll(selector);
-                        elements.forEach(el => {
-                            const currentStyle = el.getAttribute('style') || '';
-                            el.setAttribute('style', currentStyle + '; ' + styles[selector]);
-                        });
-                    });
-                    
-                    // 创建容器并应用容器样式
-                    const container = doc.createElement('section');
-                    container.setAttribute('style', styles.container);
-                    container.innerHTML = doc.body.innerHTML;
-                    
-                    const styledHtml = container.outerHTML;
-                    
-                    // 更新processedContent变量
-                    processedContent = {
-                        html: html,
-                        styledHtml: styledHtml,
-                        markdown: markdown,
-                        theme: theme
-                    };
-                } catch (error) {
-                    console.error('HTML处理失败:', error);
-                    alert('HTML处理失败: ' + error.message);
-                    return;
-                }
-            }
-
-            // 使用processedContent中的处理后的HTML内容
-            const fullHtml = `
+        
+        const fullHtml = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -671,1356 +354,356 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
     <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
-    ${processedContent.styledHtml}
+    ${htmlContent}
 </body>
 </html>`;
-            
-            const blob = new Blob([fullHtml], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `markdown-${theme.replace('.css', '')}-${Date.now()}.html`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-                // 下载PNG - 修复空白图片问题的简化版本
-        async function downloadPNG() {
-            const previewPane = document.getElementById('preview');
-            const theme = themeSelector.value;
-
-            // 基本检查
-            if (!previewPane || !previewPane.innerHTML.trim()) {
-                alert('请先输入Markdown内容并等待预览加载完成');
-                return;
-            }
-
-            // 检查html2canvas是否可用
-            if (typeof html2canvas === 'undefined') {
-                alert('PNG导出功能不可用，html2canvas库未加载');
-                return;
-            }
-
-            showLoading();
-            updateStatus('正在生成PNG...');
-
-            try {
-                // 1. 确保内容可见性
-                updateStatus('准备截图内容...');
-                
-                // 重置滚动位置
-                window.scrollTo(0, 0);
-                previewPane.scrollTop = 0;
-                
-                // 强制设置预览区域可见
-                previewPane.style.visibility = 'visible';
-                previewPane.style.display = 'block';
-                previewPane.style.opacity = '1';
-                previewPane.style.position = 'static';
-                
-                // 检查内容
-                const contentText = previewPane.textContent || previewPane.innerText || '';
-                if (contentText.trim().length < 5) {
-                    throw new Error('预览区域似乎没有文本内容，请检查Markdown是否正确渲染');
-                }
-                
-                
-                // 2. 等待渲染
-                updateStatus('等待渲染完成...');
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                
-                // 3. 获取尺寸
-                const rect = previewPane.getBoundingClientRect();
-                const scrollWidth = previewPane.scrollWidth || rect.width;
-                const scrollHeight = previewPane.scrollHeight || rect.height;
-                
-                
-                // 4. 执行截图 - 使用最简单的配置
-                updateStatus('生成图片...');
-                
-                const canvas = await html2canvas(previewPane, {
-                    backgroundColor: '#ffffff',
-                    scale: 1,
-                    useCORS: true,
-                    logging: true,
-                    width: Math.max(scrollWidth, 400),
-                    height: Math.max(scrollHeight, 300),
-                    scrollX: 0,
-                    scrollY: 0,
-                    onclone: function(clonedDoc) {
-                        // 简单的克隆处理
-                        
-                        // 确保所有元素可见
-                        const body = clonedDoc.body;
-                        if (body) {
-                            body.style.visibility = 'visible';
-                            body.style.display = 'block';
-                            body.style.opacity = '1';
-                            
-                            // 确保所有子元素可见
-                            const allElements = body.querySelectorAll('*');
-                            allElements.forEach(el => {
-                                if (el.style.visibility === 'hidden') el.style.visibility = 'visible';
-                                if (el.style.display === 'none') el.style.display = 'block';
-                                if (el.style.opacity === '0') el.style.opacity = '1';
-                            });
-                        }
-                    }
-                });
-                
-                // 5. 验证结果
-                if (!canvas || canvas.width === 0 || canvas.height === 0) {
-                    throw new Error('生成的画布无效');
-                }
-                
-                
-                // 检查画布内容
-                const ctx = canvas.getContext('2d');
-                const imageData = ctx.getImageData(0, 0, Math.min(canvas.width, 100), Math.min(canvas.height, 100));
-                const pixels = imageData.data;
-                
-                let hasContent = false;
-                for (let i = 0; i < pixels.length; i += 4) {
-                    if (pixels[i] < 240 || pixels[i+1] < 240 || pixels[i+2] < 240) {
-                        hasContent = true;
-                        break;
-                    }
-                }
-                
-                if (!hasContent) {
-                    // 尝试强制渲染一个简单测试
-                    console.warn('画布似乎为空白');
-                    
-                    // 继续下载，让用户自己判断
-                }
-                
-                // 6. 下载
-                updateStatus('下载图片...');
-                const dataURL = canvas.toDataURL('image/png', 1.0);
-                
-                const link = document.createElement('a');
-                link.href = dataURL;
-                link.download = `markdown-${theme}-${Date.now()}.png`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                updateStatus('PNG下载完成');
-                
-            } catch (error) {
-                console.error('PNG生成失败:', error);
-                updateStatus('PNG生成失败', true);
-                
-                // 提供详细的错误信息和建议
-                let errorMsg = `PNG生成失败: ${error.message}\n\n`;
-                errorMsg += '可能的解决方案:\n';
-                errorMsg += '1. 确保已输入Markdown内容并完成预览\n';
-                errorMsg += '2. 尝试刷新页面后重试\n';
-                errorMsg += '3. 尝试使用更简单的内容测试\n';
-                errorMsg += '4. 检查浏览器控制台是否有其他错误';
-                
-                alert(errorMsg);
-            } finally {
-                hideLoading();
-            }
-        }
-
-        // Dropdown菜单控制函数
-        function toggleDropdown(button) {
-            const dropdown = button.parentElement;
-            const content = dropdown.querySelector('.dropdown-content');
-            
-            // 关闭其他所有dropdown
-            document.querySelectorAll('.dropdown').forEach(drop => {
-                if (drop !== dropdown) {
-                    drop.classList.remove('show');
-                    drop.querySelector('.dropdown-content').classList.remove('show');
-                }
-            });
-            
-            // 切换当前dropdown
-            const isOpen = dropdown.classList.contains('show');
-            if (isOpen) {
-                dropdown.classList.remove('show');
-                content.classList.remove('show');
-            } else {
-                dropdown.classList.add('show');
-                content.classList.add('show');
-            }
-        }
-
-        function hideDropdown(link) {
-            const dropdown = link.closest('.dropdown');
-            if (dropdown) {
-                dropdown.classList.remove('show');
-                dropdown.querySelector('.dropdown-content').classList.remove('show');
-            }
-        }
-
-        // 点击其他地方关闭dropdown
-        document.addEventListener('click', function(event) {
-            if (!event.target.closest('.dropdown')) {
-                document.querySelectorAll('.dropdown').forEach(dropdown => {
-                    dropdown.classList.remove('show');
-                    dropdown.querySelector('.dropdown-content').classList.remove('show');
-                });
-            }
-        });
-
-        // 阻止dropdown内容点击事件冒泡
-        document.querySelectorAll('.dropdown-content').forEach(content => {
-            content.addEventListener('click', function(event) {
-                event.stopPropagation();
-            });
-        });
-
-        // 将Markdown转换为纯文本
-        function markdownToText(markdown) {
-            // 移除Markdown语法，只保留纯文本内容
-            return markdown
-                // 移除代码块
-                .replace(/```[\s\S]*?```/g, '')
-                // 移除行内代码
-                .replace(/`[^`]*`/g, '')
-                // 移除链接，保留链接文本
-                .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-                // 移除图片
-                .replace(/!\[([^\]]*)\]\([^)]+\)/g, '')
-                // 移除标题标记
-                .replace(/^#+\s*/gm, '')
-                // 移除粗体和斜体标记
-                .replace(/\*\*([^*]+)\*\*/g, '$1')
-                .replace(/\*([^*]+)\*/g, '$1')
-                .replace(/__([^_]+)__/g, '$1')
-                .replace(/_([^_]+)_/g, '$1')
-                // 移除删除线
-                .replace(/~~([^~]+)~~/g, '$1')
-                // 移除引用标记
-                .replace(/^>\s*/gm, '')
-                // 移除列表标记
-                .replace(/^[\d-]\.\s*/gm, '')
-                // 移除水平线
-                .replace(/^[-*]{3,}$/gm, '')
-                // 移除多余的空行（保留最多两个连续的换行符）
-                .replace(/\n{3,}/g, '\n\n')
-                // 去除首尾空格
-                .trim();
-        }
-
-        // 下载MD（原始Markdown）
-        function downloadMD() {
-            const markdown = editor.value.trim();
-            const theme = themeSelector.value;
-
-            if (!markdown) {
-                alert('请先输入Markdown内容');
-                return;
-            }
-
-            const blob = new Blob([markdown], { type: 'text/markdown' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `markdown-${theme.replace('.css', '')}-${Date.now()}.md`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        // 下载TXT（纯文本）
-        function downloadTXT() {
-            const markdown = editor.value.trim();
-            const theme = themeSelector.value;
-
-            if (!markdown) {
-                alert('请先输入Markdown内容');
-                return;
-            }
-
-            // 将Markdown转换为纯文本
-            const plainText = markdownToText(markdown);
-            
-            const blob = new Blob([plainText], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `markdown-${theme.replace('.css', '')}-${Date.now()}.txt`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        // 复制渲染后的HTML到剪贴板
-        function copyToClipboard() {
-            const markdown = editor.value.trim();
-            const theme = themeSelector.value;
-
-            if (!markdown) {
-                alert('请先输入Markdown内容');
-                return;
-            }
-
-            // 如果processedContent中没有当前主题的内容，或者内容为空，则重新处理
-            if (!processedContent.styledHtml || processedContent.theme !== theme) {
-                showLoading();
-                updateStatus('正在处理内容...');
-                
-                try {
-                    // 渲染 markdown
-                    let html = md.render(markdown);
-                    
-                    // 获取样式配置
-                    const styleConfig = (typeof STYLES !== 'undefined') ? (STYLES[theme] || STYLES['wechat-default']) : null;
-                    if (!styleConfig) {
-                        console.error('No style configuration available for export');
-                        alert('样式配置未加载，无法导出');
-                        hideLoading();
-                        return;
-                    }
-                    const styles = styleConfig.styles;
-                    
-                    // 应用内联样式
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    
-                    // 应用样式到各个元素
-                    Object.keys(styles).forEach(selector => {
-                        if (selector === 'pre' || selector === 'code' || selector === 'pre code') {
-                            return;
-                        }
-                        
-                        const elements = doc.querySelectorAll(selector);
-                        elements.forEach(el => {
-                            const currentStyle = el.getAttribute('style') || '';
-                            const newStyle = currentStyle + '; ' + styles[selector];
-                            // 确保样式被正确设置，包括!important标记
-                            el.setAttribute('style', newStyle.replace(/;\s*;/g, ';').trim() + ';');
-                        });
-                    });
-                    
-                    // 创建容器并应用容器样式
-                    const container = doc.createElement('section');
-                    container.setAttribute('style', styles.container);
-                    container.innerHTML = doc.body.innerHTML;
-                    
-                    // 确保所有子元素的样式都被保留
-                    function ensureAllStyles(element) {
-                        // 检查当前元素是否有style属性
-                        if (element.hasAttribute('style')) {
-                            const style = element.getAttribute('style');
-                            // 确保样式不为空且格式正确
-                            if (style && style.trim() !== '') {
-                                element.setAttribute('style', style);
-                            }
-                        }
-                        
-                        // 递归处理所有子元素
-                        for (let i = 0; i < element.children.length; i++) {
-                            ensureAllStyles(element.children[i]);
-                        }
-                    }
-                    
-                    // 应用到容器内的所有元素
-                    ensureAllStyles(container);
-                    
-                    const styledHtml = container.outerHTML;
-                    
-                    // 更新processedContent变量
-                    processedContent = {
-                        html: html,
-                        styledHtml: styledHtml,
-                        markdown: markdown,
-                        theme: theme
-                    };
-                    
-                    hideLoading();
-                } catch (error) {
-                    console.error('内容处理失败:', error);
-                    alert('内容处理失败: ' + error.message);
-                    hideLoading();
-                    updateStatus('内容处理失败', true);
-                    return;
-                }
-            }
-
-            showLoading();
-            updateStatus('正在复制到剪贴板...');
-
-            try {
-                // 使用processedContent中的处理后的HTML内容
-                copyHTMLToClipboard(processedContent.styledHtml);
-            } catch (error) {
-                console.error('复制失败:', error);
-                alert('复制失败: ' + error.message);
-                hideLoading();
-                updateStatus('复制失败', true);
-            }
-        }
-
-        // 将HTML内容复制到剪贴板 - 改进版本，确保保留所有内联样式
-        function copyHTMLToClipboard(htmlContent) {
-            // 创建临时div来处理HTML内容
-            const tempDiv = document.createElement('section');
-            tempDiv.innerHTML = htmlContent;
-            
-            // 移除可能的script标签以确保安全
-            const scripts = tempDiv.querySelectorAll('script');
-            scripts.forEach(script => script.remove());
-            
-            // 处理嵌套的section标签 - 如果内容包含section-card div元素，
-            // 则提取其中的内容而不是整个嵌套结构
-            const sectionCards = tempDiv.querySelectorAll('div.section-card');
-            if (sectionCards.length > 0) {
-                // 如果有section-card，提取其中的内容并重新组织
-                let combinedContent = '';
-                sectionCards.forEach((card, index) => {
-                    // 提取card中的内容，保留所有样式
-                    combinedContent += card.outerHTML;
-                    // 如果不是最后一个card，添加分隔线
-                    if (index < sectionCards.length - 1) {
-                        combinedContent += '<hr style="margin: 20px 0; border: 1px solid #eee;">';
-                    }
-                });
-                tempDiv.innerHTML = combinedContent;
-            }
-            
-            // 确保所有元素都保留了内联样式
-            // 递归遍历所有元素，确保样式属性完整
-            function preserveStyles(element) {
-                // 如果元素有style属性，确保它被完整保留
-                if (element.hasAttribute('style')) {
-                    const currentStyle = element.getAttribute('style');
-                    // 确保样式不为空
-                    if (currentStyle.trim() !== '') {
-                        element.setAttribute('style', currentStyle);
-                    }
-                }
-                
-                // 递归处理子元素
-                for (let i = 0; i < element.children.length; i++) {
-                    preserveStyles(element.children[i]);
-                }
-            }
-            
-            // 应用样式保留函数到所有子元素
-            for (let i = 0; i < tempDiv.children.length; i++) {
-                preserveStyles(tempDiv.children[i]);
-            }
-            
-            // 获取完整的HTML内容，包含所有内联样式
-            const cleanHTML = tempDiv.innerHTML;
-            
-            // 创建完整的HTML文档结构，确保包含内联样式
-            const fullHtmlContent = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;line-height:1.6;margin:0;padding:20px;}</style></head><body>${cleanHTML}</body></html>`;
-            
-            // 同时准备纯文本版本
-            const plainText = tempDiv.textContent || tempDiv.innerText || '';
-            
-            // 优先使用现代Clipboard API，支持跨平台富文本复制
-            if (navigator.clipboard && window.ClipboardItem) {
-                try {
-                    // 创建HTML和纯文本的Blob对象
-                    const htmlBlob = new Blob([fullHtmlContent], { type: 'text/html' });
-                    const textBlob = new Blob([plainText], { type: 'text/plain' });
-                    
-                    // 创建ClipboardItem对象，支持多种格式
-                    const clipboardItem = new ClipboardItem({
-                        'text/html': htmlBlob,
-                        'text/plain': textBlob
-                    });
-                    
-                    // 使用Promise方式写入剪贴板，提供更好的错误处理
-                    navigator.clipboard.write([clipboardItem])
-                        .then(() => {
-                            hideLoading();
-                            updateStatus('已复制到剪贴板（富文本格式）');
-                        })
-                        .catch(err => {
-                            console.error('Clipboard API 失败:', err);
-                            // 降级到传统方法
-                            fallbackCopyTextToClipboard(cleanHTML, plainText);
-                        });
-                } catch (err) {
-                    console.error('Clipboard API 创建失败:', err);
-                    // 降级到传统方法
-                    fallbackCopyTextToClipboard(cleanHTML, plainText);
-                }
-            } else {
-                // 降级到传统方法
-                fallbackCopyTextToClipboard(cleanHTML, plainText);
-            }
-        }
-
-        // 降级复制方法 - 改进版本，支持Linux/Debian、macOS等跨平台系统
-        function fallbackCopyTextToClipboard(html, text) {
-            // 首先尝试使用更直接的方法来复制HTML内容
-            try {
-                // 创建一个临时的div元素来保存HTML内容
-                const tempDiv = document.createElement('section');
-                tempDiv.innerHTML = html;
-                
-                // 设置样式确保元素不可见但仍然可以被选择
-                tempDiv.style.position = 'fixed';
-                tempDiv.style.left = '0px';
-                tempDiv.style.top = '0px';
-                tempDiv.style.width = '1px';
-                tempDiv.style.height = '1px';
-                tempDiv.style.padding = '0px';
-                tempDiv.style.border = 'none';
-                tempDiv.style.outline = 'none';
-                tempDiv.style.boxShadow = 'none';
-                tempDiv.style.background = 'transparent';
-                tempDiv.style.overflow = 'hidden';
-                tempDiv.style.zIndex = '-9999';
-                tempDiv.style.opacity = '0.01'; // 使用极低透明度而不是完全透明，提高Linux兼容性
-                
-                document.body.appendChild(tempDiv);
-                
-                // 选择并复制内容 - 使用更兼容的选择方法
-                const range = document.createRange();
-                
-                // 对于Linux系统，确保内容完全加载后再选择
-                setTimeout(() => {
-                    try {
-                        range.selectNodeContents(tempDiv);
-                        const selection = window.getSelection();
-                        if (selection) {
-                            selection.removeAllRanges();
-                            selection.addRange(range);
-                            
-                            // 尝试复制 - 添加多重检查
-                            let successful = false;
-                            if (document.queryCommandSupported && document.queryCommandSupported('copy')) {
-                                try {
-                                    successful = document.execCommand('copy');
-                                } catch (execErr) {
-                                    console.warn('execCommand copy 执行失败:', execErr);
-                                }
-                            }
-                            
-                            // 清理选择和元素
-                            selection.removeAllRanges();
-                            document.body.removeChild(tempDiv);
-                            
-                            if (successful) {
-                                hideLoading();
-                                updateStatus('已复制到剪贴板（富文本）');
-                                return;
-                            } else {
-                                throw new Error('HTML复制命令失败');
-                            }
-                        } else {
-                            document.body.removeChild(tempDiv);
-                            throw new Error('无法获取选择对象');
-                        }
-                    } catch (rangeErr) {
-                        console.error('范围选择失败:', rangeErr);
-                        if (tempDiv.parentNode) {
-                            document.body.removeChild(tempDiv);
-                        }
-                        throw rangeErr;
-                    }
-                }, 50); // 50ms延迟确保DOM完全就绪，提高Linux兼容性
-                
-            } catch (err) {
-                console.error('HTML复制失败:', err);
-                
-                // 如果HTML复制失败，尝试复制纯文本
-                try {
-                    // 创建一个临时的textarea用于复制纯文本内容
-                    const textArea = document.createElement('textarea');
-                    textArea.value = text || '';
-                    
-                    // 设置样式确保在所有平台上都能正常工作
-                    textArea.style.position = 'fixed';
-                    textArea.style.left = '0px';
-                    textArea.style.top = '0px';
-                    textArea.style.width = '1px';
-                    textArea.style.height = '1px';
-                    textArea.style.padding = '0px';
-                    textArea.style.border = 'none';
-                    textArea.style.outline = 'none';
-                    textArea.style.boxShadow = 'none';
-                    textArea.style.background = 'transparent';
-                    textArea.style.zIndex = '-9999';
-                    textArea.style.opacity = '0.01';
-                    
-                    document.body.appendChild(textArea);
-                    
-                    // 使用延迟确保在Linux系统上也能正常工作
-                    setTimeout(() => {
-                        try {
-                            textArea.focus();
-                            textArea.select();
-                            
-                            // 尝试复制
-                            let successful = false;
-                            if (document.queryCommandSupported && document.queryCommandSupported('copy')) {
-                                try {
-                                    successful = document.execCommand('copy');
-                                } catch (execErr) {
-                                    console.warn('execCommand copy 执行失败:', execErr);
-                                }
-                            }
-                            
-                            // 清理
-                            document.body.removeChild(textArea);
-                            
-                            if (successful) {
-                                hideLoading();
-                                updateStatus('已复制到剪贴板（纯文本）');
-                            } else {
-                                throw new Error('纯文本复制命令失败');
-                            }
-                        } catch (textErr) {
-                            console.error('文本复制过程失败:', textErr);
-                            if (textArea.parentNode) {
-                                document.body.removeChild(textArea);
-                            }
-                            throw textErr;
-                        }
-                    }, 50);
-                    
-                } catch (err2) {
-                    console.error('纯文本复制也失败:', err2);
-                    
-                    // 最后的备用方案：显示内容供用户手动复制
-                    const modal = document.createElement('div');
-                    modal.style.cssText = `
-                        position: fixed;
-                        top: 0;
-                        left: 0;
-                        width: 100%;
-                        height: 100%;
-                        background: rgba(0,0,0,0.8);
-                        z-index: 10000;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                    `;
-                    
-                    const content = document.createElement('div');
-                    content.style.cssText = `
-                        background: white;
-                        padding: 20px;
-                        border-radius: 8px;
-                        max-width: 80%;
-                        max-height: 80%;
-                        overflow: auto;
-                    `;
-                    
-                    content.innerHTML = `
-                        <h3>复制失败</h3>
-                        <p>自动复制失败，请手动选择并复制以下内容：</p>
-                        <textarea readonly style="width: 100%; height: 200px; margin: 10px 0;">${text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
-                        <button onclick="this.closest('div').parentElement.remove()" style="padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">关闭</button>
-                    `;
-                    
-                    modal.appendChild(content);
-                    document.body.appendChild(modal);
-                    
-                    hideLoading();
-                    updateStatus('请手动复制内容', true);
-                }
-            }
-        }
-
-        // 事件监听
-        editor.addEventListener('input', debounce(() => {
-            updateCharCount();
-            renderMarkdown();
-        }, 500));
-
-        themeSelector.addEventListener('change', renderMarkdown);
         
-        // 为分隔线拆分复选框添加事件监听器
-        document.getElementById('split-checkbox').addEventListener('change', renderMarkdown);
+        const blob = new Blob([fullHtml], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `markdown-${(themeSelector?.value || 'default').replace('.css', '')}-${Date.now()}.html`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
         
-        // 为清空编辑器按钮添加事件监听器
-        if (clearEditorBtn) {
-            clearEditorBtn.addEventListener('click', clearEditor);
-        }
-        
-        // 为主题选项添加事件监听器
-        themeOptions.forEach(option => {
-            option.addEventListener('click', () => {
-                // 移除所有选项的active类
-                themeOptions.forEach(opt => opt.classList.remove('active'));
-                // 为当前选项添加active类
-                option.classList.add('active');
-                
-                // 获取选中的主题
-                const selectedTheme = option.getAttribute('data-theme');
-                
-                // 更新主题选择器的值
-                themeSelector.value = selectedTheme;
-                
-                // 根据选中的主题更新渲染
-                // 添加延迟以确保CSS文件更新完成
-                setTimeout(() => {
-                    renderMarkdown();
-                }, 50);
-            });
+    } catch (error) {
+        console.error('下载HTML失败:', error);
+        alert('下载HTML失败: ' + error.message);
+    }
+}
+
+async function downloadPNG() {
+    const preview = document.getElementById('preview');
+    const themeSelector = document.getElementById('theme-selector');
+    
+    if (!preview || !preview.innerHTML.trim()) {
+        alert('请先输入Markdown内容并等待预览加载完成');
+        return;
+    }
+
+    if (typeof html2canvas === 'undefined') {
+        alert('PNG导出功能不可用，html2canvas库未加载');
+        return;
+    }
+
+    showLoading();
+    updateStatus('正在生成PNG...');
+
+    try {
+        const canvas = await html2canvas(preview, {
+            backgroundColor: '#ffffff',
+            scale: 1,
+            useCORS: true,
+            width: preview.scrollWidth,
+            height: preview.scrollHeight
         });
         
-        // 确保在页面加载时正确设置活动主题选项
-        function updateActiveThemeOption() {
-            const currentTheme = themeSelector.value;
-            themeOptions.forEach(option => {
-                option.classList.remove('active');
-                if (option.getAttribute('data-theme') === currentTheme) {
-                    option.classList.add('active');
-                }
-            });
-        }
+        const dataURL = canvas.toDataURL('image/png', 1.0);
+        const link = document.createElement('a');
+        link.href = dataURL;
+        link.download = `markdown-${(themeSelector?.value || 'default')}-${Date.now()}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
         
-        // 监听主题选择器变化
-        themeSelector.addEventListener('change', updateActiveThemeOption);
+        updateStatus('PNG下载完成');
         
-        // Custom CSS Editor Event Listeners
-        if (editCustomCSSBtn) {
-            editCustomCSSBtn.addEventListener('click', openCustomCSSEditor);
-        }
-        
-        if (closeCssPanel) {
-            closeCssPanel.addEventListener('click', closeCustomCSSEditor);
-        }
-        
-        if (cancelCssEdit) {
-            cancelCssEdit.addEventListener('click', closeCustomCSSEditor);
-        }
-        
-        if (saveCssEdit) {
-            saveCssEdit.addEventListener('click', saveCustomCSS);
-        }
-        
-        if (cssExampleBtn) {
-            cssExampleBtn.addEventListener('click', loadCSSExample);
-        }
-        
-        // 为设置抽屉添加事件监听器
-        if (settingsToggle) {
-            settingsToggle.addEventListener('click', () => {
-                settingsPane.classList.toggle('visible');
-                // 更新按钮文本
-                if (settingsPane.classList.contains('visible')) {
-                    settingsToggle.innerHTML = '<i class="fas fa-times"></i> 关闭设置';
-                    // 三列布局
-                    document.querySelector('.container').classList.remove('two-column');
-                } else {
-                    settingsToggle.innerHTML = '<i class="fas fa-cog"></i> 设置面板';
-                    // 两列布局
-                    document.querySelector('.container').classList.add('two-column');
-                }
-                // 保存状态到localStorage
-                localStorage.setItem('settingsPaneVisible', settingsPane.classList.contains('visible'));
-            });
-        }
-        
-        if (settingsClose) {
-            settingsClose.addEventListener('click', () => {
-                settingsPane.classList.remove('visible');
-                // 恢复按钮文本
-                if (settingsToggle) {
-                    settingsToggle.innerHTML = '<i class="fas fa-cog"></i> 设置面板';
-                }
-                // 两列布局
-                document.querySelector('.container').classList.add('two-column');
-                // 保存状态到localStorage
-                localStorage.setItem('settingsPaneVisible', false);
-            });
-        }
-        
-        // 页面加载时恢复设置面板状态
-        document.addEventListener('DOMContentLoaded', () => {
-            // Always start with the settings panel collapsed
-            // 两列布局
-            document.querySelector('.container').classList.add('two-column');
-            // Ensure settings pane is hidden
-            settingsPane.classList.remove('visible');
-            
-            // Reset button text to default
-            if (settingsToggle) {
-                settingsToggle.innerHTML = '<i class="fas fa-cog"></i> 设置面板';
-            }
-        });
+    } catch (error) {
+        console.error('PNG生成失败:', error);
+        updateStatus('PNG生成失败', true);
+        alert('PNG生成失败: ' + error.message);
+    } finally {
+        hideLoading();
+    }
+}
 
-        // 初始化
-        document.addEventListener('DOMContentLoaded', () => {
-            updateStatus('就绪');
-            updateCharCount();
-            
-            // 检查微信配置
-            checkWeChatConfig();
-            
-            // Populate theme selector with options from the STYLES object
-            if (typeof STYLES !== 'undefined') {
-                const themes = Object.keys(STYLES);
-                themes.forEach(theme => {
-                    const option = document.createElement('option');
-                    option.value = theme;
-                    option.textContent = STYLES[theme].name; // Use the name from STYLES
-                    themeSelector.appendChild(option);
-                });
-            } else {
-                console.error('STYLES object not loaded. Please check styles.js');
-                // Add a default option as fallback
-                const option = document.createElement('option');
-                option.value = 'wechat-default';
-                option.textContent = 'Default';
-                themeSelector.appendChild(option);
-            }
-            
-            // Set wechat-default as the default theme
-            themeSelector.value = 'wechat-default';
-            
-            // Update active theme option to match the selected theme
-            updateActiveThemeOption();
-            
-            // After populating, render the initial markdown if any
-            renderMarkdown();
-            
-            updateStatus('本地渲染，无需API服务', false);
-        });
+function downloadMD() {
+    const editor = document.getElementById('editor');
+    const themeSelector = document.getElementById('theme-selector');
+    
+    if (!editor || !editor.value.trim()) {
+        alert('请先输入Markdown内容');
+        return;
+    }
 
-        // 发送到微信草稿箱
-        function sendToWeChatDraft() {
-            const markdown = editor.value.trim();
-            const theme = themeSelector.value;
+    const blob = new Blob([editor.value], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `markdown-${(themeSelector?.value || 'default').replace('.css', '')}-${Date.now()}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
 
-            if (!markdown) {
-                alert('请先输入Markdown内容');
-                return;
-            }
+function downloadTXT() {
+    const editor = document.getElementById('editor');
+    const themeSelector = document.getElementById('theme-selector');
+    
+    if (!editor || !editor.value.trim()) {
+        alert('请先输入Markdown内容');
+        return;
+    }
 
-            // 获取微信配置
-            const appId = localStorage.getItem('wechat_app_id') || '';
-            const appSecret = localStorage.getItem('wechat_app_secret') || '';
-            const thumbMediaId = localStorage.getItem('wechat_thumb_media_id') || '';
-            
-            // 调试信息
-            
-            if (!appId || !appSecret || appId.trim() === '' || appSecret.trim() === '') {
-                alert('请先配置微信信息（AppID和AppSecret）');
-                return;
-            }
-            
+    // Convert markdown to plain text
+    const plainText = editor.value
+        .replace(/```[\s\S]*?```/g, '') // Remove code blocks
+        .replace(/`[^`]*`/g, '') // Remove inline code
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Remove links, keep text
+        .replace(/!\[([^\]]*)\]\([^)]+\)/g, '') // Remove images
+        .replace(/^#+\s*/gm, '') // Remove headers
+        .replace(/\*\*([^*]+)\*\*/g, '$1') // Remove bold
+        .replace(/\*([^*]+)\*/g, '$1') // Remove italic
+        .replace(/__([^_]+)__/g, '$1') // Remove bold
+        .replace(/_([^_]+)_/g, '$1') // Remove italic
+        .replace(/~~([^~]+)~~/g, '$1') // Remove strikethrough
+        .replace(/^>\s*/gm, '') // Remove quotes
+        .replace(/^[\d-]\.\s*/gm, '') // Remove list markers
+        .replace(/^[-*]{3,}$/gm, '') // Remove horizontal rules
+        .replace(/\n{3,}/g, '\n\n') // Normalize newlines
+        .trim();
+    
+    const blob = new Blob([plainText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `markdown-${(themeSelector?.value || 'default').replace('.css', '')}-${Date.now()}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
 
-            // 如果processedContent中没有当前主题的内容，或者内容为空，则重新处理
-            if (!processedContent.styledHtml || processedContent.theme !== theme) {
-                showLoading();
-                updateStatus('正在处理内容...');
-                
-                try {
-                    // 渲染 markdown
-                    let html = md.render(markdown);
-                    
-                    // 获取样式配置
-                    const styleConfig = (typeof STYLES !== 'undefined') ? (STYLES[theme] || STYLES['wechat-default']) : null;
-                    if (!styleConfig) {
-                        console.error('No style configuration available');
-                        preview.innerHTML = html;
-                        hideLoading();
-                        return;
-                    }
-                    const styles = styleConfig.styles;
-                    
-                    // 应用内联样式
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    
-                    // 应用样式到各个元素
-                    Object.keys(styles).forEach(selector => {
-                        if (selector === 'pre' || selector === 'code' || selector === 'pre code') {
-                            return;
-                        }
-                        
-                        const elements = doc.querySelectorAll(selector);
-                        elements.forEach(el => {
-                            const currentStyle = el.getAttribute('style') || '';
-                            el.setAttribute('style', currentStyle + '; ' + styles[selector]);
-                        });
-                    });
-                    
-                    // 创建容器并应用容器样式
-                    const container = doc.createElement('section');
-                    container.setAttribute('style', styles.container);
-                    container.innerHTML = doc.body.innerHTML;
-                    
-                    const styledHtml = container.outerHTML;
-                    
-                    // 更新processedContent变量
-                    processedContent = {
-                        html: html,
-                        styledHtml: styledHtml,
-                        markdown: markdown,
-                        theme: theme
-                    };
-                    
-                    hideLoading();
-                } catch (error) {
-                    console.error('内容处理失败:', error);
-                    alert('内容处理失败: ' + error.message);
-                    hideLoading();
-                    updateStatus('内容处理失败', true);
-                    return;
-                }
-            }
+async function copyToClipboard() {
+    const editor = document.getElementById('editor');
+    const preview = document.getElementById('preview');
+    const themeSelector = document.getElementById('theme-selector');
+    
+    if (!editor || !editor.value.trim()) {
+        alert('请先输入Markdown内容');
+        return;
+    }
 
-            showLoading();
-            updateStatus('正在发送到微信草稿箱...');
-
-            // 调试信息
-            
-            // 获取分隔线拆分复选框的状态
-            const splitCheckbox = document.getElementById('split-checkbox');
-            const dashSeparator = splitCheckbox && splitCheckbox.checked;
-            
-            const requestData = {
-                appid: appId,
-                secret: appSecret,
-                markdown: markdown, // 使用原始markdown内容
-                style: theme,
-                thumb_media_id: thumbMediaId,
-                dashseparator: dashSeparator
-            };
-            
-            
-            // 直接发送到新的后端接口
-            fetch(`${API_BASE_URL}/wechat/send_draft`, {
+    try {
+        let htmlContent;
+        
+        if (preview && preview.innerHTML.trim()) {
+            // Use rendered content from preview
+            htmlContent = preview.innerHTML;
+        } else {
+            // Render via API
+            const response = await fetch(`${API_BASE_URL}/render`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(requestData)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                hideLoading();
-                // 成功的条件：没有errcode字段，或者errcode为0，或者有media_id字段
-                if (!data.errcode || data.errcode === 0 || data.media_id) {
-                    updateStatus('已成功发送到微信草稿箱');
-                    alert('已成功发送到微信草稿箱\n草稿ID: ' + data.media_id);
-                } else {
-                    updateStatus('发送失败', true);
-                    // 如果errorMsg包含Unicode转义序列，尝试解码
-                    let errorMsg = data.errmsg;
-                    try {
-                        // 尝试解析可能包含Unicode转义序列的字符串
-                        errorMsg = JSON.parse('"' + data.errmsg.replace(/"/g, '\\"') + '"');
-                    } catch (e) {
-                        // 如果解析失败，保持原始错误信息
-                        errorMsg = data.errmsg;
-                    }
-                    alert('发送到微信草稿箱失败: ' + errorMsg);
-                }
-            })
-            .catch(error => {
-                hideLoading();
-                updateStatus('发送失败', true);
-                alert('发送到微信草稿箱失败: ' + error.message);
+                body: JSON.stringify({
+                    markdown_text: editor.value,
+                    theme: themeSelector?.value || 'wechat-default',
+                    mode: 'light-mode',
+                    platform: 'wechat'
+                })
             });
-        }
-
-        // 检查微信配置
-        function checkWeChatConfig() {
-            const appId = localStorage.getItem('wechat_app_id');
-            const appSecret = localStorage.getItem('wechat_app_secret');
-            const thumbMediaId = localStorage.getItem('wechat_thumb_media_id');
             
-            // Only log WeChat config in development mode
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            if (!response.ok) {
+                throw new Error(`渲染失败: ${response.status}`);
             }
             
-            if (appId && appSecret) {
-                return true;
+            const data = await response.json();
+            htmlContent = data.html;
+        }
+        
+        // Create temporary div to process HTML
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = htmlContent;
+        
+        // Remove script tags for safety
+        const scripts = tempDiv.querySelectorAll('script');
+        scripts.forEach(script => script.remove());
+        
+        const cleanHTML = tempDiv.innerHTML;
+        const plainText = tempDiv.textContent || tempDiv.innerText || '';
+        
+        // Use modern Clipboard API if available
+        if (navigator.clipboard && window.ClipboardItem) {
+            const htmlBlob = new Blob([cleanHTML], { type: 'text/html' });
+            const textBlob = new Blob([plainText], { type: 'text/plain' });
+            
+            const clipboardItem = new ClipboardItem({
+                'text/html': htmlBlob,
+                'text/plain': textBlob
+            });
+            
+            await navigator.clipboard.write([clipboardItem]);
+            updateStatus('已复制到剪贴板（富文本格式）');
+            
+        } else {
+            // Fallback method
+            const textArea = document.createElement('textarea');
+            textArea.value = plainText;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            if (successful) {
+                updateStatus('已复制到剪贴板（纯文本）');
             } else {
-                return false;
+                throw new Error('复制命令失败');
             }
         }
+        
+    } catch (error) {
+        console.error('复制失败:', error);
+        updateStatus('复制失败', true);
+        alert('复制失败: ' + error.message);
+    }
+}
 
-        // 配置微信信息
-        function configureWeChat() {
-            const appId = localStorage.getItem('wechat_app_id') || '';
-            const appSecret = localStorage.getItem('wechat_app_secret') || '';
-            const thumbMediaId = localStorage.getItem('wechat_thumb_media_id') || '';
-            
-            const newAppId = prompt('请输入微信公众号AppID:', appId);
-            if (newAppId === null) return; // 用户取消了输入
-            
-            const newAppSecret = prompt('请输入微信公众号AppSecret:', appSecret);
-            if (newAppSecret === null) return; // 用户取消了输入
-            
-            const newThumbMediaId = prompt('请输入缩略图Media ID (必要):', thumbMediaId);
-            
-            // 只要用户输入了有效的AppID和AppSecret就保存
-            if (newAppId.trim() !== '' && newAppSecret.trim() !== '') {
-                localStorage.setItem('wechat_app_id', newAppId.trim());
-                localStorage.setItem('wechat_app_secret', newAppSecret.trim());
-                if (newThumbMediaId !== null) {
-                    if (newThumbMediaId.trim() !== '') {
-                        localStorage.setItem('wechat_thumb_media_id', newThumbMediaId.trim());
-                    } else {
-                        localStorage.removeItem('wechat_thumb_media_id');
-                    }
-                }
-                alert('微信配置已保存');
-                // 调试信息
-                checkWeChatConfig();
-            } 
-            // 如果用户清空了输入，则清除配置
-            else if (newAppId.trim() === '' && newAppSecret.trim() === '') {
-                localStorage.removeItem('wechat_app_id');
-                localStorage.removeItem('wechat_app_secret');
+async function sendToWeChatDraft() {
+    const editor = document.getElementById('editor');
+    const themeSelector = document.getElementById('theme-selector');
+    
+    if (!editor || !editor.value.trim()) {
+        alert('请先输入Markdown内容');
+        return;
+    }
+
+    const appId = localStorage.getItem('wechat_app_id') || '';
+    const appSecret = localStorage.getItem('wechat_app_secret') || '';
+    const thumbMediaId = localStorage.getItem('wechat_thumb_media_id') || '';
+    
+    if (!appId || !appSecret || appId.trim() === '' || appSecret.trim() === '') {
+        alert('请先配置微信信息（AppID和AppSecret）');
+        return;
+    }
+
+    showLoading();
+    updateStatus('正在发送到微信草稿箱...');
+
+    try {
+        const splitCheckbox = document.getElementById('split-checkbox');
+        const dashSeparator = splitCheckbox && splitCheckbox.checked;
+        
+        const requestData = {
+            appid: appId,
+            secret: appSecret,
+            markdown: editor.value,
+            style: themeSelector?.value || 'wechat-default',
+            thumb_media_id: thumbMediaId,
+            dashseparator: dashSeparator
+        };
+        
+        const response = await fetch(`${API_BASE_URL}/wechat/send_draft`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        if (!data.errcode || data.errcode === 0 || data.media_id) {
+            updateStatus('已成功发送到微信草稿箱');
+            alert('已成功发送到微信草稿箱\n草稿ID: ' + (data.media_id || '未知'));
+        } else {
+            updateStatus('发送失败', true);
+            let errorMsg = data.errmsg;
+            try {
+                errorMsg = JSON.parse('"' + data.errmsg.replace(/"/g, '\\"') + '"');
+            } catch (e) {
+                errorMsg = data.errmsg;
+            }
+            alert('发送到微信草稿箱失败: ' + errorMsg);
+        }
+        
+    } catch (error) {
+        console.error('发送失败:', error);
+        updateStatus('发送失败', true);
+        alert('发送到微信草稿箱失败: ' + error.message);
+    } finally {
+        hideLoading();
+    }
+}
+
+function configureWeChat() {
+    const appId = localStorage.getItem('wechat_app_id') || '';
+    const appSecret = localStorage.getItem('wechat_app_secret') || '';
+    const thumbMediaId = localStorage.getItem('wechat_thumb_media_id') || '';
+    
+    const newAppId = prompt('请输入微信公众号AppID:', appId);
+    if (newAppId === null) return;
+    
+    const newAppSecret = prompt('请输入微信公众号AppSecret:', appSecret);
+    if (newAppSecret === null) return;
+    
+    const newThumbMediaId = prompt('请输入缩略图Media ID (必要):', thumbMediaId);
+    
+    if (newAppId.trim() !== '' && newAppSecret.trim() !== '') {
+        localStorage.setItem('wechat_app_id', newAppId.trim());
+        localStorage.setItem('wechat_app_secret', newAppSecret.trim());
+        if (newThumbMediaId !== null) {
+            if (newThumbMediaId.trim() !== '') {
+                localStorage.setItem('wechat_thumb_media_id', newThumbMediaId.trim());
+            } else {
                 localStorage.removeItem('wechat_thumb_media_id');
-                alert('已清除微信配置');
-            }
-            // 如果只输入了一个字段，给出提示但不保存
-            else {
-                alert('请同时输入AppID和AppSecret');
             }
         }
-
-        // 清空编辑器内容
-        function clearEditor() {
-            editor.value = '';
-            updateCharCount();
-            renderMarkdown();
-        }
-        
-        // Custom CSS Editor Functions
-        function openCustomCSSEditor() {
-            // Load current custom CSS content
-            fetch(`${API_BASE_URL}/themes/custom.css`)
-                .then(response => {
-                    if (response.ok) {
-                        return response.text();
-                    } else {
-                        // If file doesn't exist, start with empty content
-                        return '';
-                    }
-                })
-                .then(cssContent => {
-                    customCssEditor.value = cssContent;
-                    cssFloatingPanel.style.display = 'flex';
-                    // Focus the editor and move cursor to end
-                    customCssEditor.focus();
-                    customCssEditor.selectionStart = customCssEditor.value.length;
-                })
-                .catch(error => {
-                    console.error('Error loading custom CSS:', error);
-                    customCssEditor.value = '';
-                    cssFloatingPanel.style.display = 'flex';
-                    // Focus the editor even if there's an error
-                    customCssEditor.focus();
-                });
-        }
-        
-        function closeCustomCSSEditor() {
-            cssFloatingPanel.style.display = 'none';
-        }
-        
-        function saveCustomCSS() {
-            const cssContent = customCssEditor.value;
-            
-            // Save CSS content to server
-            fetch(`${API_BASE_URL}/themes/custom.css`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'text/css',
-                },
-                body: cssContent
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.status === 'success') {
-                    closeCustomCSSEditor();
-                    // Update theme selector to use custom.css
-                    themeSelector.value = 'custom.css';
-                    // Update active theme option
-                    themeOptions.forEach(opt => opt.classList.remove('active'));
-                    const customThemeOption = document.querySelector('.theme-option[data-theme="custom.css"]');
-                    if (customThemeOption) {
-                        customThemeOption.classList.add('active');
-                    }
-                    // Add a small delay to ensure file is written before re-rendering
-                    setTimeout(() => {
-                        // Re-render preview to apply new CSS
-                        renderMarkdown();
-                    }, 100);
-                } else {
-                    throw new Error(data.message || '保存失败');
-                }
-            })
-            .catch(error => {
-                console.error('Error saving custom CSS:', error);
-                alert('保存自定义CSS失败: ' + error.message);
-            });
-        }
-        
-        // Load CSS example into editor
-        function loadCSSExample() {
-            const cssExample = `/* 自定义CSS示例 */
-.markdown-body {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        alert('微信配置已保存');
+    } else if (newAppId.trim() === '' && newAppSecret.trim() === '') {
+        localStorage.removeItem('wechat_app_id');
+        localStorage.removeItem('wechat_app_secret');
+        localStorage.removeItem('wechat_thumb_media_id');
+        alert('已清除微信配置');
+    } else {
+        alert('请同时输入AppID和AppSecret');
+    }
 }
 
-h1, h2, h3 {
-    color: #2c3e50;
-    border-bottom: 2px solid #3498db;
-    padding-bottom: 5px;
+// Utility functions
+function showLoading() {
+    const loading = document.getElementById('loading');
+    if (loading) loading.classList.add('active');
 }
 
-blockquote {
-    background: #e8f4f8;
-    border-left: 4px solid #3498db;
-    padding: 10px 20px;
-    margin: 10px 0;
-    border-radius: 0 4px 4px 0;
+function hideLoading() {
+    const loading = document.getElementById('loading');
+    if (loading) loading.classList.remove('active');
 }
 
-code {
-    background: #eee;
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-family: 'Consolas', monospace;
+function updateStatus(message, isError = false) {
+    const status = document.getElementById('status');
+    if (status) {
+        status.textContent = message;
+        status.style.color = isError ? '#c33' : '#666';
+    }
 }
 
-pre {
-    background: #2c3e50;
-    color: #fff;
-    padding: 15px;
-    border-radius: 5px;
-    overflow-x: auto;
-}`;
-            
-            if (confirm('确定要加载CSS示例吗？这将覆盖当前编辑的内容。')) {
-                customCssEditor.value = cssExample;
-            }
-        }
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(initImagePaste, 100);
+});
 
-        // 键盘快捷键
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey || e.metaKey) {
-                switch(e.key) {
-                    case 's':
-                        e.preventDefault();
-                        downloadHTML();
-                        break;
-                    case 'Enter':
-                        e.preventDefault();
-                        renderMarkdown();
-                        break;
-                }
-            }
-            
-            // Ctrl+Shift+Backspace 清空编辑器
-            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'Backspace') {
-                e.preventDefault();
-                clearEditor();
-            }
-        });
-
-        // Make functions available globally for HTML onclick handlers
-        window.loadSample = loadSample;
-        window.copyToClipboard = copyToClipboard;
-        window.clearEditor = clearEditor;
-// Initialize MathJax for math formulas
-function initMathJax(container) {
-  // 检查 MathJax 是否已加载
-  if (typeof window.MathJax !== 'undefined' && window.MathJax.typesetPromise) {
-    // 使用 setTimeout 确保 DOM 更新完成后再渲染
-    setTimeout(() => {
-      try {
-        // 对指定容器进行 MathJax 渲染
-        window.MathJax.typesetPromise([container]);
-      } catch (error) {
-        console.warn('MathJax 渲染失败:', error);
-      }
-    }, 100);
-  } else if (typeof window.MathJax !== 'undefined' && window.MathJax.typeset) {
-    // 备用方法
-    setTimeout(() => {
-      try {
-        window.MathJax.typeset([container]);
-      } catch (error) {
-        console.warn('MathJax 渲染失败:', error);
-      }
-    }, 100);
-  } else {
-    // 如果 MathJax 还未加载，等待一段时间再尝试
-    setTimeout(() => {
-      if (typeof window.MathJax !== 'undefined' && window.MathJax.typeset) {
-        try {
-          window.MathJax.typeset([container]);
-        } catch (error) {
-          console.warn('MathJax 渲染失败:', error);
-        }
-      }
-    }, 500);
-  }
-}
-
-        // Format customization functionality
-        
-        // Function to populate format fields with current theme values
-        function populateFormatFields() {
-            const currentTheme = themeSelector.value;
-            if (typeof STYLES === "undefined" || !STYLES[currentTheme]) {
-                console.warn("Theme not found:", currentTheme);
-                return;
-            }
-
-            const styles = STYLES[currentTheme].styles;
-            
-            // Map of field IDs to CSS selector names
-            const fieldMapping = {
-                "format-container": "container",
-                "format-h1": "h1",
-                "format-h2": "h2", 
-                "format-h3": "h3",
-                "format-h4": "h4",
-                "format-h5": "h5",
-                "format-h6": "h6",
-                "format-p": "p",
-                "format-strong": "strong",
-                "format-em": "em",
-                "format-a": "a",
-                "format-ul": "ul",
-                "format-ol": "ol",
-                "format-li": "li",
-                "format-blockquote": "blockquote",
-                "format-code": "code",
-                "format-pre": "pre",
-                "format-hr": "hr",
-                "format-img": "img",
-                "format-table": "table",
-                "format-th": "th",
-                "format-td": "td",
-                "format-tr": "tr",
-                "format-innercontainer": "innerContainer"
-            };
-
-            // Populate each field with the corresponding style value
-            Object.keys(fieldMapping).forEach(fieldId => {
-                const field = document.getElementById(fieldId);
-                const styleKey = fieldMapping[fieldId];
-                if (field && styles[styleKey]) {
-                    // Clean up the CSS - remove extra whitespace and make it readable
-                    let cssValue = styles[styleKey].trim();
-                    // Add line breaks after semicolons for better readability
-                    cssValue = cssValue.replace(/;\s*/g, ";\n").replace(/\n+/g, "\n");
-                    field.value = cssValue;
-                } else if (field) {
-                    // Clear field if no style exists
-                    field.value = "";
-                }
-            });
-        }
-
-        // Function to save format changes back to the current theme
-        function saveFormatChanges() {
-            const currentTheme = themeSelector.value;
-            if (typeof STYLES === "undefined" || !STYLES[currentTheme]) {
-                alert("当前主题不存在，无法保存");
-                return;
-            }
-
-            const fieldMapping = {
-                "format-container": "container",
-                "format-h1": "h1",
-                "format-h2": "h2",
-                "format-h3": "h3",
-                "format-h4": "h4",
-                "format-h5": "h5",
-                "format-h6": "h6",
-                "format-p": "p",
-                "format-strong": "strong",
-                "format-em": "em",
-                "format-a": "a",
-                "format-ul": "ul",
-                "format-ol": "ol",
-                "format-li": "li",
-                "format-blockquote": "blockquote",
-                "format-code": "code",
-                "format-pre": "pre",
-                "format-hr": "hr",
-                "format-img": "img",
-                "format-table": "table",
-                "format-th": "th",
-                "format-td": "td",
-                "format-tr": "tr",
-                "format-innercontainer": "innerContainer"
-            };
-
-            // Update the styles object with new values
-            Object.keys(fieldMapping).forEach(fieldId => {
-                const field = document.getElementById(fieldId);
-                const styleKey = fieldMapping[fieldId];
-                if (field && field.value.trim()) {
-                    // Clean up the CSS value
-                    let cssValue = field.value.trim();
-                    // Remove extra line breaks and normalize spaces
-                    cssValue = cssValue.replace(/\n+/g, " ").replace(/\s+/g, " ");
-                    STYLES[currentTheme].styles[styleKey] = cssValue;
-                }
-            });
-
-            // Re-render to apply changes
-            renderMarkdown();
-            updateStatus("格式已保存并应用到当前主题");
-        }
-
-        // Function to reset format fields to original theme values
-        function resetFormatFields() {
-            if (confirm("确定要重置所有格式设置吗？这将恢复到默认样式。")) {
-                populateFormatFields();
-                updateStatus("格式已重置");
-            }
-        }
-
-        // Set up format customization event listeners
-        document.addEventListener("DOMContentLoaded", () => {
-            const saveFormatBtn = document.getElementById("save-format");
-            const resetFormatBtn = document.getElementById("reset-format");
-            
-            if (saveFormatBtn) {
-                saveFormatBtn.addEventListener("click", saveFormatChanges);
-            }
-            
-            if (resetFormatBtn) {
-                resetFormatBtn.addEventListener("click", resetFormatFields);
-            }
-            
-            // Listen for theme changes to populate format fields
-            if (themeSelector) {
-                themeSelector.addEventListener("change", () => {
-                    setTimeout(() => {
-                        populateFormatFields();
-                    }, 100);
-                });
-            }
-            
-            // Populate format fields after initial load
-            setTimeout(() => {
-                populateFormatFields();
-            }, 1000);
-        });
-
+// Make functions globally available
+window.downloadHTML = downloadHTML;
+window.downloadPNG = downloadPNG;
+window.downloadMD = downloadMD;
+window.downloadTXT = downloadTXT;
+window.copyToClipboard = copyToClipboard;
+window.sendToWeChatDraft = sendToWeChatDraft;
+window.configureWeChat = configureWeChat;
+window.ImageStore = ImageStore;
+window.ImageCompressor = ImageCompressor;

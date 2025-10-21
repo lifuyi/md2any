@@ -1,2 +1,0 @@
-Requirement already satisfied: beautifulsoup4 in /opt/homebrew/anaconda3/lib/python3.13/site-packages (4.12.2)
-Requirement already satisfied: soupsieve>1.2 in /opt/homebrew/anaconda3/lib/python3.13/site-packages (from beautifulsoup4) (2.5)

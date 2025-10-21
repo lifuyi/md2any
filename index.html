@@ -844,11 +844,10 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     
     <!-- Core functionality -->
-    <script src="styles.js"></script>
-    <script src="app.js"></script>
+    <script src="/static/app.js"></script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="frontend.js"></script>
+    <script src="/static/frontend.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <script>
         // Mermaid configuration with better error handling
@@ -883,189 +882,6 @@
     <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <script>
-        // Image paste and drag-drop functionality
-        // Using ImageStore and ImageCompressor from app.js instead of duplicating here
-
-        // Initialize image functionality
-        const imageStore = new ImageStore();
-        const imageCompressor = new ImageCompressor();
-        let imageCounter = 0;
-
-        function showImageStatus(message, type = 'info') {
-            const status = document.getElementById('imagePasteStatus');
-            status.textContent = message;
-            status.className = `image-paste-status ${type}`;
-            status.style.display = 'block';
-            
-            setTimeout(() => {
-                status.style.display = 'none';
-            }, 3000);
-        }
-
-        async function handleImageUpload(file) {
-            try {
-                showImageStatus('🔄 正在处理图片...', 'info');
-                
-                // Compress image
-                const compressedBlob = await imageCompressor.compress(file);
-                const originalSize = file.size;
-                const compressedSize = compressedBlob.size;
-                
-                // Generate ID and save
-                const imageId = 'img_' + Date.now() + '_' + (++imageCounter);
-                await imageStore.saveImage(imageId, compressedBlob, {
-                    name: file.name || 'pasted-image',
-                    originalSize: originalSize,
-                    type: compressedBlob.type
-                });
-                
-                // Create object URL and insert markdown
-                const objectURL = URL.createObjectURL(compressedBlob);
-                const markdownImage = `![${file.name || 'image'}](${objectURL})\n`;
-                
-                // Insert into editor
-                const editor = document.getElementById('editor');
-                const cursorPos = editor.selectionStart;
-                const textBefore = editor.value.substring(0, cursorPos);
-                const textAfter = editor.value.substring(cursorPos);
-                editor.value = textBefore + markdownImage + textAfter;
-                editor.setSelectionRange(cursorPos + markdownImage.length, cursorPos + markdownImage.length);
-                
-                // Trigger preview update
-                if (window.updatePreview) {
-                    updatePreview();
-                }
-                
-                // Show preview in editor pane
-                const previewContainer = document.getElementById('imagePreviewContainer');
-                const previewDiv = document.createElement('section');
-                previewDiv.className = 'image-preview-container';
-                previewDiv.innerHTML = `
-                    <img src="${objectURL}" class="image-preview" alt="${file.name || 'image'}">
-                    <div class="image-info">
-                        ${file.name || '粘贴的图片'} (${ImageCompressor.formatSize(originalSize)} → ${ImageCompressor.formatSize(compressedSize)})
-                        <button onclick="this.parentElement.parentElement.remove()" style="margin-left: 10px; background: #f44336; color: white; border: none; padding: 2px 6px; border-radius: 2px; cursor: pointer;">删除</button>
-                    </div>
-                `;
-                previewContainer.appendChild(previewDiv);
-                
-                const compressionRatio = ((originalSize - compressedSize) / originalSize * 100).toFixed(1);
-                showImageStatus(`✅ 图片已插入！压缩率 ${compressionRatio}%`, 'success');
-                
-            } catch (error) {
-                showImageStatus('❌ 图片处理失败: ' + error.message, 'error');
-            }
-        }
-
-        // Initialize image paste functionality
-        function initImagePaste() {
-            const editor = document.getElementById('editor');
-            const pasteArea = document.getElementById('imagePasteArea');
-            
-            // Initialize ImageStore
-            imageStore.init().catch(err => {
-            });
-            
-            // Paste event for the entire document
-            document.addEventListener('paste', async (event) => {
-                const items = event.clipboardData?.items;
-                if (!items) return;
-
-                for (let i = 0; i < items.length; i++) {
-                    const item = items[i];
-                    if (item.type.indexOf('image') !== -1) {
-                        event.preventDefault();
-                        const file = item.getAsFile();
-                        if (file) {
-                            await handleImageUpload(file);
-                        }
-                        break;
-                    }
-                }
-            });
-
-            // Drag and drop events for editor
-            editor.addEventListener('dragenter', (e) => {
-                e.preventDefault();
-                pasteArea.style.display = 'block';
-                pasteArea.classList.add('dragover');
-            });
-
-            editor.addEventListener('dragover', (e) => {
-                e.preventDefault();
-            });
-
-            editor.addEventListener('dragleave', (e) => {
-                e.preventDefault();
-                if (!editor.contains(e.relatedTarget)) {
-                    pasteArea.classList.remove('dragover');
-                    setTimeout(() => {
-                        if (!pasteArea.classList.contains('dragover')) {
-                            pasteArea.style.display = 'none';
-                        }
-                    }, 100);
-                }
-            });
-
-            editor.addEventListener('drop', async (e) => {
-                e.preventDefault();
-                pasteArea.classList.remove('dragover');
-                pasteArea.style.display = 'none';
-                
-                const files = e.dataTransfer?.files;
-                if (!files || files.length === 0) return;
-
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    if (file.type.startsWith('image/')) {
-                        await handleImageUpload(file);
-                    }
-                }
-            });
-
-            // Also handle paste area directly
-            pasteArea.addEventListener('dragenter', (e) => {
-                e.preventDefault();
-                pasteArea.classList.add('dragover');
-            });
-
-            pasteArea.addEventListener('dragover', (e) => {
-                e.preventDefault();
-            });
-
-            pasteArea.addEventListener('dragleave', (e) => {
-                e.preventDefault();
-                if (!pasteArea.contains(e.relatedTarget)) {
-                    pasteArea.classList.remove('dragover');
-                }
-            });
-
-            pasteArea.addEventListener('drop', async (e) => {
-                e.preventDefault();
-                pasteArea.classList.remove('dragover');
-                pasteArea.style.display = 'none';
-                
-                const files = e.dataTransfer?.files;
-                if (!files || files.length === 0) return;
-
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    if (file.type.startsWith('image/')) {
-                        await handleImageUpload(file);
-                    }
-                }
-            });
-        }
-
-        // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            // Wait a bit to ensure other scripts are loaded
-            setTimeout(initImagePaste, 100);
-            
-            // Check backend status
-            setTimeout(checkBackendStatus, 200);
-        });
-        
         // Backend status check (simplified since we only use backend now)
         async function checkBackendStatus() {
             const backendStatusBtn = document.getElementById('backend-status');
@@ -1075,7 +891,7 @@
             if (!backendStatusBtn) return;
             
             try {
-                const response = await fetch('http://localhost:8000/health');
+                const response = await fetch('http://localhost:5005/health');
                 
                 if (response.ok) {
                     const data = await response.json();
@@ -1101,7 +917,7 @@
             }
         }
         
-        // Note: Now using backend-only rendering, no frontend fallback
+        // Note: Image functionality is now handled in frontend.js
     </script>
 </body>
 </html>

@@ -4,18 +4,16 @@ Markdown to HTML API Server with Theme Support
 Built with FastAPI and managed by uv
 """
 
-import json
 import re
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from pathlib import Path
 
 import markdown
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-from pygments import highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
 from pygments.util import ClassNotFound
@@ -55,162 +53,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount static files
+app.mount("/static", StaticFiles(directory="."), name="static")
+
 # Load themes configuration
 def load_themes() -> Dict[str, Any]:
-    """Load theme configurations from styles.js file"""
+    """Load theme configurations from styles.py module"""
     try:
-        with open("styles.js", "r", encoding="utf-8") as f:
-            content = f.read()
-        
-        # Extract the STYLES object using a more robust parser
-        start_marker = "const STYLES = {"
-        start_idx = content.find(start_marker)
-        if start_idx == -1:
-            raise ValueError("STYLES object not found in styles.js")
-        
-        # Find the matching closing brace for the entire STYLES object
-        brace_count = 0
-        start_pos = start_idx + len("const STYLES = ")
-        end_idx = start_pos
-        
-        for i, char in enumerate(content[start_pos:], start_pos):
-            if char == '{':
-                brace_count += 1
-            elif char == '}':
-                brace_count -= 1
-                if brace_count == 0:
-                    end_idx = i + 1
-                    break
-        
-        # Extract the JavaScript object content
-        js_content = content[start_pos:end_idx]
-        
-        # Convert JavaScript object to Python dict using regex patterns
-        # This is a simplified parser - handles the specific structure of styles.js
-        themes = parse_styles_object(js_content)
-        
-        return themes
+        from styles import STYLES
+        return STYLES
     except Exception as e:
-        print(f"Warning: Could not load themes from styles.js: {e}")
+        print(f"Warning: Could not load themes from styles.py: {e}")
         return get_default_themes()
 
 
-def parse_styles_object(js_content: str) -> Dict[str, Any]:
-    """Parse the JavaScript STYLES object into Python dict - enhanced parser"""
-    themes = {}
-    
-    # Extract theme blocks more accurately
-    theme_pattern = r'"([^"]+)"\s*:\s*\{((?:[^{}]*\{[^{}]*\}[^{}]*)*?)\}(?=\s*,\s*"|\s*$)'
-    
-    matches = re.finditer(theme_pattern, js_content, re.DOTALL)
-    
-    for match in matches:
-        theme_id = match.group(1)
-        theme_content = match.group(2)
-        
-        print(f"Parsing theme: {theme_id}")
-        
-        # Parse theme structure
-        theme_data = parse_theme_structure(theme_id, theme_content)
-        themes[theme_id] = theme_data
-    
-    print(f"Successfully parsed {len(themes)} themes")
-    return themes
 
-
-def parse_theme_structure(theme_id: str, theme_content: str) -> Dict[str, Any]:
-    """Parse individual theme structure"""
-    
-    # Extract name
-    name_match = re.search(r'"name"\s*:\s*"([^"]+)"', theme_content)
-    name = name_match.group(1) if name_match else theme_id.replace("-", " ").replace("_", " ").title()
-    
-    # Extract modes
-    modes = extract_modes(theme_content)
-    
-    # Extract styles
-    styles = extract_styles(theme_content)
-    
-    return {
-        "name": name,
-        "modes": modes,
-        "styles": styles
-    }
-
-
-def extract_modes(theme_content: str) -> list:
-    """Extract modes from theme content"""
-    modes = []
-    
-    # Look for modes array
-    modes_match = re.search(r'"modes"\s*:\s*\[(.*?)\]', theme_content, re.DOTALL)
-    if modes_match:
-        modes_content = modes_match.group(1)
-        
-        # Extract individual mode objects
-        mode_pattern = r'\{([^{}]+)\}'
-        mode_matches = re.findall(mode_pattern, modes_content)
-        
-        for mode_content in mode_matches:
-            name_match = re.search(r'"name"\s*:\s*"([^"]+)"', mode_content)
-            id_match = re.search(r'"id"\s*:\s*"([^"]+)"', mode_content)
-            bg_match = re.search(r'"background"\s*:\s*"([^"]+)"', mode_content)
-            
-            modes.append({
-                "name": name_match.group(1) if name_match else "默认",
-                "id": id_match.group(1) if id_match else "light-mode",
-                "background": bg_match.group(1) if bg_match else "#ffffff"
-            })
-    
-    # Fallback if no modes found
-    if not modes:
-        modes = [
-            {
-                "name": "浅色",
-                "id": "light-mode",
-                "background": "#ffffff"
-            },
-            {
-                "name": "深色", 
-                "id": "dark-mode",
-                "background": "#1a1a1a"
-            }
-        ]
-    
-    return modes
-
-
-def extract_styles(theme_content: str) -> Dict[str, str]:
-    """Extract styles from theme content"""
-    styles = {}
-    
-    # Look for styles object
-    styles_match = re.search(r'"styles"\s*:\s*\{([^}]*(?:\{[^}]*\}[^}]*)*)\}', theme_content, re.DOTALL)
-    if not styles_match:
-        return get_enhanced_default_styles()
-    
-    styles_content = styles_match.group(1)
-    
-    # Extract individual style rules
-    # Handle both simple and complex CSS rules
-    style_pattern = r'"([^"]+)"\s*:\s*"((?:[^"\\]|\\.)*)(?<!\\)"(?=\s*,|\s*\})'
-    
-    for match in re.finditer(style_pattern, styles_content, re.DOTALL):
-        selector = match.group(1)
-        css_content = match.group(2)
-        
-        # Clean up the CSS content
-        css_content = css_content.replace('\\"', '"')
-        css_content = css_content.replace('\\n', '\n')
-        css_content = re.sub(r'\s+', ' ', css_content).strip()
-        
-        styles[selector] = css_content
-    
-    # If no styles found, return default
-    if not styles:
-        return get_enhanced_default_styles()
-    
-    return styles
 
 
 def get_enhanced_default_styles() -> Dict[str, str]:
@@ -267,25 +124,7 @@ def get_enhanced_dark_styles() -> Dict[str, str]:
     }
 
 
-def parse_css_styles(styles_content: str) -> Dict[str, str]:
-    """Parse CSS styles from the JavaScript object"""
-    styles = {}
-    
-    # Pattern to match CSS property definitions
-    style_pattern = r'"([^"]+)"\s*:\s*"([^"]*(?:\\.[^"]*)*)"'
-    
-    for match in re.finditer(style_pattern, styles_content, re.DOTALL):
-        selector = match.group(1)
-        css_rules = match.group(2)
-        
-        # Clean up the CSS rules - handle escaped quotes and newlines
-        css_rules = css_rules.replace('\\"', '"')
-        css_rules = css_rules.replace('\\n', ' ')
-        css_rules = re.sub(r'\s+', ' ', css_rules).strip()
-        
-        styles[selector] = css_rules
-    
-    return styles
+
 
 
 def get_default_themes() -> Dict[str, Any]:
@@ -678,7 +517,14 @@ async def render_markdown(request: MarkdownRequest):
         # Validate theme and use fallback if needed
         if request.theme not in THEMES:
             # Use fallback theme if requested theme doesn't exist
-            request.theme = "wechat-default"
+            available_themes = list(THEMES.keys())
+            if available_themes:
+                request.theme = available_themes[0]  # Use first available theme
+            else:
+                raise HTTPException(
+                    status_code=400,
+                    detail="No themes available"
+                )
         
         # Final check to ensure fallback theme exists
         if request.theme not in THEMES:
@@ -831,7 +677,7 @@ def run_server():
     """Run the API server"""
     import subprocess
     print("Starting API server...")
-    subprocess.run(["uv", "run", "uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000", "--reload"], check=True)
+    subprocess.run(["uv", "run", "uvicorn", "api:app", "--host", "0.0.0.0", "--port", "5005", "--reload"], check=True)
 
 def main():
     """Main entry point for running the server"""
@@ -868,7 +714,7 @@ def main():
         uvicorn.run(
             "api:app",
             host="0.0.0.0",
-            port=8000,
+            port=5005,
             reload=True,
             log_level="info"
         )
