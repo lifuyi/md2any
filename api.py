@@ -5,6 +5,7 @@ Built with FastAPI and managed by uv
 """
 
 import re
+import os
 from typing import Dict, Any
 from pathlib import Path
 
@@ -18,6 +19,7 @@ from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
 from pygments.util import ClassNotFound
 from bs4 import BeautifulSoup
+from openai import OpenAI
 
 
 class MarkdownRequest(BaseModel):
@@ -36,6 +38,39 @@ class MarkdownResponse(BaseModel):
     success: bool = True
     message: str = "Rendered successfully"
 
+
+class AIRequest(BaseModel):
+    """Request model for AI assistance"""
+    prompt: str
+    context: str = ""
+
+
+class AIResponse(BaseModel):
+    """Response model for AI assistance"""
+    response: str
+    success: bool = True
+    message: str = "AI response generated successfully"
+
+
+class TextToMarkdownRequest(BaseModel):
+    """Request model for text to markdown conversion"""
+    text: str
+    style: str = "standard"  # standard, academic, blog, technical
+    preserve_formatting: bool = True
+
+
+class TextToMarkdownResponse(BaseModel):
+    """Response model for text to markdown conversion"""
+    markdown: str
+    success: bool = True
+    message: str = "Text converted to markdown successfully"
+
+
+# Initialize DeepSeek client
+deepseek_client = OpenAI(
+    api_key="sk-3d45b1b21d094700a8a528a8905bbb9f",
+    base_url="https://api.deepseek.com"
+)
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -469,9 +504,11 @@ async def root():
     return {
         "name": "md2any API",
         "version": "1.0.0",
-        "description": "Markdown to HTML API with theme support",
+        "description": "Markdown to HTML API with theme support and AI assistance",
         "endpoints": {
             "/render": "POST - Render markdown to HTML",
+            "/ai": "POST - AI assistance for markdown writing",
+            "/text-to-markdown": "POST - Convert plain text to markdown format",
             "/themes": "GET - List available themes",
             "/health": "GET - Health check"
         }
@@ -507,6 +544,90 @@ async def get_themes():
         theme_list.append(theme_info)
     
     return {"themes": theme_list}
+
+
+@app.post("/ai", response_model=AIResponse)
+async def ai_assist(request: AIRequest):
+    """AI assistance endpoint using DeepSeek"""
+    try:
+        # Prepare messages for DeepSeek API
+        messages = [
+            {"role": "system", "content": "You are a helpful assistant specialized in markdown writing and formatting.请基于以下规则，将目标TXT文本完整、精准地转换为Markdown（MD）格式，核心需实现“结构识别、内容保真、重点突出、格式适配”四大目标，具体要求如下：\n\n## 一、文本结构识别与MD标题转换\n1. **标题层级判定**：先通读TXT全文，根据文本逻辑（如内容从属关系、标题前后空行、文字语义权重）和格式特征（如TXT中可能的“#”“##”标记、“【】”包裹标题、字号暗示性文字），精准区分**一级标题（H1）、二级标题（H2）、三级标题（H3）** 及以下层级（最多识别至H6，避免层级冗余）；\n2. **MD标题格式适配**：严格按MD语法转换，一级标题用“# 标题内容”，二级标题用“## 标题内容”，以此类推，标题文本需完整保留原TXT表述，不增删语义；\n3. **标题与段落区分**：若TXT中标题与正文无明显分隔（如无空行），需通过“是否为核心观点句、是否统领后续内容”判断，标题下方需空1行再接正文，确保结构清晰。\n\n\n## 二、正文段落与重点内容处理\n1. **段落完整性保真**：TXT中的正文段落需完整迁移至MD，段落间若有明确空行（原TXT中换行分隔），MD中需保留同等空行间距，避免段落合并或拆分；\n2. **核心信息标注**：结合对文章涵义的分析（如核心论点、关键结论、重要数据、限定条件），用**加粗（`**重点内容**`）** 标注重点，标注原则：\n   - 不滥用加粗，仅针对“支撑文章主旨的关键句、影响理解的核心概念、需要强调的结论”；\n   - 若TXT中有“注意”“重点”“核心”等提示词，其引导的内容需优先标注；\n3. **特殊表述处理**：对TXT中的强调性表述（如“必须”“禁止”“唯一”等限定词引导的内容）、专业术语（如技术文档中的概念），可补充用**下划线（`_术语_`）** 辅助突出，增强可读性。\n\n\n## 三、列表结构识别与MD格式转换\n1. **无序列表处理**：若TXT中出现“-”“·”“○”“□”等符号引导的并列内容，或语义上为“多个并列要点、分类项”（如“优势包括：第一点...第二点...”），统一转换为MD无序列表（用“- 列表内容”表示），列表项需对齐，嵌套列表（如“要点1下的子项”）用缩进+“-”表示；\n2. **有序列表处理**：若TXT中出现“1. ”“2. ”“（1）”“第一”“第二”等带序号的引导内容，且语义上为“步骤、流程、优先级排序”，统一转换为MD有序列表（用“1. 列表内容”“2. 列表内容”表示），序号需连续，避免断号或错序；\n3. **列表与正文衔接**：列表前后需与正文空1行，列表项内部若有长文本换行，需保持缩进对齐，确保视觉连贯。\n\n\n## 四、代码内容与图片URL适配\n1. **代码段识别与转换**：\n   - 若TXT中出现“代码如下”“示例代码”等提示语，或内容为编程语言语法（如`print()`、`function`、SQL语句、命令行指令），需用MD代码块格式包裹：单行代码用“`代码内容`”，多行代码用“```语言类型\\n代码内容\\n```”（如Python代码标注为“```python”，Shell命令标注为“```shell”）；\n   - 代码段需完整保留原TXT中的语法格式（如缩进、空格、符号），不修改代码逻辑；\n2. **图片URL转换**：若TXT中包含图片链接（如以`http://`、`https://`开头，后缀为`.jpg`、`.png`、`.gif`的URL），需转换为MD图片语法：`![图片描述](图片URL)`，其中“图片描述”优先提取TXT中对图片的说明（如“系统架构图”“数据可视化结果”），若无说明则填“图片”，确保链接可直接访问。\n\n\n## 五、其他格式的MD适配规则\n1. **引用内容处理**：若TXT中出现“某某说”“正如XX文献所述”等引用语句，或内容为外部观点、文献摘录，用MD引用格式（`> 引用内容`）表示，引用内容若有多段，每段前均需加“>”；\n2. **链接处理**：若TXT中包含非图片的URL（如文档链接、网页链接），且有对应描述文本（如“参考文档：https://xxx”），转换为MD链接语法：`[链接描述](URL)`（如“[参考文档](https://xxx)”）；\n3. **表格处理**：若TXT中有用空格、逗号分隔的结构化数据（如“姓名 年龄 性别”“产品,价格,库存”），且语义上为“对比数据、分类统计”，需转换为MD表格格式，确保表头与内容对齐（如：\n   | 姓名 | 年龄 | 性别 |\n   | ---- | ---- | ---- |\n   | 张三 | 25   | 男   |）；\n4. **格式优先级**：若同一内容同时符合多种格式规则（如“带序号的代码步骤”），优先按“核心语义”判定——若为“步骤”则用有序列表，列表项内的代码用单行代码格式包裹，避免格式冲突。\n\n\n## 六、整体输出要求\n1. 转换后的MD文本需确保“语义无偏差、格式无错误”，可直接在MD编辑器（如Typora、VS Code）中正常渲染；\n2. 若TXT中存在模糊结构（如难以判定的标题层级、列表类型），需基于“贴近原文逻辑、提升可读性”的原则处理，并在转换后标注“此处基于文本语义判定为XX格式”，确保透明性；\n3. 最终MD文本需去除原TXT中的无效格式（如多余空格、乱码字符），但保留有意义的格式符号（如引号、括号），整体排版整洁、层次分明。 "}
+        ]
+        
+        # Add context if provided
+        if request.context:
+            messages.append({"role": "system", "content": f"Context: {request.context}"})
+        
+        # Add user prompt
+        messages.append({"role": "user", "content": request.prompt})
+        
+        # Call DeepSeek API
+        response = deepseek_client.chat.completions.create(
+            model="deepseek-chat",
+            messages=messages,
+            stream=False
+        )
+        
+        ai_response = response.choices[0].message.content
+        
+        return AIResponse(
+            response=ai_response,
+            success=True,
+            message="AI response generated successfully"
+        )
+    
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"AI service error: {str(e)}"
+        )
+
+
+@app.post("/text-to-markdown", response_model=TextToMarkdownResponse)
+async def text_to_markdown(request: TextToMarkdownRequest):
+    """Convert plain text to markdown format using AI"""
+    try:
+        # Prepare the conversion prompt based on style
+        style_instructions = {
+            "standard": "Convert the following text to clean, well-formatted markdown with appropriate headings, lists, and emphasis.",
+            "academic": "Convert the following text to academic markdown with proper citations, formal headings, and structured formatting.",
+            "blog": "Convert the following text to blog-style markdown with engaging headings, bullet points, and reader-friendly formatting.",
+            "technical": "Convert the following text to technical documentation markdown with code blocks, proper syntax highlighting indicators, and structured sections."
+        }
+        
+        instruction = style_instructions.get(request.style, style_instructions["standard"])
+        
+        # Add formatting preservation instruction if needed
+        if request.preserve_formatting:
+            instruction += " Preserve any existing formatting like line breaks, paragraphs, and structural elements."
+        
+        # Prepare messages for DeepSeek API
+        messages = [
+            {"role": "system", "content": "You are an expert at converting plain text to well-structured markdown format. Always return only the markdown content without explanations."},
+            {"role": "user", "content": f"{instruction}\n\nText to convert:\n{request.text}"}
+        ]
+        
+        # Call DeepSeek API
+        response = deepseek_client.chat.completions.create(
+            model="deepseek-chat",
+            messages=messages,
+            stream=False
+        )
+        
+        markdown_content = response.choices[0].message.content.strip()
+        
+        return TextToMarkdownResponse(
+            markdown=markdown_content,
+            success=True,
+            message="Text converted to markdown successfully"
+        )
+    
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Text to markdown conversion error: {str(e)}"
+        )
 
 
 @app.post("/render", response_model=MarkdownResponse)
