@@ -1,8 +1,8 @@
 // 配置
         // Use the same host as the frontend is served from
         const API_BASE_URL = window.location.hostname ? 
-            `http://${window.location.hostname}:5002` : 
-            'http://localhost:5002';
+            `http://${window.location.hostname}:8000` : 
+            'http://localhost:8000';
             
         // Add error handling for missing libraries
             
@@ -126,32 +126,26 @@
             updateStatus('渲染中...');
 
             try {
-                // 分割Markdown文本为卡片
-                const sections = splitMarkdownIntoCards(markdown);
-                
-                // 清空预览区域
-                preview.innerHTML = '';
-                
-                // 为每个部分渲染内容
-                let combinedContent = '';
-                
-                for (let i = 0; i < sections.length; i++) {
-                    const sectionMarkdown = sections[i];
-                    
-                    // Render markdown with the same approach as app.js
-                    let html = md.render(sectionMarkdown);
-                    
-                    // Apply styles using the same method as app.js
-                    html = applyInlineStyles(html, theme);
-                    
-                    // 为每个部分添加分隔线和section-card样式
-                    combinedContent += `<div class="section-card">${html}</div>`;
-                    
-                    // 如果不是最后一部分，添加分隔线
-                    if (i < sections.length - 1) {
-                        combinedContent += '<hr style="margin: 20px 0; border: 1px solid #eee;">';
-                    }
+                // 使用后端API进行渲染
+                const response = await fetch(`${API_BASE_URL}/render`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        markdown_text: markdown,
+                        theme: theme,
+                        mode: 'light-mode',
+                        platform: 'wechat'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`后端渲染失败: ${response.status}`);
                 }
+
+                const data = await response.json();
+                let combinedContent = data.html;
                 
                 // 直接更新预览区域，不再使用iframe
                 preview.innerHTML = combinedContent;

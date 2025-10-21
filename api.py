@@ -94,36 +94,121 @@ def load_themes() -> Dict[str, Any]:
 
 
 def parse_styles_object(js_content: str) -> Dict[str, Any]:
-    """Parse the JavaScript STYLES object into Python dict - simplified approach"""
+    """Parse the JavaScript STYLES object into Python dict - enhanced parser"""
     themes = {}
     
-    # For now, let's extract just the theme names and create a working structure
-    # We'll use the default theme structure but with different names
-    theme_name_pattern = r'"([^"]+)"\s*:\s*\{'
-    theme_names = re.findall(theme_name_pattern, js_content)
+    # Extract theme blocks more accurately
+    theme_pattern = r'"([^"]+)"\s*:\s*\{((?:[^{}]*\{[^{}]*\}[^{}]*)*?)\}(?=\s*,\s*"|\s*$)'
     
-    print(f"Found theme names: {theme_names}")
+    matches = re.finditer(theme_pattern, js_content, re.DOTALL)
     
-    for theme_id in theme_names:
-        themes[theme_id] = {
-            "name": theme_id.replace("-", " ").replace("_", " ").title(),
-            "modes": [
-                {
-                    "name": "浅色",
-                    "id": "light-mode", 
-                    "background": "#ffffff"
-                },
-                {
-                    "name": "深色",
-                    "id": "dark-mode",
-                    "background": "#1a1a1a"
-                }
-            ],
-            "styles": get_enhanced_default_styles(),
-            "dark_styles": get_enhanced_dark_styles()
-        }
+    for match in matches:
+        theme_id = match.group(1)
+        theme_content = match.group(2)
+        
+        print(f"Parsing theme: {theme_id}")
+        
+        # Parse theme structure
+        theme_data = parse_theme_structure(theme_id, theme_content)
+        themes[theme_id] = theme_data
     
+    print(f"Successfully parsed {len(themes)} themes")
     return themes
+
+
+def parse_theme_structure(theme_id: str, theme_content: str) -> Dict[str, Any]:
+    """Parse individual theme structure"""
+    
+    # Extract name
+    name_match = re.search(r'"name"\s*:\s*"([^"]+)"', theme_content)
+    name = name_match.group(1) if name_match else theme_id.replace("-", " ").replace("_", " ").title()
+    
+    # Extract modes
+    modes = extract_modes(theme_content)
+    
+    # Extract styles
+    styles = extract_styles(theme_content)
+    
+    return {
+        "name": name,
+        "modes": modes,
+        "styles": styles
+    }
+
+
+def extract_modes(theme_content: str) -> list:
+    """Extract modes from theme content"""
+    modes = []
+    
+    # Look for modes array
+    modes_match = re.search(r'"modes"\s*:\s*\[(.*?)\]', theme_content, re.DOTALL)
+    if modes_match:
+        modes_content = modes_match.group(1)
+        
+        # Extract individual mode objects
+        mode_pattern = r'\{([^{}]+)\}'
+        mode_matches = re.findall(mode_pattern, modes_content)
+        
+        for mode_content in mode_matches:
+            name_match = re.search(r'"name"\s*:\s*"([^"]+)"', mode_content)
+            id_match = re.search(r'"id"\s*:\s*"([^"]+)"', mode_content)
+            bg_match = re.search(r'"background"\s*:\s*"([^"]+)"', mode_content)
+            
+            modes.append({
+                "name": name_match.group(1) if name_match else "默认",
+                "id": id_match.group(1) if id_match else "light-mode",
+                "background": bg_match.group(1) if bg_match else "#ffffff"
+            })
+    
+    # Fallback if no modes found
+    if not modes:
+        modes = [
+            {
+                "name": "浅色",
+                "id": "light-mode",
+                "background": "#ffffff"
+            },
+            {
+                "name": "深色", 
+                "id": "dark-mode",
+                "background": "#1a1a1a"
+            }
+        ]
+    
+    return modes
+
+
+def extract_styles(theme_content: str) -> Dict[str, str]:
+    """Extract styles from theme content"""
+    styles = {}
+    
+    # Look for styles object
+    styles_match = re.search(r'"styles"\s*:\s*\{([^}]*(?:\{[^}]*\}[^}]*)*)\}', theme_content, re.DOTALL)
+    if not styles_match:
+        return get_enhanced_default_styles()
+    
+    styles_content = styles_match.group(1)
+    
+    # Extract individual style rules
+    # Handle both simple and complex CSS rules
+    style_pattern = r'"([^"]+)"\s*:\s*"((?:[^"\\]|\\.)*)"(?=\s*,|\s*\})'
+    
+    for match in re.finditer(style_pattern, styles_content, re.DOTALL):
+        selector = match.group(1)
+        css_content = match.group(2)
+        
+        # Clean up the CSS content
+        css_content = css_content.replace('\\"', '"')
+        css_content = css_content.replace('\\n', '\n')
+        css_content = re.sub(r'\s+', ' ', css_content).strip()
+        
+        styles[selector] = css_content
+    
+    # If no styles found, return default
+    if not styles:
+        return get_enhanced_default_styles()
+    
+    return styles
 
 
 def get_enhanced_default_styles() -> Dict[str, str]:
@@ -242,15 +327,13 @@ class MarkdownRenderer:
                 'codehilite',
                 'toc',
                 'tables',
-                'fenced_code',
-                'nl2br'
+                'fenced_code'
             ],
             extension_configs={
                 'codehilite': {
                     'css_class': 'highlight',
                     'use_pygments': True,
-                    'noclasses': True,
-                    'style': 'github'
+                    'noclasses': True
                 }
             }
         )
@@ -275,14 +358,15 @@ class MarkdownRenderer:
     def _apply_theme_styling(self, html_content: str, theme: Dict[str, Any], mode: str, platform: str) -> str:
         """Apply theme styling to HTML content"""
         
-        # Determine which styles to use based on mode
-        if mode == "dark-mode" and theme.get("dark_styles"):
-            styles = theme["dark_styles"]
-        else:
-            styles = theme.get("styles", {})
+        # Get styles from the theme
+        styles = theme.get("styles", {})
         
         # Generate CSS from theme styles
         css_styles = self._generate_css_from_theme_styles(styles)
+        
+        # Apply mode-specific adjustments
+        if mode == "dark-mode":
+            css_styles = self._apply_dark_mode_adjustments(css_styles)
         
         # Platform-specific adjustments
         if platform == "wechat":
@@ -302,28 +386,35 @@ class MarkdownRenderer:
         # Wrap content with styling
         if inner_container_style:
             # Use inner container if available
-            full_html = f"""
-            <div class="markdown-content" style="{container_style}">
-                <style>
-                    {css_styles}
-                </style>
-                <div class="inner-container" style="{inner_container_style}">
-                    {html_content}
-                </div>
-            </div>
-            """
+            full_html = f'<div class="markdown-content" style="{container_style}"><style>{css_styles}</style><div class="inner-container" style="{inner_container_style}">{html_content}</div></div>'
         else:
             # Simple container
-            full_html = f"""
-            <div class="markdown-content" style="{container_style}">
-                <style>
-                    {css_styles}
-                </style>
-                {html_content}
-            </div>
-            """
+            full_html = f'<div class="markdown-content" style="{container_style}"><style>{css_styles}</style>{html_content}</div>'
         
         return full_html
+    
+    def _apply_dark_mode_adjustments(self, css_styles: str) -> str:
+        """Apply dark mode adjustments to CSS"""
+        # Basic dark mode transformations
+        dark_adjustments = {
+            '#ffffff': '#1a1a1a',
+            '#fff': '#1a1a1a',
+            '#333333': '#e8e8e8',
+            '#333': '#e8e8e8',
+            '#555555': '#b0b0b0',
+            '#555': '#b0b0b0',
+            '#000000': '#ffffff',
+            '#000': '#ffffff',
+            '#f8f9fa': '#2c3e50',
+            '#ecf0f1': '#2c3e50',
+            '#f7f7f7': '#2c3e50'
+        }
+        
+        adjusted_css = css_styles
+        for light_color, dark_color in dark_adjustments.items():
+            adjusted_css = adjusted_css.replace(light_color, dark_color)
+        
+        return adjusted_css
     
     def _generate_css_from_theme_styles(self, styles: Dict[str, str]) -> str:
         """Generate CSS from theme styles configuration"""

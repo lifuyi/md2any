@@ -308,7 +308,3 @@ const result = await client.renderMarkdown(
 
 console.log(result.html);
 ```
-
-## License
-
-This project is licensed under the MIT License - see the original project license for details.
