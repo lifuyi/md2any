@@ -18,12 +18,13 @@ from pygments import highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
 from pygments.util import ClassNotFound
+from bs4 import BeautifulSoup
 
 
 class MarkdownRequest(BaseModel):
     """Request model for markdown rendering"""
     markdown_text: str
-    theme: str = "default"
+    theme: str = "wechat-default"
     mode: str = "light-mode"  # light-mode, dark-mode
     platform: str = "wechat"  # wechat, xiaohongshu, zhihu, general
 
@@ -191,7 +192,7 @@ def extract_styles(theme_content: str) -> Dict[str, str]:
     
     # Extract individual style rules
     # Handle both simple and complex CSS rules
-    style_pattern = r'"([^"]+)"\s*:\s*"((?:[^"\\]|\\.)*)"(?=\s*,|\s*\})'
+    style_pattern = r'"([^"]+)"\s*:\s*"((?:[^"\\]|\\.)*)(?<!\\)"(?=\s*,|\s*\})'
     
     for match in re.finditer(style_pattern, styles_content, re.DOTALL):
         selector = match.group(1)
@@ -289,7 +290,7 @@ def parse_css_styles(styles_content: str) -> Dict[str, str]:
 def get_default_themes() -> Dict[str, Any]:
     """Return default themes if styles.js cannot be loaded"""
     return {
-        "default": {
+        "wechat-default": {
             "name": "默认样式",
             "body": "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px;",
             "h1": "color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;",
@@ -338,11 +339,11 @@ class MarkdownRenderer:
             }
         )
     
-    def render(self, markdown_text: str, theme_name: str = "default", mode: str = "light-mode", platform: str = "wechat") -> str:
+    def render(self, markdown_text: str, theme_name: str = "wechat-default", mode: str = "light-mode", platform: str = "wechat") -> str:
         """Render markdown to HTML with theme styling"""
         
         # Get theme configuration
-        theme = THEMES.get(theme_name, THEMES.get("default", get_default_themes()["default"]))
+        theme = THEMES.get(theme_name, THEMES.get("wechat-default", get_default_themes()["wechat-default"]))
         
         # Convert markdown to HTML
         html_content = self.md.convert(markdown_text)
@@ -356,42 +357,74 @@ class MarkdownRenderer:
         return styled_html
     
     def _apply_theme_styling(self, html_content: str, theme: Dict[str, Any], mode: str, platform: str) -> str:
-        """Apply theme styling to HTML content"""
+        """Apply theme styling to HTML content with inline styles"""
         
         # Get styles from the theme
         styles = theme.get("styles", {})
         
-        # Generate CSS from theme styles
-        css_styles = self._generate_css_from_theme_styles(styles)
-        
-        # Apply mode-specific adjustments
-        if mode == "dark-mode":
-            css_styles = self._apply_dark_mode_adjustments(css_styles)
-        
-        # Platform-specific adjustments
-        if platform == "wechat":
-            css_styles = self._adjust_for_wechat(css_styles)
-        elif platform == "xiaohongshu":
-            css_styles = self._adjust_for_xiaohongshu(css_styles)
-        elif platform == "zhihu":
-            css_styles = self._adjust_for_zhihu(css_styles)
-        
-        # Handle image grid layouts
+        # Handle image grid layouts first
         html_content = self._process_image_grids(html_content)
+        
+        # Parse HTML with BeautifulSoup
+        soup = BeautifulSoup(html_content, 'html.parser')
+        
+        # Apply styles to each element
+        for selector, style_properties in styles.items():
+            if selector in ['container', 'innerContainer']:
+                # Skip container styles as they're handled separately
+                continue
+            
+            # Apply mode and platform adjustments to styles
+            adjusted_style = style_properties
+            if mode == "dark-mode":
+                adjusted_style = self._apply_dark_mode_adjustments_to_style(adjusted_style)
+            if platform == "wechat":
+                adjusted_style = self._adjust_for_wechat_style(adjusted_style)
+            elif platform == "xiaohongshu":
+                adjusted_style = self._adjust_for_xiaohongshu_style(adjusted_style)
+            elif platform == "zhihu":
+                adjusted_style = self._adjust_for_zhihu_style(adjusted_style)
+            
+            # Find matching elements and apply inline styles
+            try:
+                elements = soup.select(selector)
+                for element in elements:
+                    existing_style = element.get('style', '')
+                    if existing_style and not existing_style.endswith(';'):
+                        existing_style += ';'
+                    combined_style = f"{existing_style} {adjusted_style}"
+                    element['style'] = combined_style.strip()
+            except Exception as e:
+                # Skip invalid selectors
+                continue
         
         # Get container styles
         container_style = styles.get("container", "")
         inner_container_style = styles.get("innerContainer", "")
         
-        # Wrap content with styling
-        if inner_container_style:
-            # Use inner container if available
-            full_html = f'<div class="markdown-content" style="{container_style}"><style>{css_styles}</style><div class="inner-container" style="{inner_container_style}">{html_content}</div></div>'
-        else:
-            # Simple container
-            full_html = f'<div class="markdown-content" style="{container_style}"><style>{css_styles}</style>{html_content}</div>'
+        # Apply adjustments to container styles
+        if mode == "dark-mode":
+            container_style = self._apply_dark_mode_adjustments_to_style(container_style)
+            inner_container_style = self._apply_dark_mode_adjustments_to_style(inner_container_style)
+        if platform == "wechat":
+            container_style = self._adjust_for_wechat_style(container_style)
+            inner_container_style = self._adjust_for_wechat_style(inner_container_style)
         
-        return full_html
+        # Create container section
+        container = soup.new_tag('section', **{'class': 'markdown-content'})
+        if container_style:
+            container['style'] = container_style
+        
+        # Add inner container if needed
+        if inner_container_style:
+            inner_container = soup.new_tag('section', **{'class': 'inner-container'})
+            inner_container['style'] = inner_container_style
+            inner_container.extend(soup.contents)
+            container.append(inner_container)
+        else:
+            container.extend(soup.contents)
+        
+        return str(container)
     
     def _apply_dark_mode_adjustments(self, css_styles: str) -> str:
         """Apply dark mode adjustments to CSS"""
@@ -441,8 +474,17 @@ class MarkdownRenderer:
     
     def _adjust_for_wechat(self, css_styles: str) -> str:
         """Adjust CSS for WeChat platform"""
-        # Add !important to all styles for WeChat compatibility
-        css_styles = re.sub(r';', ' !important;', css_styles)
+        # Add !important to all style declarations for WeChat compatibility, but avoid duplicates
+        # Process each CSS declaration and add !important if not already present
+        def add_important(match):
+            declaration = match.group(0)
+            if '!important' not in declaration:
+                # Add !important before the semicolon
+                declaration = declaration.rstrip(';') + ' !important;'
+            return declaration
+            
+        # Match CSS declarations (property: value;)
+        css_styles = re.sub(r'[^{}:]+:\s*[^{};]+;', add_important, css_styles)
         
         # Additional WeChat-specific adjustments
         wechat_additions = """
@@ -482,6 +524,57 @@ class MarkdownRenderer:
         """
         return css_styles + zhihu_additions
     
+    def _apply_dark_mode_adjustments_to_style(self, style: str) -> str:
+        """Apply dark mode adjustments to inline style"""
+        # Basic dark mode transformations
+        dark_adjustments = {
+            '#ffffff': '#1a1a1a',
+            '#fff': '#1a1a1a',
+            '#333333': '#e8e8e8',
+            '#333': '#e8e8e8',
+            '#555555': '#b0b0b0',
+            '#555': '#b0b0b0',
+            '#000000': '#ffffff',
+            '#000': '#ffffff',
+            '#f8f9fa': '#2c3e50',
+            '#ecf0f1': '#2c3e50',
+            '#f7f7f7': '#2c3e50'
+        }
+        
+        adjusted_style = style
+        for light_color, dark_color in dark_adjustments.items():
+            adjusted_style = adjusted_style.replace(light_color, dark_color)
+        
+        return adjusted_style
+    
+    def _adjust_for_wechat_style(self, style: str) -> str:
+        """Adjust inline style for WeChat platform"""
+        # Add !important to all style declarations for WeChat compatibility
+        if not style:
+            return style
+            
+        # Split by semicolons and add !important to each declaration
+        declarations = style.split(';')
+        adjusted_declarations = []
+        
+        for declaration in declarations:
+            declaration = declaration.strip()
+            if declaration and ':' in declaration:
+                if '!important' not in declaration:
+                    # Add !important before the semicolon
+                    declaration += ' !important'
+                adjusted_declarations.append(declaration)
+        
+        return '; '.join(adjusted_declarations)
+    
+    def _adjust_for_xiaohongshu_style(self, style: str) -> str:
+        """Adjust inline style for XiaoHongShu platform"""
+        return style  # No specific adjustments needed for inline styles
+    
+    def _adjust_for_zhihu_style(self, style: str) -> str:
+        """Adjust inline style for Zhihu platform"""
+        return style  # No specific adjustments needed for inline styles
+    
     def _process_image_grids(self, html_content: str) -> str:
         """Process consecutive images into grid layouts"""
         # This is a simplified version - you can enhance this based on your needs
@@ -498,11 +591,11 @@ class MarkdownRenderer:
             if img_count == 1:
                 return img_group
             elif img_count == 2:
-                return f'<div class="img-grid img-grid-2">{img_group}</div>'
+                return f'<section class="img-grid img-grid-2">{img_group}</section>'
             elif img_count == 3:
-                return f'<div class="img-grid img-grid-3">{img_group}</div>'
+                return f'<section class="img-grid img-grid-3">{img_group}</section>'
             else:
-                return f'<div class="img-grid img-grid-multi">{img_group}</div>'
+                return f'<section class="img-grid img-grid-multi">{img_group}</section>'
         
         return re.sub(img_pattern, replace_img_group, html_content)
 
@@ -562,12 +655,17 @@ async def render_markdown(request: MarkdownRequest):
     """Render markdown to HTML with theme styling"""
     
     try:
-        # Validate theme
+        # Validate theme and use fallback if needed
+        if request.theme not in THEMES:
+            # Use fallback theme if requested theme doesn't exist
+            request.theme = "wechat-default"
+        
+        # Final check to ensure fallback theme exists
         if request.theme not in THEMES:
             available_themes = list(THEMES.keys())
             raise HTTPException(
                 status_code=400,
-                detail=f"Theme '{request.theme}' not found. Available themes: {available_themes}"
+                detail=f"No valid themes available. Available themes: {available_themes}"
             )
         
         # Validate mode for the theme

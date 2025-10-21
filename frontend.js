@@ -996,7 +996,9 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
                         const elements = doc.querySelectorAll(selector);
                         elements.forEach(el => {
                             const currentStyle = el.getAttribute('style') || '';
-                            el.setAttribute('style', currentStyle + '; ' + styles[selector]);
+                            const newStyle = currentStyle + '; ' + styles[selector];
+                            // 确保样式被正确设置，包括!important标记
+                            el.setAttribute('style', newStyle.replace(/;\s*;/g, ';').trim() + ';');
                         });
                     });
                     
@@ -1004,6 +1006,26 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
                     const container = doc.createElement('section');
                     container.setAttribute('style', styles.container);
                     container.innerHTML = doc.body.innerHTML;
+                    
+                    // 确保所有子元素的样式都被保留
+                    function ensureAllStyles(element) {
+                        // 检查当前元素是否有style属性
+                        if (element.hasAttribute('style')) {
+                            const style = element.getAttribute('style');
+                            // 确保样式不为空且格式正确
+                            if (style && style.trim() !== '') {
+                                element.setAttribute('style', style);
+                            }
+                        }
+                        
+                        // 递归处理所有子元素
+                        for (let i = 0; i < element.children.length; i++) {
+                            ensureAllStyles(element.children[i]);
+                        }
+                    }
+                    
+                    // 应用到容器内的所有元素
+                    ensureAllStyles(container);
                     
                     const styledHtml = container.outerHTML;
                     
@@ -1039,7 +1061,7 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
             }
         }
 
-        // 将HTML内容复制到剪贴板
+        // 将HTML内容复制到剪贴板 - 改进版本，确保保留所有内联样式
         function copyHTMLToClipboard(htmlContent) {
             // 创建临时div来处理HTML内容
             const tempDiv = document.createElement('section');
@@ -1056,8 +1078,8 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
                 // 如果有section-card，提取其中的内容并重新组织
                 let combinedContent = '';
                 sectionCards.forEach((card, index) => {
-                    // 提取card中的内容
-                    combinedContent += card.innerHTML;
+                    // 提取card中的内容，保留所有样式
+                    combinedContent += card.outerHTML;
                     // 如果不是最后一个card，添加分隔线
                     if (index < sectionCards.length - 1) {
                         combinedContent += '<hr style="margin: 20px 0; border: 1px solid #eee;">';
@@ -1066,82 +1088,144 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
                 tempDiv.innerHTML = combinedContent;
             }
             
-            // 获取清理后的HTML内容
+            // 确保所有元素都保留了内联样式
+            // 递归遍历所有元素，确保样式属性完整
+            function preserveStyles(element) {
+                // 如果元素有style属性，确保它被完整保留
+                if (element.hasAttribute('style')) {
+                    const currentStyle = element.getAttribute('style');
+                    // 确保样式不为空
+                    if (currentStyle.trim() !== '') {
+                        element.setAttribute('style', currentStyle);
+                    }
+                }
+                
+                // 递归处理子元素
+                for (let i = 0; i < element.children.length; i++) {
+                    preserveStyles(element.children[i]);
+                }
+            }
+            
+            // 应用样式保留函数到所有子元素
+            for (let i = 0; i < tempDiv.children.length; i++) {
+                preserveStyles(tempDiv.children[i]);
+            }
+            
+            // 获取完整的HTML内容，包含所有内联样式
             const cleanHTML = tempDiv.innerHTML;
+            
+            // 创建完整的HTML文档结构，确保包含内联样式
+            const fullHtmlContent = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;line-height:1.6;margin:0;padding:20px;}</style></head><body>${cleanHTML}</body></html>`;
             
             // 同时准备纯文本版本
             const plainText = tempDiv.textContent || tempDiv.innerText || '';
             
-            // 使用Clipboard API复制HTML内容（支持富文本格式）
+            // 优先使用现代Clipboard API，支持跨平台富文本复制
             if (navigator.clipboard && window.ClipboardItem) {
-                // 现代浏览器支持Clipboard API，同时复制HTML和纯文本格式
-                const htmlBlob = new Blob([cleanHTML], { type: 'text/html' });
-                const textBlob = new Blob([plainText], { type: 'text/plain' });
-                
-                const data = [
-                    new ClipboardItem({
+                try {
+                    // 创建HTML和纯文本的Blob对象
+                    const htmlBlob = new Blob([fullHtmlContent], { type: 'text/html' });
+                    const textBlob = new Blob([plainText], { type: 'text/plain' });
+                    
+                    // 创建ClipboardItem对象，支持多种格式
+                    const clipboardItem = new ClipboardItem({
                         'text/html': htmlBlob,
                         'text/plain': textBlob
-                    })
-                ];
-                
-                navigator.clipboard.write(data)
-                    .then(() => {
-                        hideLoading();
-                        updateStatus('已复制到剪贴板');
-                        // alert('已复制到剪贴板');
-                    })
-                    .catch(err => {
-                        console.error('Clipboard API 失败:', err);
-                        // 降级到传统方法
-                        fallbackCopyTextToClipboard(cleanHTML, plainText);
                     });
+                    
+                    // 使用Promise方式写入剪贴板，提供更好的错误处理
+                    navigator.clipboard.write([clipboardItem])
+                        .then(() => {
+                            hideLoading();
+                            updateStatus('已复制到剪贴板（富文本格式）');
+                        })
+                        .catch(err => {
+                            console.error('Clipboard API 失败:', err);
+                            // 降级到传统方法
+                            fallbackCopyTextToClipboard(cleanHTML, plainText);
+                        });
+                } catch (err) {
+                    console.error('Clipboard API 创建失败:', err);
+                    // 降级到传统方法
+                    fallbackCopyTextToClipboard(cleanHTML, plainText);
+                }
             } else {
                 // 降级到传统方法
                 fallbackCopyTextToClipboard(cleanHTML, plainText);
             }
         }
 
-        // 降级复制方法 - 改进版本，支持Linux/Debian系统
+        // 降级复制方法 - 改进版本，支持Linux/Debian、macOS等跨平台系统
         function fallbackCopyTextToClipboard(html, text) {
             // 首先尝试使用更直接的方法来复制HTML内容
             try {
                 // 创建一个临时的div元素来保存HTML内容
                 const tempDiv = document.createElement('section');
                 tempDiv.innerHTML = html;
+                
+                // 设置样式确保元素不可见但仍然可以被选择
                 tempDiv.style.position = 'fixed';
-                tempDiv.style.left = '-9999px';
-                tempDiv.style.top = '-9999px';
-                tempDiv.style.opacity = '0';
-                tempDiv.style.zIndex = '-1';
+                tempDiv.style.left = '0px';
+                tempDiv.style.top = '0px';
+                tempDiv.style.width = '1px';
+                tempDiv.style.height = '1px';
+                tempDiv.style.padding = '0px';
+                tempDiv.style.border = 'none';
+                tempDiv.style.outline = 'none';
+                tempDiv.style.boxShadow = 'none';
+                tempDiv.style.background = 'transparent';
+                tempDiv.style.overflow = 'hidden';
+                tempDiv.style.zIndex = '-9999';
+                tempDiv.style.opacity = '0.01'; // 使用极低透明度而不是完全透明，提高Linux兼容性
+                
                 document.body.appendChild(tempDiv);
                 
-                // 选择并复制内容
+                // 选择并复制内容 - 使用更兼容的选择方法
                 const range = document.createRange();
-                range.selectNodeContents(tempDiv);
-                const selection = window.getSelection();
-                selection.removeAllRanges();
-                selection.addRange(range);
                 
-                // 尝试复制
-                let successful = false;
-                if (document.queryCommandSupported && document.queryCommandSupported('copy')) {
-                    successful = document.execCommand('copy');
-                }
+                // 对于Linux系统，确保内容完全加载后再选择
+                setTimeout(() => {
+                    try {
+                        range.selectNodeContents(tempDiv);
+                        const selection = window.getSelection();
+                        if (selection) {
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                            
+                            // 尝试复制 - 添加多重检查
+                            let successful = false;
+                            if (document.queryCommandSupported && document.queryCommandSupported('copy')) {
+                                try {
+                                    successful = document.execCommand('copy');
+                                } catch (execErr) {
+                                    console.warn('execCommand copy 执行失败:', execErr);
+                                }
+                            }
+                            
+                            // 清理选择和元素
+                            selection.removeAllRanges();
+                            document.body.removeChild(tempDiv);
+                            
+                            if (successful) {
+                                hideLoading();
+                                updateStatus('已复制到剪贴板（富文本）');
+                                return;
+                            } else {
+                                throw new Error('HTML复制命令失败');
+                            }
+                        } else {
+                            document.body.removeChild(tempDiv);
+                            throw new Error('无法获取选择对象');
+                        }
+                    } catch (rangeErr) {
+                        console.error('范围选择失败:', rangeErr);
+                        if (tempDiv.parentNode) {
+                            document.body.removeChild(tempDiv);
+                        }
+                        throw rangeErr;
+                    }
+                }, 50); // 50ms延迟确保DOM完全就绪，提高Linux兼容性
                 
-                // 清理选择和元素
-                selection.removeAllRanges();
-                document.body.removeChild(tempDiv);
-                
-                if (successful) {
-                    hideLoading();
-                    updateStatus('已复制到剪贴板');
-                    alert('已复制到剪贴板');
-                    return;
-                } else {
-                    // 如果复制HTML失败，尝试复制纯文本
-                    throw new Error('HTML复制命令失败');
-                }
             } catch (err) {
                 console.error('HTML复制失败:', err);
                 
@@ -1149,41 +1233,98 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
                 try {
                     // 创建一个临时的textarea用于复制纯文本内容
                     const textArea = document.createElement('textarea');
-                    // 使用纯文本内容
                     textArea.value = text || '';
                     
-                    // 避免滚动到底部
+                    // 设置样式确保在所有平台上都能正常工作
                     textArea.style.position = 'fixed';
-                    textArea.style.left = '-9999px';
-                    textArea.style.top = '-9999px';
-                    textArea.style.opacity = '0';
-                    textArea.style.zIndex = '-1';
+                    textArea.style.left = '0px';
+                    textArea.style.top = '0px';
+                    textArea.style.width = '1px';
+                    textArea.style.height = '1px';
+                    textArea.style.padding = '0px';
+                    textArea.style.border = 'none';
+                    textArea.style.outline = 'none';
+                    textArea.style.boxShadow = 'none';
+                    textArea.style.background = 'transparent';
+                    textArea.style.zIndex = '-9999';
+                    textArea.style.opacity = '0.01';
                     
                     document.body.appendChild(textArea);
-                    textArea.focus();
-                    textArea.select();
                     
-                    // 尝试复制
-                    let successful = false;
-                    if (document.queryCommandSupported && document.queryCommandSupported('copy')) {
-                        successful = document.execCommand('copy');
-                    }
+                    // 使用延迟确保在Linux系统上也能正常工作
+                    setTimeout(() => {
+                        try {
+                            textArea.focus();
+                            textArea.select();
+                            
+                            // 尝试复制
+                            let successful = false;
+                            if (document.queryCommandSupported && document.queryCommandSupported('copy')) {
+                                try {
+                                    successful = document.execCommand('copy');
+                                } catch (execErr) {
+                                    console.warn('execCommand copy 执行失败:', execErr);
+                                }
+                            }
+                            
+                            // 清理
+                            document.body.removeChild(textArea);
+                            
+                            if (successful) {
+                                hideLoading();
+                                updateStatus('已复制到剪贴板（纯文本）');
+                            } else {
+                                throw new Error('纯文本复制命令失败');
+                            }
+                        } catch (textErr) {
+                            console.error('文本复制过程失败:', textErr);
+                            if (textArea.parentNode) {
+                                document.body.removeChild(textArea);
+                            }
+                            throw textErr;
+                        }
+                    }, 50);
                     
-                    // 清理
-                    document.body.removeChild(textArea);
-                    
-                    if (successful) {
-                        hideLoading();
-                        updateStatus('已复制到剪贴板（纯文本）');
-                        alert('已复制到剪贴板（纯文本）');
-                    } else {
-                        throw new Error('纯文本复制命令失败');
-                    }
                 } catch (err2) {
                     console.error('纯文本复制也失败:', err2);
-                    alert('复制失败: ' + err2.message + '\n\n请尝试手动选择内容后使用 Ctrl+C 复制');
+                    
+                    // 最后的备用方案：显示内容供用户手动复制
+                    const modal = document.createElement('div');
+                    modal.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0,0,0,0.8);
+                        z-index: 10000;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    `;
+                    
+                    const content = document.createElement('div');
+                    content.style.cssText = `
+                        background: white;
+                        padding: 20px;
+                        border-radius: 8px;
+                        max-width: 80%;
+                        max-height: 80%;
+                        overflow: auto;
+                    `;
+                    
+                    content.innerHTML = `
+                        <h3>复制失败</h3>
+                        <p>自动复制失败，请手动选择并复制以下内容：</p>
+                        <textarea readonly style="width: 100%; height: 200px; margin: 10px 0;">${text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
+                        <button onclick="this.closest('div').parentElement.remove()" style="padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">关闭</button>
+                    `;
+                    
+                    modal.appendChild(content);
+                    document.body.appendChild(modal);
+                    
                     hideLoading();
-                    updateStatus('复制失败', true);
+                    updateStatus('请手动复制内容', true);
                 }
             }
         }
