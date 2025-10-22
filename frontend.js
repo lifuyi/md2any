@@ -647,27 +647,32 @@ function downloadTXT() {
 async function copyToClipboard() {
     const editor = document.getElementById('editor');
     const preview = document.getElementById('preview');
-    const themeSelector = document.getElementById('theme-selector');
     
     if (!editor || !editor.value.trim()) {
         alert('请先输入Markdown内容');
         return;
     }
 
+    // Show loading status
+    updateStatus('正在准备复制内容...');
+
     try {
         let htmlContent;
         
-        if (preview && preview.innerHTML.trim()) {
-            // Use rendered content from preview
+        // Prioritize using already rendered preview content
+        if (preview && preview.innerHTML.trim() && !preview.innerHTML.includes('在左侧编辑器输入内容')) {
             htmlContent = preview.innerHTML;
         } else {
-            // 处理分隔线拆分（前端实现）
+            // Re-render content if preview is empty or shows placeholder
+            const themeSelector = document.getElementById('theme-selector');
             const splitCheckbox = document.getElementById('split-checkbox');
             const shouldSplit = splitCheckbox && splitCheckbox.checked;
             const markdown = editor.value;
             
+            updateStatus('正在渲染内容...');
+            
             if (shouldSplit && markdown.includes('---')) {
-                // 分段渲染并合并
+                // Handle section splitting
                 const sections = markdown.split(/^---$/gm).filter(section => section.trim());
                 let sectionedHtml = '';
                 
@@ -676,15 +681,13 @@ async function copyToClipboard() {
                     if (sectionMarkdown) {
                         const response = await fetch(`${API_BASE_URL}/render`, {
                             method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
+                            headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                                 markdown_text: sectionMarkdown,
                                 theme: themeSelector?.value || 'wechat-default',
                                 mode: 'light-mode',
                                 platform: 'wechat',
-                                dashseparator: false  // 前端已处理
+                                dashseparator: false
                             })
                         });
                         
@@ -696,21 +699,18 @@ async function copyToClipboard() {
                         sectionedHtml += `<section class="markdown-section" data-section="${i+1}">\n${data.html}\n</section>\n`;
                     }
                 }
-                
                 htmlContent = sectionedHtml;
             } else {
-                // 正常渲染
+                // Normal rendering
                 const response = await fetch(`${API_BASE_URL}/render`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         markdown_text: markdown,
                         theme: themeSelector?.value || 'wechat-default',
                         mode: 'light-mode',
                         platform: 'wechat',
-                        dashseparator: false  // 前端已处理
+                        dashseparator: false
                     })
                 });
                 
@@ -723,56 +723,263 @@ async function copyToClipboard() {
             }
         }
         
-        // Create temporary div to process HTML
+        updateStatus('正在处理图片和内容...');
+        
+        // Process HTML content
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = htmlContent;
         
-        // Remove script tags for safety
-        const scripts = tempDiv.querySelectorAll('script');
-        scripts.forEach(script => script.remove());
+        // Enhanced image processing for better clipboard compatibility
+        const images = tempDiv.querySelectorAll('img');
+        if (images.length > 0) {
+            updateStatus('正在处理图片 (共 ' + images.length + ' 张)...');
+            
+            const imagePromises = Array.from(images).map(async (img, index) => {
+                try {
+                    // Handle different image sources
+                    if (img.src.startsWith('blob:')) {
+                        // Convert blob URL to base64 data URL
+                        const response = await fetch(img.src);
+                        const blob = await response.blob();
+                        
+                        return new Promise((resolve) => {
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                                const dataURL = reader.result;
+                                img.src = dataURL;
+                                
+                                // Also set as base64 attribute for better compatibility
+                                const base64Data = dataURL.split(',')[1];
+                                const mimeType = dataURL.split(';')[0].split(':')[1];
+                                img.setAttribute('data-base64', base64Data);
+                                img.setAttribute('data-mime-type', mimeType);
+                                
+                                // Add inline styles for better rendering
+                                if (!img.style.maxWidth) {
+                                    img.style.maxWidth = '100%';
+                                    img.style.height = 'auto';
+                                    img.style.display = 'block';
+                                }
+                                
+                                console.log(`图片 ${index + 1} 转换成功: ${mimeType}, 大小: ${Math.round(base64Data.length * 0.75 / 1024)}KB`);
+                                resolve();
+                            };
+                            reader.onerror = () => {
+                                console.warn(`图片 ${index + 1} 转换失败，将移除:`, img.src);
+                                img.remove();
+                                resolve();
+                            };
+                            reader.readAsDataURL(blob);
+                        });
+                    } else if (img.src.startsWith('data:')) {
+                        // Already a data URL, just ensure it has proper attributes
+                        const base64Data = img.src.split(',')[1];
+                        const mimeType = img.src.split(';')[0].split(':')[1];
+                        img.setAttribute('data-base64', base64Data);
+                        img.setAttribute('data-mime-type', mimeType);
+                        
+                        if (!img.style.maxWidth) {
+                            img.style.maxWidth = '100%';
+                            img.style.height = 'auto';
+                            img.style.display = 'block';
+                        }
+                        console.log(`图片 ${index + 1} 已是data URL格式`);
+                    } else if (img.src.startsWith('http')) {
+                        // External URL - try to fetch and convert
+                        try {
+                            const response = await fetch(img.src, { mode: 'cors' });
+                            const blob = await response.blob();
+                            
+                            return new Promise((resolve) => {
+                                const reader = new FileReader();
+                                reader.onload = () => {
+                                    const dataURL = reader.result;
+                                    img.src = dataURL;
+                                    
+                                    const base64Data = dataURL.split(',')[1];
+                                    const mimeType = dataURL.split(';')[0].split(':')[1];
+                                    img.setAttribute('data-base64', base64Data);
+                                    img.setAttribute('data-mime-type', mimeType);
+                                    
+                                    if (!img.style.maxWidth) {
+                                        img.style.maxWidth = '100%';
+                                        img.style.height = 'auto';
+                                        img.style.display = 'block';
+                                    }
+                                    
+                                    console.log(`外部图片 ${index + 1} 转换成功`);
+                                    resolve();
+                                };
+                                reader.onerror = () => {
+                                    console.warn(`外部图片 ${index + 1} 转换失败，保留原URL`);
+                                    resolve();
+                                };
+                                reader.readAsDataURL(blob);
+                            });
+                        } catch (error) {
+                            console.warn(`无法获取外部图片 ${index + 1}:`, error);
+                            // Keep original URL but add warning
+                            img.setAttribute('data-warning', '外部图片可能无法在某些应用中显示');
+                        }
+                    }
+                } catch (error) {
+                    console.warn(`处理图片 ${index + 1} 时出错:`, error);
+                    // Don't remove, just add warning
+                    img.setAttribute('data-warning', '图片处理失败');
+                }
+            });
+            
+            await Promise.all(imagePromises.filter(Boolean));
+            console.log('所有图片处理完成');
+        }
+        
+        // Clean up content
+        tempDiv.querySelectorAll('script, style').forEach(el => el.remove());
         
         const cleanHTML = tempDiv.innerHTML;
         const plainText = tempDiv.textContent || tempDiv.innerText || '';
         
-        // Use modern Clipboard API if available
-        if (navigator.clipboard && window.ClipboardItem) {
-            const htmlBlob = new Blob([cleanHTML], { type: 'text/html' });
-            const textBlob = new Blob([plainText], { type: 'text/plain' });
-            
-            const clipboardItem = new ClipboardItem({
-                'text/html': htmlBlob,
-                'text/plain': textBlob
-            });
-            
-            await navigator.clipboard.write([clipboardItem]);
-            updateStatus('已复制到剪贴板（富文本格式）');
-            
-        } else {
-            // Fallback method
-            const textArea = document.createElement('textarea');
-            textArea.value = plainText;
-            textArea.style.position = 'fixed';
-            textArea.style.left = '-999999px';
-            
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            
-            const successful = document.execCommand('copy');
-            document.body.removeChild(textArea);
-            
-            if (successful) {
-                updateStatus('已复制到剪贴板（纯文本）');
-            } else {
-                throw new Error('复制命令失败');
+        updateStatus('正在复制到剪贴板...');
+        
+        // Determine available copy methods
+        const isSecureContext = location.protocol === 'https:' || 
+                               location.hostname === 'localhost' || 
+                               location.hostname === '127.0.0.1';
+        const hasClipboardAPI = navigator.clipboard && window.ClipboardItem;
+        
+        // Method 1: Modern Clipboard API (best quality)
+        if (hasClipboardAPI && isSecureContext) {
+            try {
+                // Create a more compatible HTML format for clipboard
+                const clipboardHTML = `<html><body>${cleanHTML}</body></html>`;
+                
+                await navigator.clipboard.write([
+                    new ClipboardItem({
+                        'text/html': new Blob([clipboardHTML], { type: 'text/html' }),
+                        'text/plain': new Blob([plainText], { type: 'text/plain' })
+                    })
+                ]);
+                updateStatus('✅ 已复制到剪贴板（富文本格式）');
+                console.log('复制成功: 现代剪贴板API，包含', images.length, '张图片');
+                return;
+            } catch (error) {
+                console.warn('现代剪贴板API失败:', error);
             }
         }
         
+        // Method 2: ContentEditable fallback (preserves formatting)
+        try {
+            const container = document.createElement('div');
+            container.contentEditable = true;
+            container.innerHTML = cleanHTML;
+            Object.assign(container.style, {
+                position: 'fixed',
+                left: '-9999px',
+                opacity: '0',
+                pointerEvents: 'none'
+            });
+            
+            document.body.appendChild(container);
+            
+            const range = document.createRange();
+            range.selectNodeContents(container);
+            
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            
+            const success = document.execCommand('copy');
+            
+            selection.removeAllRanges();
+            document.body.removeChild(container);
+            
+            if (success) {
+                updateStatus('✅ 已复制到剪贴板（富文本格式）');
+                console.log('复制成功: ContentEditable方法');
+                return;
+            }
+        } catch (error) {
+            console.warn('ContentEditable复制失败:', error);
+        }
+        
+        // Method 3: Plain text fallback
+        try {
+            const textarea = document.createElement('textarea');
+            textarea.value = plainText;
+            Object.assign(textarea.style, {
+                position: 'fixed',
+                left: '-9999px',
+                opacity: '0'
+            });
+            
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            const success = document.execCommand('copy');
+            document.body.removeChild(textarea);
+            
+            if (success) {
+                updateStatus('✅ 已复制到剪贴板（纯文本格式）');
+                console.log('复制成功: 纯文本方法');
+                return;
+            }
+        } catch (error) {
+            console.warn('纯文本复制失败:', error);
+        }
+        
+        throw new Error('所有复制方法都失败了');
+        
     } catch (error) {
         console.error('复制失败:', error);
-        updateStatus('复制失败', true);
-        alert('复制失败: ' + error.message);
+        updateStatus('❌ 复制失败', true);
+        
+        let message = `复制失败: ${error.message}`;
+        
+        if (!location.protocol.startsWith('https') && location.hostname !== 'localhost') {
+            message += '\n\n💡 提示：非安全协议可能限制剪贴板功能，建议使用 HTTPS 或 localhost';
+        }
+        
+        message += '\n\n替代方案：\n• 手动选择预览内容复制\n• 使用下载功能保存文件\n• 刷新页面后重试';
+        
+        // Log detailed info for debugging
+        console.log('复制内容预览 (前500字符):', cleanHTML.substring(0, 500));
+        if (images.length > 0) {
+            console.log('图片信息:');
+            images.forEach((img, index) => {
+                console.log(`图片 ${index + 1}: src=${img.src.substring(0, 50)}..., 有base64属性=${!!img.getAttribute('data-base64')}`);
+            });
+        }
+        
+        alert(message);
     }
+}
+
+// Debug function to test clipboard content
+function debugClipboardContent() {
+    const preview = document.getElementById('preview');
+    if (!preview) {
+        console.log('预览区域为空');
+        return;
+    }
+    
+    const images = preview.querySelectorAll('img');
+    console.log('=== 剪贴板内容调试信息 ===');
+    console.log('图片总数:', images.length);
+    
+    images.forEach((img, index) => {
+        console.log(`图片 ${index + 1}:`);
+        console.log('  - src:', img.src.substring(0, 100) + (img.src.length > 100 ? '...' : ''));
+        console.log('  - 是否为data URL:', img.src.startsWith('data:'));
+        console.log('  - 是否有base64属性:', !!img.getAttribute('data-base64'));
+        console.log('  - MIME类型:', img.getAttribute('data-mime-type'));
+        if (img.src.startsWith('data:')) {
+            const sizeKB = Math.round(img.src.length * 0.75 / 1024);
+            console.log('  - 估计大小:', sizeKB, 'KB');
+        }
+    });
+    
+    console.log('=== HTML内容样例 ===');
+    console.log(preview.innerHTML.substring(0, 500) + '...');
 }
 
 async function sendToWeChatDraft() {

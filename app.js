@@ -760,10 +760,7 @@ function downloadTXT() {
     console.log('Download TXT - to be implemented');
 }
 
-function copyToClipboard() {
-    // This will be implemented in frontend.js
-    console.log('Copy to clipboard - to be implemented');
-}
+// copyToClipboard is implemented in frontend.js
 
 function sendToWeChatDraft() {
     // This will be implemented in frontend.js
@@ -1044,7 +1041,7 @@ window.downloadHTML = downloadHTML;
 window.downloadPNG = downloadPNG;
 window.downloadMD = downloadMD;
 window.downloadTXT = downloadTXT;
-window.copyToClipboard = copyToClipboard;
+// copyToClipboard is exported from frontend.js
 window.sendToWeChatDraft = sendToWeChatDraft;
 window.configureWeChat = configureWeChat;
 window.openLeftDrawer = openLeftDrawer;
