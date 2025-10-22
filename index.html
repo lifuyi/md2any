@@ -784,8 +784,12 @@
 </head>
 <body>
     <header>
-        <div class="header-left">
+        <div class="header-left" style="display: flex; align-items: center;">
             <h1>Markdown编辑器</h1>
+            <button class="btn btn-secondary backend-online" id="backend-status" title="服务状态" style="margin-left: 15px; font-size: 12px; padding: 4px 8px;" disabled>
+                <span class="backend-status-indicator status-online"></span>
+                <i class="fas fa-server"></i> <span>服务在线</span>
+            </button>
         </div>
         <div class="header-right">
             <div class="checkbox-container">
@@ -801,9 +805,8 @@
             <button class="btn btn-secondary" id="settings-toggle">
                 <i class="fas fa-cog"></i> 设置面板
             </button>
-            <button class="btn btn-secondary backend-online" id="backend-status" title="后端渲染状态" style="margin-left: 5px;" disabled>
-                <span class="backend-status-indicator status-online"></span>
-                <i class="fas fa-server"></i> <span>后端渲染</span>
+            <button class="btn btn-primary" id="ai-format-btn" onclick="aiFormatMarkdown()" style="background-color: #4CAF50; color: white;">
+                <i class="fas fa-robot"></i> AI排版
             </button>
             
         </div>
@@ -1210,7 +1213,7 @@
                     
                     // Update UI to show backend is online
                     backendStatusBtn.className = 'btn btn-secondary backend-online';
-                    if (statusText) statusText.textContent = '后端在线';
+                    if (statusText) statusText.textContent = '服务在线';
                     if (statusIndicator) statusIndicator.className = 'backend-status-indicator status-online';
                     
                     console.log('✅ 后端API已连接:', data);
@@ -1223,7 +1226,7 @@
                 // Show offline status
                 if (backendStatusBtn) {
                     backendStatusBtn.className = 'btn btn-secondary backend-error';
-                    if (statusText) statusText.textContent = '后端离线';
+                    if (statusText) statusText.textContent = '服务离线';
                     if (statusIndicator) statusIndicator.className = 'backend-status-indicator status-error';
                 }
             }

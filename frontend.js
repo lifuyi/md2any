@@ -1085,6 +1085,89 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 200);
 });
 
+// AI formatting function
+async function aiFormatMarkdown() {
+    const editor = document.getElementById('editor');
+    const preview = document.getElementById('preview');
+    
+    if (!editor || !editor.value.trim()) {
+        alert('请先输入Markdown内容');
+        return;
+    }
+
+    showLoading();
+    updateStatus('正在进行AI排版...');
+
+    try {
+        const markdown = editor.value;
+        
+        // Call DeepSeek API to convert markdown to HTML
+        const response = await fetch(`${API_BASE_URL}/ai`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                prompt: `md渲染的html的处理要求如下：${markdown} 用section 包裹逻辑## 核心要求: ### 1. 文档结构规范 
+                        - **容器标签**：     ✅ 必须使用"<section>"作为主容器，禁止使用"<div>" ✅ 多层级结构根据文章内容逻辑和排版要求合理构建，例如：<section style="外层样式"><section style="内容块样式1"><p>具体内容1</p></section><section style="内容块样式2"><相关内容标签如图片、列表等></section></section>  
+                        - **代码范围**：     ⛔ 禁止出现"<!DOCTYPE>"、"<html>"、"<head>"、"<body>" ,✅ 直接输出"<section>"内容片段. 
+                        ### 2. 样式编写规则 : - **内联样式强制**：  ✅ 所有样式必须写在"style"属性中，根据文章风格和排版要求设计样式，格式例如：<p style="font-size: 16px; color: #333; line-height: 1.75; font-family: Arial, sans-serif;">文本</p>   
+                        - 若用户提供了参考html代码，需严格参照其样式进行排版，保持样式风格一致性。  
+                        - **移动端适配**：     ✅ 容器宽度："max-width: 100%" ✅ 图片宽度："width: 100%" 或根据排版要求设定百分比（如"width: 49%"）     ⚠️ 禁止使用"px"固定宽度（除边框等特殊场景
+                        ## 禁止事项清单  1. **标签黑名单**：      "<script>", "<iframe>", "<form>", "<input>"
+                        2. **属性黑名单**：      "onclick", "onload", "class", "id"  
+                        3. **样式黑名单**：      "position: fixed; /* 微信浏览器不支持 */"    "background-image: url(); /* 部分机型失效 */"    "::before/::after /* 必须用真实DOM元素替代 */"  
+                        ## 输出验证流程  1. **结构检查**： - 是否存在"<section>"嵌套层级超过3层  - 图片是否使用"data-src"而非"src"  2. **样式检查**：      
+                        # 伪代码示例    if "px" in styles and "font-size" not in styles: raise Error("除字号外禁止使用px单位")  - 若有参考html代码，检查生成代码的样式是否与参考代码一致。  
+                        3. **排版风格检查**：  - 排版风格是否与文章内容和用户要求相匹配，若有参考代码，需与参考代码风格一致。 - 整体视觉效果是否符合移动端阅读习惯。- 检查是否对文章内容进行了合理的排版优化，如小标题、加粗重点文字、列表使用等是否恰当。  
+                        ## 调用示例 **用户输入**： 文章内容：“介绍一款新手机的功能和优点。它拥有高像素摄像头，拍照效果很棒。处理器性能强劲，运行速度快。电池续航能力也不错。”，
+                        排版要求：简约现代风，主题色为#007BFF，参考html代码：<section style="max-width: 100%; margin: 0 auto; background-color: #f8f9fa;"><section style="margin-bottom: 20px; text-align: center;"><h2 style="font-size: 24px; font-weight: 700; color: #007BFF;">示例标题</h2></section><section style="padding: 20px;"><p style="font-size: 16px; line-height: 1.6; color: #333;">示例内容</p></section></section>  
+                        **AI输出**：   {"html": "<section style=\"max-width: 100%; margin: 0 auto;\"> <!-- 标题 --><section style=\"margin-bottom: 20px; text-align: center;\"><h2 style=\"font-size: 24px; font-weight: 700; color: #007BFF;\">一款新手机的功能与优点</h2></section> <!-- 功能区 --><section style=\"padding: 20px;\"><h3 style=\"font-size: 20px; font-weight: 600; color: #007BFF;\">拍照功能</h3><p style=\"font-size: 16px; line-height: 1.6; color: #333;\">它拥有 <b>高像素摄像头</b>，拍照效果很棒。</p><h3 style=\"font-size: 20px; font-weight: 600; color: #007BFF;\">处理器性能</h3><p style=\"font-size: 16px; line-height: 1.6; color: #333;\">处理器性能强劲，运行速度快。</p><h3 style=\"font-size: 20px; font-weight: 600; color: #007BFF;\">电池续航</h3><p style=\"font-size: 16px; line-height: 1.6; color: #333;\">电池续航能力也不错。</p></section></section>"} `,
+
+                context: 'markdown_to_html_conversion'
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`AI排版失败: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && data.response) {
+            // Extract only the body content from AI-generated HTML to avoid layout issues
+            let htmlContent = data.response;
+            
+            // Try to extract content from body tags if present
+            const bodyMatch = htmlContent.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+            if (bodyMatch) {
+                htmlContent = bodyMatch[1];
+            }
+            
+            // Remove html, head, title, meta tags if present
+            htmlContent = htmlContent.replace(/<\/?html[^>]*>/gi, '');
+            htmlContent = htmlContent.replace(/<\/?head[^>]*>/gi, '');
+            htmlContent = htmlContent.replace(/<\/?title[^>]*>[\s\S]*?<\/title>/gi, '');
+            htmlContent = htmlContent.replace(/<\/?meta[^>]*>/gi, '');
+            htmlContent = htmlContent.replace(/<\/?link[^>]*>/gi, '');
+            htmlContent = htmlContent.replace(/<\/?script[^>]*>[\s\S]*?<\/script>/gi, '');
+            
+            // Update preview with cleaned HTML content
+            preview.innerHTML = htmlContent.trim();
+            updateStatus('AI排版完成');
+        } else {
+            throw new Error(data.message || 'AI排版失败');
+        }
+        
+    } catch (error) {
+        console.error('AI排版失败:', error);
+        updateStatus('AI排版失败', true);
+        alert('AI排版失败: ' + error.message);
+    } finally {
+        hideLoading();
+    }
+}
+
 // Make functions globally available
 window.downloadHTML = downloadHTML;
 window.downloadPNG = downloadPNG;
@@ -1093,6 +1176,7 @@ window.downloadTXT = downloadTXT;
 window.copyToClipboard = copyToClipboard;
 window.sendToWeChatDraft = sendToWeChatDraft;
 window.configureWeChat = configureWeChat;
+window.aiFormatMarkdown = aiFormatMarkdown;
 window.ImageStore = ImageStore;
 window.ImageCompressor = ImageCompressor;
 window.FormatCustomizer = FormatCustomizer;
