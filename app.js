@@ -1033,8 +1033,8 @@ function applyExtractedStyles(styles) {
     });
     
     // Trigger format update if FormatCustomizer is available
-    if (window.formatCustomizer) {
-        window.formatCustomizer.updatePreview();
+    if (window.formatCustomizer && typeof window.formatCustomizer.previewCustomFormat === 'function') {
+        window.formatCustomizer.previewCustomFormat();
     }
 }
 
