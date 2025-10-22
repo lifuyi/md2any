@@ -388,6 +388,22 @@
         .settings-pane .close-btn:hover {
             color: #333;
         }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
 
         .pane-header {
             padding: 15px 20px;
@@ -803,7 +819,10 @@
                 <i class="fas fa-file-code"></i> 示例
             </button>
             <button class="btn btn-secondary" id="settings-toggle">
-                <i class="fas fa-cog"></i> 设置面板
+                <i class="fas fa-cog"></i> 自定义主题
+            </button>
+            <button class="btn btn-secondary" id="style-porter-btn" style="background-color: #FF9800; color: white;">
+                <i class="fas fa-palette"></i> 样式搬运工
             </button>
             <button class="btn btn-primary" id="ai-format-btn" onclick="aiFormatMarkdown()" style="background-color: #4CAF50; color: white;">
                 <i class="fas fa-robot"></i> AI排版
@@ -818,7 +837,7 @@
                 <i class="fas fa-edit"></i> 编辑器
                 <div style="float: right; display: flex; gap: 8px; align-items: center;">
                     <button id="ai-assistant-btn" class="btn btn-primary" style="background-color: #6c757d; color: white; padding: 6px 10px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer; transition: all 0.2s ease; height: 32px; display: flex; align-items: center;" onclick="openLeftDrawer()">
-                        <i class="fas fa-robot"></i> 不会写MD?
+                        <i class="fas fa-robot"></i> 只有文字?AI来帮你转
                     </button>
                     <button id="clear-editor" class="btn btn-secondary" style="padding: 2px 8px;" title="清空编辑器">
                         <i class="fas fa-trash-alt"></i>
@@ -852,15 +871,15 @@
                             <a href="#" onclick="downloadTXT(); hideDropdown(this)"><i class="fas fa-file-alt"></i> 下载TXT</a>
                         </div>
                     </div>
-                    <div class="dropdown">
-                        <button class="btn dropdown-toggle" onclick="toggleDropdown(this)" style="background-color: #4CAF50; color: white; padding: 6px 10px; font-size: 12px; height: 32px; display: flex; align-items: center;">
+                     <!-- div class="dropdown">
+                        <button class="btn dropdown-toggle" disabled onclick="toggleDropdown(this)" style="background-color: #4CAF50; color: white; padding: 6px 10px; font-size: 12px; height: 32px; display: flex; align-items: center;">
                             <i class="fab fa-weixin"></i> 发送到微信 <i class="fas fa-caret-down"></i>
                         </button>
                         <div class="dropdown-content">
                             <a href="#" onclick="sendToWeChatDraft(); hideDropdown(this)"><i class="fas fa-paper-plane"></i> 发送到草稿箱</a>
                             <a href="#" onclick="configureWeChat(); hideDropdown(this)"><i class="fas fa-cog"></i> 配置微信信息</a>
                         </div>
-                    </div>
+                    </div--> 
                 </div>
             </div>
             <div id="preview">
@@ -879,7 +898,7 @@
             <div class="settings-content">
                    <div class="settings-content">
                    <div class="setting-group">
-                    <h3>格式自定义 <button id="load-default-format" class="btn btn-secondary" style="margin-left: 10px; padding: 4px 12px; font-size: 12px;">加载阿里橙样式</button></h3>
+                    <h3>格式自定义 <button id="load-default-format" class="btn btn-secondary" style="margin-left: 10px; padding: 4px 12px; font-size: 12px;">加载阿里橙样式为样例</button></h3>
                     <div class="format-customization">
                         <div class="format-option">
                             <label for="format-container">Container:</label>
@@ -1101,6 +1120,33 @@
         </div>
     </div>
 
+    <!-- Style Porter Dialog -->
+    <div class="settings-pane" id="style-porter-pane" style="width: 0; overflow: hidden;">
+        <div class="pane-header">
+            <i class="fas fa-palette"></i> 样式搬运工
+            <button class="close-btn" id="style-porter-close">×</button>
+        </div>
+        <div class="settings-content">
+            <div class="setting-group">
+                <h3>从URL复制样式</h3>
+                <p style="margin-bottom: 15px; color: #666;">输入一个网页URL，系统将自动分析并提取该页面的样式，然后应用到当前Markdown内容。</p>
+                <div class="input-group">
+                    <label for="style-url-input">目标URL:</label>
+                    <input type="url" id="style-url-input" placeholder="https://example.com" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <div class="button-group" style="margin-top: 15px;">
+                    <button id="fetch-style-btn" class="btn btn-primary" onclick="fetchAndApplyStyle()">
+                        <i class="fas fa-download"></i> 获取并应用样式
+                    </button>
+                    <button class="btn btn-secondary" onclick="closeStylePorter()">
+                        取消
+                    </button>
+                </div>
+                <div id="style-status" style="margin-top: 10px; padding: 8px; border-radius: 4px; display: none;"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- Drawer Overlay -->
     <div class="drawer-overlay" id="drawer-overlay" onclick="closeLeftDrawer()"></div>
 
@@ -1160,6 +1206,25 @@
     
     <!-- Core functionality -->
     <script src="/static/app.js"></script>
+    
+    <!-- Debug script to check if functions are loaded -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Checking if openStylePorter is defined:', typeof openStylePorter);
+            if (typeof openStylePorter === 'undefined') {
+                console.error('openStylePorter is not defined!');
+            } else {
+                console.log('openStylePorter is defined, attaching event listener');
+                const stylePorterBtn = document.getElementById('style-porter-btn');
+                if (stylePorterBtn) {
+                    stylePorterBtn.addEventListener('click', openStylePorter);
+                    console.log('Event listener attached to style-porter-btn');
+                } else {
+                    console.error('style-porter-btn not found!');
+                }
+            }
+        });
+    </script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="/static/frontend.js"></script>

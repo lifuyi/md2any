@@ -1160,6 +1160,332 @@ class ExampleClass:
     return HTMLResponse(content=rendered_html)
 
 
+class StyleExtractionRequest(BaseModel):
+    """Request model for style extraction"""
+    url: str
+
+
+class StyleExtractionResponse(BaseModel):
+    """Response model for style extraction"""
+    success: bool
+    styles: Dict[str, str] = {}
+    error: str = ""
+
+
+@app.post("/api/extract-style", response_model=StyleExtractionResponse)
+async def extract_style_from_url(request: StyleExtractionRequest):
+    """Extract CSS styles from a given URL"""
+    
+    try:
+        # Fetch the webpage content
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        response = requests.get(request.url, headers=headers, timeout=10)
+        response.raise_for_status()
+        
+        # Parse the HTML
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # Extract CSS styles
+        styles = {}
+        
+        # Extract inline styles and common CSS classes
+        styles['container'] = extract_container_styles(soup)
+        styles['h1'] = extract_heading_styles(soup, 'h1')
+        styles['h2'] = extract_heading_styles(soup, 'h2')
+        styles['h3'] = extract_heading_styles(soup, 'h3')
+        styles['h4'] = extract_heading_styles(soup, 'h4')
+        styles['h5'] = extract_heading_styles(soup, 'h5')
+        styles['h6'] = extract_heading_styles(soup, 'h6')
+        styles['p'] = extract_paragraph_styles(soup)
+        styles['strong'] = extract_strong_styles(soup)
+        styles['em'] = extract_em_styles(soup)
+        styles['code'] = extract_code_styles(soup)
+        styles['pre'] = extract_pre_styles(soup)
+        styles['blockquote'] = extract_blockquote_styles(soup)
+        styles['ul'] = extract_list_styles(soup, 'ul')
+        styles['ol'] = extract_list_styles(soup, 'ol')
+        styles['li'] = extract_li_styles(soup)
+        styles['table'] = extract_table_styles(soup)
+        styles['thead'] = extract_thead_styles(soup)
+        styles['tbody'] = extract_tbody_styles(soup)
+        styles['tr'] = extract_tr_styles(soup)
+        styles['innercontainer'] = extract_inner_container_styles(soup)
+        
+        return StyleExtractionResponse(
+            success=True,
+            styles=styles
+        )
+        
+    except requests.RequestException as e:
+        return StyleExtractionResponse(
+            success=False,
+            error=f"Failed to fetch URL: {str(e)}"
+        )
+    except Exception as e:
+        return StyleExtractionResponse(
+            success=False,
+            error=f"Error extracting styles: {str(e)}"
+        )
+
+
+def extract_container_styles(soup):
+    """Extract container styles"""
+    # Look for common container patterns
+    container_selectors = ['.container', '.content', '.main', '#content', '#main', 'body']
+    styles = []
+    
+    for selector in container_selectors:
+        elements = soup.select(selector)
+        if elements:
+            element = elements[0]
+            if element.get('style'):
+                styles.append(element.get('style'))
+            # Also try to get computed classes
+            if element.get('class'):
+                styles.append(f".{'.'.join(element.get('class'))}")
+    
+    return ' | '.join(styles) if styles else "max-width: 800px; margin: 0 auto; padding: 20px;"
+
+
+def extract_heading_styles(soup, tag):
+    """Extract heading styles for h1-h6"""
+    elements = soup.find_all(tag)
+    if not elements:
+        return ""
+    
+    styles = []
+    for element in elements[:3]:  # Take first 3 elements
+        if element.get('style'):
+            styles.append(element.get('style'))
+        if element.get('class'):
+            styles.append(f".{'.'.join(element.get('class'))}")
+    
+    # Default styles based on tag
+    defaults = {
+        'h1': 'font-size: 2em; font-weight: bold; margin: 0.67em 0;',
+        'h2': 'font-size: 1.5em; font-weight: bold; margin: 0.75em 0;',
+        'h3': 'font-size: 1.17em; font-weight: bold; margin: 0.83em 0;',
+        'h4': 'font-size: 1em; font-weight: bold; margin: 1.12em 0;',
+        'h5': 'font-size: 0.83em; font-weight: bold; margin: 1.5em 0;',
+        'h6': 'font-size: 0.75em; font-weight: bold; margin: 1.67em 0;'
+    }
+    
+    return ' | '.join(styles) if styles else defaults.get(tag, '')
+
+
+def extract_paragraph_styles(soup):
+    """Extract paragraph styles"""
+    elements = soup.find_all('p')
+    if not elements:
+        return ""
+    
+    styles = []
+    for element in elements[:5]:  # Take first 5 paragraphs
+        if element.get('style'):
+            styles.append(element.get('style'))
+        if element.get('class'):
+            styles.append(f".{'.'.join(element.get('class'))}")
+    
+    return ' | '.join(styles) if styles else "margin: 1em 0; line-height: 1.6;"
+
+
+def extract_strong_styles(soup):
+    """Extract strong/bold styles"""
+    elements = soup.find_all(['strong', 'b'])
+    if not elements:
+        return ""
+    
+    styles = []
+    for element in elements[:3]:
+        if element.get('style'):
+            styles.append(element.get('style'))
+        if element.get('class'):
+            styles.append(f".{'.'.join(element.get('class'))}")
+    
+    return ' | '.join(styles) if styles else "font-weight: bold;"
+
+
+def extract_em_styles(soup):
+    """Extract em/italic styles"""
+    elements = soup.find_all(['em', 'i'])
+    if not elements:
+        return ""
+    
+    styles = []
+    for element in elements[:3]:
+        if element.get('style'):
+            styles.append(element.get('style'))
+        if element.get('class'):
+            styles.append(f".{'.'.join(element.get('class'))}")
+    
+    return ' | '.join(styles) if styles else "font-style: italic;"
+
+
+def extract_code_styles(soup):
+    """Extract code styles"""
+    elements = soup.find_all('code')
+    if not elements:
+        return ""
+    
+    styles = []
+    for element in elements[:3]:
+        if element.get('style'):
+            styles.append(element.get('style'))
+        if element.get('class'):
+            styles.append(f".{'.'.join(element.get('class'))}")
+    
+    return ' | '.join(styles) if styles else "background-color: #f4f4f4; padding: 2px 4px; border-radius: 3px; font-family: monospace;"
+
+
+def extract_pre_styles(soup):
+    """Extract preformatted text styles"""
+    elements = soup.find_all('pre')
+    if not elements:
+        return ""
+    
+    styles = []
+    for element in elements[:2]:
+        if element.get('style'):
+            styles.append(element.get('style'))
+        if element.get('class'):
+            styles.append(f".{'.'.join(element.get('class'))}")
+    
+    return ' | '.join(styles) if styles else "background-color: #f4f4f4; padding: 10px; border-radius: 5px; overflow-x: auto; font-family: monospace;"
+
+
+def extract_blockquote_styles(soup):
+    """Extract blockquote styles"""
+    elements = soup.find_all('blockquote')
+    if not elements:
+        return ""
+    
+    styles = []
+    for element in elements[:2]:
+        if element.get('style'):
+            styles.append(element.get('style'))
+        if element.get('class'):
+            styles.append(f".{'.'.join(element.get('class'))}")
+    
+    return ' | '.join(styles) if styles else "border-left: 4px solid #ddd; margin: 1em 0; padding-left: 1em; color: #666;"
+
+
+def extract_list_styles(soup, list_type):
+    """Extract list styles (ul/ol)"""
+    elements = soup.find_all(list_type)
+    if not elements:
+        return ""
+    
+    styles = []
+    for element in elements[:2]:
+        if element.get('style'):
+            styles.append(element.get('style'))
+        if element.get('class'):
+            styles.append(f".{'.'.join(element.get('class'))}")
+    
+    return ' | '.join(styles) if styles else "margin: 1em 0; padding-left: 2em;"
+
+
+def extract_li_styles(soup):
+    """Extract list item styles"""
+    elements = soup.find_all('li')
+    if not elements:
+        return ""
+    
+    styles = []
+    for element in elements[:3]:
+        if element.get('style'):
+            styles.append(element.get('style'))
+        if element.get('class'):
+            styles.append(f".{'.'.join(element.get('class'))}")
+    
+    return ' | '.join(styles) if styles else "margin: 0.5em 0;"
+
+
+def extract_table_styles(soup):
+    """Extract table styles"""
+    elements = soup.find_all('table')
+    if not elements:
+        return ""
+    
+    styles = []
+    for element in elements[:2]:
+        if element.get('style'):
+            styles.append(element.get('style'))
+        if element.get('class'):
+            styles.append(f".{'.'.join(element.get('class'))}")
+    
+    return ' | '.join(styles) if styles else "border-collapse: collapse; width: 100%; margin: 1em 0;"
+
+
+def extract_thead_styles(soup):
+    """Extract table header styles"""
+    elements = soup.find_all('thead')
+    if not elements:
+        return ""
+    
+    styles = []
+    for element in elements[:2]:
+        if element.get('style'):
+            styles.append(element.get('style'))
+        if element.get('class'):
+            styles.append(f".{'.'.join(element.get('class'))}")
+    
+    return ' | '.join(styles) if styles else "background-color: #f2f2f2;"
+
+
+def extract_tbody_styles(soup):
+    """Extract table body styles"""
+    elements = soup.find_all('tbody')
+    if not elements:
+        return ""
+    
+    styles = []
+    for element in elements[:2]:
+        if element.get('style'):
+            styles.append(element.get('style'))
+        if element.get('class'):
+            styles.append(f".{'.'.join(element.get('class'))}")
+    
+    return ' | '.join(styles) if styles else ""
+
+
+def extract_tr_styles(soup):
+    """Extract table row styles"""
+    elements = soup.find_all('tr')
+    if not elements:
+        return ""
+    
+    styles = []
+    for element in elements[:3]:
+        if element.get('style'):
+            styles.append(element.get('style'))
+        if element.get('class'):
+            styles.append(f".{'.'.join(element.get('class'))}")
+    
+    return ' | '.join(styles) if styles else "border-bottom: 1px solid #ddd;"
+
+
+def extract_inner_container_styles(soup):
+    """Extract inner container styles"""
+    # Look for common inner container patterns
+    container_selectors = ['.article', '.post', '.entry', '.content-inner']
+    styles = []
+    
+    for selector in container_selectors:
+        elements = soup.select(selector)
+        if elements:
+            element = elements[0]
+            if element.get('style'):
+                styles.append(element.get('style'))
+            if element.get('class'):
+                styles.append(f".{'.'.join(element.get('class'))}")
+    
+    return ' | '.join(styles) if styles else "padding: 20px;"
+
+
 def check_uv():
     """Check if uv is installed"""
     try:

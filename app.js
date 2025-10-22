@@ -156,6 +156,9 @@ function setupEventListeners() {
     // Settings panel
     setupSettingsPanel();
     
+    // Style porter
+    setupStylePorter();
+    
     // Keyboard shortcuts
     setupKeyboardShortcuts();
 }
@@ -900,6 +903,141 @@ document.addEventListener('keydown', function(event) {
     }
 });
 
+// Style Porter functionality
+function setupStylePorter() {
+    const stylePorterBtn = document.getElementById('style-porter-btn');
+    const stylePorterClose = document.getElementById('style-porter-close');
+    const stylePorterPane = document.getElementById('style-porter-pane');
+    
+    if (stylePorterBtn) {
+        stylePorterBtn.addEventListener('click', openStylePorter);
+    }
+    
+    if (stylePorterClose) {
+        stylePorterClose.addEventListener('click', closeStylePorter);
+    }
+}
+
+function openStylePorter() {
+    const stylePorterPane = document.getElementById('style-porter-pane');
+    if (stylePorterPane) {
+        stylePorterPane.classList.add('visible');
+        document.getElementById('style-url-input').value = '';
+        document.getElementById('style-status').style.display = 'none';
+    }
+}
+
+function closeStylePorter() {
+    const stylePorterPane = document.getElementById('style-porter-pane');
+    if (stylePorterPane) {
+        stylePorterPane.classList.remove('visible');
+    }
+}
+
+async function fetchAndApplyStyle() {
+    const urlInput = document.getElementById('style-url-input');
+    const statusDiv = document.getElementById('style-status');
+    const fetchBtn = document.getElementById('fetch-style-btn');
+    
+    const url = urlInput.value.trim();
+    if (!url) {
+        showStyleStatus('请输入有效的URL', 'error');
+        return;
+    }
+    
+    // Validate URL format
+    try {
+        new URL(url);
+    } catch (e) {
+        showStyleStatus('请输入有效的URL格式', 'error');
+        return;
+    }
+    
+    // Show loading state
+    fetchBtn.disabled = true;
+    fetchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 获取中...';
+    showStyleStatus('正在获取页面样式...', 'info');
+    
+    try {
+        // Use the API to fetch and extract styles
+        const response = await fetch('/api/extract-style', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ url: url })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Apply the extracted styles to the format customization
+            applyExtractedStyles(result.styles);
+            showStyleStatus('样式已成功提取并应用！', 'success');
+            
+            // Close the dialog after a short delay
+            setTimeout(() => {
+                closeStylePorter();
+            }, 1500);
+        } else {
+            showStyleStatus(result.error || '提取样式失败', 'error');
+        }
+    } catch (error) {
+        console.error('Error fetching style:', error);
+        showStyleStatus('获取样式时出错: ' + error.message, 'error');
+    } finally {
+        // Restore button state
+        fetchBtn.disabled = false;
+        fetchBtn.innerHTML = '<i class="fas fa-download"></i> 获取并应用样式';
+    }
+}
+
+function showStyleStatus(message, type) {
+    const statusDiv = document.getElementById('style-status');
+    statusDiv.textContent = message;
+    statusDiv.style.display = 'block';
+    
+    // Set color based on type
+    if (type === 'error') {
+        statusDiv.style.backgroundColor = '#ffebee';
+        statusDiv.style.color = '#c62828';
+        statusDiv.style.border = '1px solid #ef5350';
+    } else if (type === 'success') {
+        statusDiv.style.backgroundColor = '#e8f5e8';
+        statusDiv.style.color = '#2e7d32';
+        statusDiv.style.border = '1px solid #66bb6a';
+    } else {
+        statusDiv.style.backgroundColor = '#e3f2fd';
+        statusDiv.style.color = '#1565c0';
+        statusDiv.style.border = '1px solid #42a5f5';
+    }
+}
+
+function applyExtractedStyles(styles) {
+    // Apply styles to the format customization fields
+    const styleFields = [
+        'container', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 
+        'p', 'strong', 'em', 'code', 'pre', 'blockquote', 
+        'ul', 'ol', 'li', 'table', 'thead', 'tbody', 'tr', 'innercontainer'
+    ];
+    
+    styleFields.forEach(field => {
+        const textarea = document.getElementById(`format-${field}`);
+        if (textarea && styles[field]) {
+            textarea.value = styles[field];
+        }
+    });
+    
+    // Trigger format update if FormatCustomizer is available
+    if (window.formatCustomizer) {
+        window.formatCustomizer.updatePreview();
+    }
+}
+
 // Make functions globally available
 window.loadSample = loadSample;
 window.downloadHTML = downloadHTML;
@@ -912,3 +1050,12 @@ window.configureWeChat = configureWeChat;
 window.openLeftDrawer = openLeftDrawer;
 window.closeLeftDrawer = closeLeftDrawer;
 window.generateMarkdown = generateMarkdown;
+window.openStylePorter = openStylePorter;
+window.closeStylePorter = closeStylePorter;
+window.fetchAndApplyStyle = fetchAndApplyStyle;
+
+// Debug: Check if functions are properly exported
+console.log('Style Porter functions exported:');
+console.log('openStylePorter type:', typeof window.openStylePorter);
+console.log('closeStylePorter type:', typeof window.closeStylePorter);
+console.log('fetchAndApplyStyle type:', typeof window.fetchAndApplyStyle);
