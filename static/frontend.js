@@ -392,7 +392,7 @@ async function downloadHTML() {
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>
-    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body>
     ${htmlContent}
@@ -843,38 +843,29 @@ async function copyToClipboard() {
             const svg = container.querySelector('svg');
             if (svg) {
                 try {
-                    // Create a simple approach: convert SVG to data URL and use as image source
-                    const serializer = new XMLSerializer();
-                    let svgString = serializer.serializeToString(svg);
+                    // Convert SVG to base64 data URL using our reusable function
+                    const dataURL = svgToBase64DataURL(svg);
                     
-                    // Ensure SVG has proper namespace
-                    if (!svgString.includes('xmlns="http://www.w3.org/2000/svg"')) {
-                        svgString = svgString.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+                    if (dataURL) {
+                        // Create img element to replace the MathJax container
+                        const img = document.createElement('img');
+                        img.src = dataURL;
+                        img.alt = 'Math formula';
+                        img.style.verticalAlign = 'middle';
+                        img.setAttribute('data-math', 'true'); // Mark as math element for debugging
+                        
+                        // Copy dimensions and important attributes from original SVG
+                        const width = svg.getAttribute('width');
+                        const height = svg.getAttribute('height');
+                        const style = svg.getAttribute('style');
+                        
+                        if (width) img.style.width = width;
+                        if (height) img.style.height = height;
+                        if (style) img.setAttribute('style', style + '; vertical-align: middle;');
+                        
+                        // Replace the MathJax container with the image
+                        container.parentNode.replaceChild(img, container);
                     }
-                    
-                    // Encode and create data URL
-                    const encodedSVG = encodeURIComponent(svgString);
-                    const dataURL = `data:image/svg+xml;charset=utf-8,${encodedSVG}`;
-                    
-                    // Create img element to replace the MathJax container
-                    const img = document.createElement('img');
-                    img.src = dataURL;
-                    img.alt = 'Math formula';
-                    img.style.verticalAlign = 'middle';
-                    
-                    // Copy dimensions from original SVG if available
-                    if (svg.getAttribute('width')) {
-                        img.style.width = svg.getAttribute('width');
-                    }
-                    if (svg.getAttribute('height')) {
-                        img.style.height = svg.getAttribute('height');
-                    }
-                    if (svg.getAttribute('style')) {
-                        img.setAttribute('style', svg.getAttribute('style'));
-                    }
-                    
-                    // Replace the MathJax container with the image
-                    container.parentNode.replaceChild(img, container);
                 } catch (error) {
                     console.warn('Failed to convert MathJax SVG to image:', error);
                     // Keep original structure as fallback
@@ -1163,6 +1154,38 @@ function updateStatus(message, isError = false) {
     if (status) {
         status.textContent = message;
         status.style.color = isError ? '#c33' : '#666';
+    }
+}
+
+// Utility function to convert SVG to base64 data URL
+function svgToBase64DataURL(svgElement) {
+    try {
+        // Properly serialize the SVG element with all namespaces
+        const serializer = new XMLSerializer();
+        let svgString = serializer.serializeToString(svgElement);
+        
+        // Ensure SVG has proper namespace and other required attributes
+        if (!svgString.includes('xmlns="http://www.w3.org/2000/svg"')) {
+            svgString = svgString.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+        }
+        
+        // Add xmlns:xlink if not present (for MathJax fonts)
+        if (svgString.includes('xlink:href') && !svgString.includes('xmlns:xlink="http://www.w3.org/1999/xlink"')) {
+            svgString = svgString.replace('<svg', '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+        }
+        
+        // Add XML declaration for better compatibility
+        if (!svgString.startsWith('<?xml')) {
+            svgString = '<?xml version="1.0" standalone="no"?>\r\n' + svgString;
+        }
+        
+        // Convert to base64 using btoa (more reliable than encodeURIComponent)
+        // First, we need to handle UTF-8 encoding properly
+        const base64Encoded = btoa(unescape(encodeURIComponent(svgString)));
+        return `data:image/svg+xml;base64,${base64Encoded}`;
+    } catch (error) {
+        console.warn('Failed to convert SVG to base64:', error);
+        return null;
     }
 }
 

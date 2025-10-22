@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Markdown to HTML API Server with Theme Support
 Built with FastAPI and managed by uv
@@ -113,6 +114,9 @@ app = FastAPI(
     description="Markdown to HTML API with theme support",
     version="1.0.0"
 )
+
+# Serve static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Add CORS middleware
 app.add_middleware(
@@ -530,15 +534,14 @@ def preprocess_markdown(content: str) -> str:
 
 @app.get("/")
 async def index():
-    """Serve the index.html file"""
-    from fastapi.staticfiles import StaticFiles
-    from fastapi import Response
+    """Serve the index.html file from static folder"""
     import os
     
     try:
-        # Read and return the index.html file
-        if os.path.exists('index.html'):
-            with open('index.html', 'r', encoding='utf-8') as f:
+        # Read and return the index.html file from static folder
+        index_path = os.path.join('static', 'index.html')
+        if os.path.exists(index_path):
+            with open(index_path, 'r', encoding='utf-8') as f:
                 content = f.read()
             return HTMLResponse(content=content)
         else:
