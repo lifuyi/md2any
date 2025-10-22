@@ -538,9 +538,21 @@ function initializeMathJax() {
     if (typeof window.MathJax !== 'undefined' && window.MathJax.typesetPromise) {
         setTimeout(() => {
             try {
-                window.MathJax.typesetPromise([document.getElementById('preview')]);
+                const preview = document.getElementById('preview');
+                if (preview && preview.innerHTML) {
+                    // Clear any existing MathJax SVG elements to prevent duplication
+                    const mathJaxElements = preview.querySelectorAll('.MathJax, .MathJax_Preview, mjx-container');
+                    mathJaxElements.forEach(el => el.remove());
+                    
+                    // Re-render all math expressions
+                    window.MathJax.typesetPromise([preview]).then(() => {
+                        console.log('MathJax SVG rendering completed successfully');
+                    }).catch((error) => {
+                        console.warn('MathJax SVG rendering failed:', error);
+                    });
+                }
             } catch (error) {
-                console.warn('MathJax rendering failed:', error);
+                console.warn('MathJax SVG rendering failed:', error);
             }
         }, 100);
     }
