@@ -35,11 +35,20 @@
         // Utility function to convert SVG to base64 data URL
         function svgToBase64DataURL(svgElement) {
             try {
+                // Clone the SVG element to avoid modifying the original
+                const clonedSvg = svgElement.cloneNode(true);
+                
+                // Ensure proper namespace on the cloned element
+                if (!clonedSvg.hasAttribute('xmlns')) {
+                    clonedSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+                }
+                
+                // Process the SVG to make it more self-contained
+                const allStyleSheets = document.styleSheets;
+                
                 // Properly serialize the SVG element with all namespaces
                 const serializer = new XMLSerializer();
-                let svgString = serializer.serializeToString(svgElement);
-                
-                console.log('Original SVG:', svgString.substring(0, 200) + '...');
+                let svgString = serializer.serializeToString(clonedSvg);
                 
                 // Ensure SVG has proper namespace and other required attributes
                 if (!svgString.includes('xmlns="http://www.w3.org/2000/svg"')) {
@@ -59,7 +68,29 @@
                 return `data:image/svg+xml;base64,${base64Encoded}`;
             } catch (error) {
                 console.warn('Failed to convert SVG to base64:', error);
-                return null;
+                
+                // Try a fallback approach for MathJax
+                try {
+                    // If the standard approach fails, try to get the outerHTML directly
+                    const svgString = svgElement.outerHTML;
+                    
+                    // Ensure proper namespace
+                    let processedSvg = svgString;
+                    if (!processedSvg.includes('xmlns="http://www.w3.org/2000/svg"')) {
+                        processedSvg = processedSvg.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+                    }
+                    
+                    // Add xmlns:xlink if not present
+                    if (processedSvg.includes('xlink:href') && !processedSvg.includes('xmlns:xlink="http://www.w3.org/1999/xlink"')) {
+                        processedSvg = processedSvg.replace('<svg', '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+                    }
+                    
+                    const base64Encoded = btoa(unescape(encodeURIComponent(processedSvg)));
+                    return `data:image/svg+xml;base64,${base64Encoded}`;
+                } catch (fallbackError) {
+                    console.warn('Fallback SVG conversion also failed:', fallbackError);
+                    return null;
+                }
             }
         }
         
