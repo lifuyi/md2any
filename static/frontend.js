@@ -1428,57 +1428,57 @@ function processFontReferences(svgElement) {
             svgElement.insertBefore(defs, svgElement.firstChild);
         }
         
-        // Find MathJax global font definitions - they are often in the <head> or hidden elements
-        const globalDefs = new Map();
-        
-        // Method 1: Look for all defs elements in the document
-        const allDefs = document.querySelectorAll('defs');
-        allDefs.forEach(defElement => {
-            const paths = defElement.querySelectorAll('path[id], g[id]');
-            paths.forEach(path => {
-                const id = path.getAttribute('id');
-                if (id && (id.startsWith('MJX-') || id.includes('TEX'))) {
-                    globalDefs.set(id, path.cloneNode(true));
+        // Method 1: Look for global MathJax definitions in the document
+        // MathJax creates global <defs> elements that contain font definitions
+        const globalMathJaxDefs = document.querySelectorAll('defs[id^="MathJax"]');
+        globalMathJaxDefs.forEach(globalDef => {
+            // Clone all children from global defs to our SVG's defs
+            const children = globalDef.children;
+            for (let i = 0; i < children.length; i++) {
+                const child = children[i];
+                const id = child.getAttribute('id');
+                if (id && !defs.querySelector(`#${id}`)) {
+                    defs.appendChild(child.cloneNode(true));
+                    console.log(`✓ Embedded global MathJax font definition: ${id}`);
                 }
-            });
+            }
         });
         
-        // Method 2: Look in MathJax's internal structure
-        // MathJax 3 often stores fonts in a specific structure
-        if (window.MathJax && window.MathJax._.mathjax && window.MathJax._.mathjax.document) {
-            try {
-                const mjxDoc = window.MathJax._.mathjax.document;
-                if (mjxDoc.svg && mjxDoc.svg.fontData && mjxDoc.svg.fontData.defs) {
-                    const mjxDefs = mjxDoc.svg.fontData.defs;
-                    for (const [id, pathData] of Object.entries(mjxDefs)) {
-                        if (!globalDefs.has(id)) {
-                            const path = document.createElement('path');
-                            path.setAttribute('id', id);
-                            path.setAttribute('d', pathData);
-                            globalDefs.set(id, path);
-                        }
+        // Method 2: Look for MathJax's internal SVG structure
+        const mathJaxSvgs = document.querySelectorAll('svg[data-mjx]');
+        mathJaxSvgs.forEach(mjxSvg => {
+            const mjxDefs = mjxSvg.querySelector('defs');
+            if (mjxDefs) {
+                const children = mjxDefs.children;
+                for (let i = 0; i < children.length; i++) {
+                    const child = children[i];
+                    const id = child.getAttribute('id');
+                    if (id && !defs.querySelector(`#${id}`)) {
+                        defs.appendChild(child.cloneNode(true));
+                        console.log(`✓ Embedded MathJax SVG font definition: ${id}`);
                     }
                 }
-            } catch (e) {
-                console.log('Could not access MathJax internal font data:', e);
             }
-        }
-        
-        // Method 3: Search for any SVG element that might contain the fonts
-        const allSvgs = document.querySelectorAll('svg');
-        allSvgs.forEach(svg => {
-            const elementsWithId = svg.querySelectorAll('[id]');
-            elementsWithId.forEach(element => {
-                const id = element.getAttribute('id');
-                if (id && (id.startsWith('MJX-') || id.includes('TEX')) && !globalDefs.has(id)) {
-                    globalDefs.set(id, element.cloneNode(true));
-                }
-            });
         });
         
-        console.log(`Found ${globalDefs.size} global font definitions`);
+        // Method 3: Look for any mjx-container elements that might contain definitions
+        const mjxContainers = document.querySelectorAll('mjx-container');
+        mjxContainers.forEach(container => {
+            const containerDefs = container.querySelector('defs');
+            if (containerDefs) {
+                const children = containerDefs.children;
+                for (let i = 0; i < children.length; i++) {
+                    const child = children[i];
+                    const id = child.getAttribute('id');
+                    if (id && !defs.querySelector(`#${id}`)) {
+                        defs.appendChild(child.cloneNode(true));
+                        console.log(`✓ Embedded mjx-container font definition: ${id}`);
+                    }
+                }
+            }
+        });
         
-        // Process each <use> element
+        // Method 4: Direct access to referenced elements
         useElements.forEach(useEl => {
             const href = useEl.getAttribute('href') || useEl.getAttribute('xlink:href');
             if (href && href.startsWith('#')) {
@@ -1489,15 +1489,7 @@ function processFontReferences(svgElement) {
                     return; // Already present
                 }
                 
-                // Try to find in global definitions
-                if (globalDefs.has(referencedId)) {
-                    const clonedRef = globalDefs.get(referencedId);
-                    defs.appendChild(clonedRef);
-                    console.log(`✓ Embedded font definition: ${referencedId}`);
-                    return;
-                }
-                
-                // Try getElementById as fallback
+                // Try to find the referenced element in the document
                 const referencedElement = document.getElementById(referencedId);
                 if (referencedElement) {
                     const clonedRef = referencedElement.cloneNode(true);
@@ -1518,6 +1510,8 @@ function processFontReferences(svgElement) {
                 }
             }
         });
+        
+        console.log(`Processed font references for SVG element`);
     } catch (error) {
         console.warn('Failed to process font references:', error);
     }

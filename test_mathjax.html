@@ -120,6 +120,63 @@
             try {
                 // Find all <use> elements that reference fonts
                 const useElements = svgElement.querySelectorAll('use');
+                if (useElements.length === 0) return;
+                
+                // Create defs section if it doesn't exist
+                let defs = svgElement.querySelector('defs');
+                if (!defs) {
+                    defs = document.createElement('defs');
+                    svgElement.insertBefore(defs, svgElement.firstChild);
+                }
+                
+                // Method 1: Look for global MathJax definitions in the document
+                // MathJax creates global <defs> elements that contain font definitions
+                const globalMathJaxDefs = document.querySelectorAll('defs[id^="MathJax"]');
+                globalMathJaxDefs.forEach(globalDef => {
+                    // Clone all children from global defs to our SVG's defs
+                    const children = globalDef.children;
+                    for (let i = 0; i < children.length; i++) {
+                        const child = children[i];
+                        const id = child.getAttribute('id');
+                        if (id && !defs.querySelector(`#${id}`)) {
+                            defs.appendChild(child.cloneNode(true));
+                        }
+                    }
+                });
+                
+                // Method 2: Look for MathJax's internal SVG structure
+                const mathJaxSvgs = document.querySelectorAll('svg[data-mjx]');
+                mathJaxSvgs.forEach(mjxSvg => {
+                    const mjxDefs = mjxSvg.querySelector('defs');
+                    if (mjxDefs) {
+                        const children = mjxDefs.children;
+                        for (let i = 0; i < children.length; i++) {
+                            const child = children[i];
+                            const id = child.getAttribute('id');
+                            if (id && !defs.querySelector(`#${id}`)) {
+                                defs.appendChild(child.cloneNode(true));
+                            }
+                        }
+                    }
+                });
+                
+                // Method 3: Look for any mjx-container elements that might contain definitions
+                const mjxContainers = document.querySelectorAll('mjx-container');
+                mjxContainers.forEach(container => {
+                    const containerDefs = container.querySelector('defs');
+                    if (containerDefs) {
+                        const children = containerDefs.children;
+                        for (let i = 0; i < children.length; i++) {
+                            const child = children[i];
+                            const id = child.getAttribute('id');
+                            if (id && !defs.querySelector(`#${id}`)) {
+                                defs.appendChild(child.cloneNode(true));
+                            }
+                        }
+                    }
+                });
+                
+                // Method 4: Direct access to referenced elements
                 useElements.forEach(useEl => {
                     const href = useEl.getAttribute('href') || useEl.getAttribute('xlink:href');
                     if (href && href.startsWith('#')) {
