@@ -839,38 +839,54 @@ async function copyToClipboard() {
         // Convert MathJax SVG elements to images for better clipboard compatibility
         const mathJaxElements = tempDiv.querySelectorAll('mjx-container[jax="SVG"]');
         
-        for (const container of mathJaxElements) {
-            const svg = container.querySelector('svg');
-            if (svg) {
-                try {
-                    // Convert SVG to base64 data URL using our reusable function
-                    const dataURL = await svgToBase64DataURL(svg);
-                    
-                    if (dataURL) {
-                        // Create img element to replace the MathJax container
-                        const img = document.createElement('img');
-                        img.src = dataURL;
-                        img.alt = 'Math formula';
-                        img.style.verticalAlign = 'middle';
-                        img.setAttribute('data-math', 'true'); // Mark as math element for debugging
+        if (mathJaxElements.length > 0) {
+            updateStatus(`正在处理数学公式 (共 ${mathJaxElements.length} 个)...`);
+            
+            const mathPromises = Array.from(mathJaxElements).map(async (container, index) => {
+                const svg = container.querySelector('svg');
+                if (svg) {
+                    try {
+                        console.log(`Processing MathJax element ${index + 1}/${mathJaxElements.length}`);
                         
-                        // Copy dimensions and important attributes from original SVG
-                        const width = svg.getAttribute('width');
-                        const height = svg.getAttribute('height');
-                        const style = svg.getAttribute('style');
+                        // Convert SVG to base64 data URL using our reusable function
+                        const dataURL = await svgToBase64DataURL(svg);
                         
-                        if (width) img.style.width = width;
-                        if (height) img.style.height = height;
-                        if (style) img.setAttribute('style', style + '; vertical-align: middle;');
-                        
-                        // Replace the MathJax container with the image
-                        container.parentNode.replaceChild(img, container);
+                        if (dataURL) {
+                            console.log(`✓ MathJax element ${index + 1} converted successfully`);
+                            console.log(`Data URL type: ${dataURL.substring(0, 30)}...`);
+                            
+                            // Create img element to replace the MathJax container
+                            const img = document.createElement('img');
+                            img.src = dataURL;
+                            img.alt = 'Math formula';
+                            img.style.verticalAlign = 'middle';
+                            img.setAttribute('data-math', 'true'); // Mark as math element for debugging
+                            
+                            // Copy dimensions and important attributes from original SVG
+                            const width = svg.getAttribute('width');
+                            const height = svg.getAttribute('height');
+                            const style = svg.getAttribute('style');
+                            
+                            if (width) img.style.width = width;
+                            if (height) img.style.height = height;
+                            if (style) img.setAttribute('style', style + '; vertical-align: middle;');
+                            
+                            // Replace the MathJax container with the image
+                            container.parentNode.replaceChild(img, container);
+                        } else {
+                            console.warn(`✗ MathJax element ${index + 1}: No data URL returned`);
+                        }
+                    } catch (error) {
+                        console.warn(`✗ Failed to convert MathJax SVG element ${index + 1}:`, error);
+                        // Keep original structure as fallback
                     }
-                } catch (error) {
-                    console.warn('Failed to convert MathJax SVG to image:', error);
-                    // Keep original structure as fallback
+                } else {
+                    console.warn(`✗ MathJax element ${index + 1}: No SVG found`);
                 }
-            }
+            });
+            
+            await Promise.all(mathPromises);
+            console.log('All MathJax elements processed');
         }
         
         const cleanHTML = tempDiv.innerHTML;
@@ -984,7 +1000,15 @@ async function copyToClipboard() {
         if (images.length > 0) {
             console.log('图片信息:');
             images.forEach((img, index) => {
-                console.log(`图片 ${index + 1}: src=${img.src.substring(0, 50)}..., 有base64属性=${!!img.getAttribute('data-base64')}`);
+                console.log(`图片 ${index + 1}:`);
+                console.log('  - src:', img.src.substring(0, 50) + (img.src.length > 50 ? '...' : ''));
+                console.log('  - 是否为data URL:', img.src.startsWith('data:'));
+                console.log('  - 是否有base64属性:', !!img.getAttribute('data-base64'));
+                console.log('  - MIME类型:', img.getAttribute('data-mime-type'));
+                if (img.src.startsWith('data:')) {
+                    const sizeKB = Math.round(img.src.length * 0.75 / 1024);
+                    console.log('  - 估计大小:', sizeKB, 'KB');
+                }
             });
         }
         
@@ -1157,107 +1181,388 @@ function updateStatus(message, isError = false) {
     }
 }
 
-// Utility function to convert SVG to base64 data URL
+// Enhanced utility function to convert SVG to base64 data URL
 function svgToBase64DataURL(svgElement) {
     try {
-        // Try to convert SVG to canvas first for better font rendering
+        // First, try canvas-based conversion (PNG format) which handles fonts better
+        const canvasResult = convertSvgToCanvasPng(svgElement);
+        if (canvasResult) {
+            return canvasResult;
+        }
+        
+        console.log('Canvas conversion failed, trying SVG embedding...');
+        
+        // Fallback: Clone the SVG element to avoid modifying the original
+        const clonedSvg = svgElement.cloneNode(true);
+        
+        // Ensure proper SVG namespace
+        clonedSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+        
+        // Add xlink namespace if needed (for MathJax font references)
+        if (clonedSvg.innerHTML.includes('xlink:href') || clonedSvg.innerHTML.includes('href')) {
+            clonedSvg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+        }
+        
+        // Collect and embed any referenced fonts or styles from MathJax
+        const mathJaxStyles = collectMathJaxStyles();
+        if (mathJaxStyles) {
+            const styleElement = document.createElement('style');
+            styleElement.textContent = mathJaxStyles;
+            clonedSvg.insertBefore(styleElement, clonedSvg.firstChild);
+        }
+        
+        // Handle font definitions - convert use elements to embedded paths
+        processFontReferences(clonedSvg);
+        
+        // Serialize the SVG
+        const serializer = new XMLSerializer();
+        let svgString = serializer.serializeToString(clonedSvg);
+        
+        // Clean up and validate the SVG string
+        svgString = cleanupSvgString(svgString);
+        
+        console.log('Processed SVG length:', svgString.length);
+        console.log('SVG preview:', svgString.substring(0, 300) + '...');
+        
+        // Convert to base64 - try multiple encoding methods
+        return encodeToBase64(svgString);
+        
+    } catch (error) {
+        console.error('Primary SVG conversion failed:', error);
+        return fallbackConversion(svgElement);
+    }
+}
+
+// New function to convert SVG to PNG using canvas
+function convertSvgToCanvasPng(svgElement) {
+    try {
+        console.log('Attempting canvas-based PNG conversion...');
+        
+        // Get SVG dimensions
+        const bbox = svgElement.getBoundingClientRect();
+        const width = Math.max(bbox.width || parseFloat(svgElement.getAttribute('width')) || 100, 50);
+        const height = Math.max(bbox.height || parseFloat(svgElement.getAttribute('height')) || 50, 20);
+        
+        console.log(`SVG dimensions: ${width}x${height}`);
+        
+        // Create a canvas with higher resolution for better quality
+        const scale = 2; // 2x scale for better quality
+        const canvas = document.createElement('canvas');
+        canvas.width = width * scale;
+        canvas.height = height * scale;
+        const ctx = canvas.getContext('2d');
+        
+        // Scale context for high DPI
+        ctx.scale(scale, scale);
+        
+        // Get the SVG data
+        const serializer = new XMLSerializer();
+        let svgString = serializer.serializeToString(svgElement);
+        
+        // Ensure proper namespaces
+        if (!svgString.includes('xmlns=')) {
+            svgString = svgString.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+        }
+        if (svgString.includes('xlink:href') && !svgString.includes('xmlns:xlink=')) {
+            svgString = svgString.replace('<svg', '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+        }
+        
+        // Create a blob URL for the SVG
+        const svgBlob = new Blob([svgString], { type: 'image/svg+xml' });
+        const url = URL.createObjectURL(svgBlob);
+        
         return new Promise((resolve) => {
-            const svgData = new XMLSerializer().serializeToString(svgElement);
-            const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
-            const svgUrl = URL.createObjectURL(svgBlob);
-            
             const img = new Image();
-            img.onload = function() {
-                // Create canvas and draw the SVG
-                const canvas = document.createElement('canvas');
-                canvas.width = img.width || svgElement.getAttribute('width') || 300;
-                canvas.height = img.height || svgElement.getAttribute('height') || 100;
-                
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
-                
-                // Convert to PNG data URL
-                const dataURL = canvas.toDataURL('image/png');
-                URL.revokeObjectURL(svgUrl);
-                resolve(dataURL);
-            };
             
-            img.onerror = function() {
-                // Fallback to SVG base64 conversion if canvas approach fails
-                URL.revokeObjectURL(svgUrl);
+            img.onload = function() {
                 try {
-                    // Clone the SVG element to avoid modifying the original
-                    const clonedSvg = svgElement.cloneNode(true);
+                    // Clear canvas with white background
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, width, height);
                     
-                    // Ensure proper namespace on the cloned element
-                    if (!clonedSvg.hasAttribute('xmlns')) {
-                        clonedSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-                    }
+                    // Draw the SVG image
+                    ctx.drawImage(img, 0, 0, width, height);
                     
-                    // Process the SVG to make it more self-contained
-                    const allStyleSheets = document.styleSheets;
+                    // Convert to PNG data URL
+                    const pngDataUrl = canvas.toDataURL('image/png');
                     
-                    // Properly serialize the SVG element with all namespaces
-                    const serializer = new XMLSerializer();
-                    let svgString = serializer.serializeToString(clonedSvg);
-                    
-                    // Ensure SVG has proper namespace and other required attributes
-                    if (!svgString.includes('xmlns="http://www.w3.org/2000/svg"')) {
-                        svgString = svgString.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
-                    }
-                    
-                    // Add xmlns:xlink if not present (for MathJax fonts)
-                    if (svgString.includes('xlink:href') && !svgString.includes('xmlns:xlink="http://www.w3.org/1999/xlink"')) {
-                        svgString = svgString.replace('<svg', '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
-                    }
-                    
-                    // Add XML declaration for better compatibility
-                    if (!svgString.startsWith('<?xml')) {
-                        svgString = '<?xml version="1.0" standalone="no"?>\r\n' + svgString;
-                    }
-                    
-                    // Convert to base64 using btoa (more reliable than encodeURIComponent)
-                    // First, we need to handle UTF-8 encoding properly
-                    const base64Encoded = btoa(unescape(encodeURIComponent(svgString)));
-                    resolve(`data:image/svg+xml;base64,${base64Encoded}`);
+                    URL.revokeObjectURL(url);
+                    console.log('✓ Canvas PNG conversion successful, size:', pngDataUrl.length);
+                    resolve(pngDataUrl);
                 } catch (error) {
-                    console.warn('Failed to convert SVG to base64:', error);
-                    
-                    // Try a fallback approach for MathJax
-                    try {
-                        // If the standard approach fails, try to get the outerHTML directly
-                        const svgString = svgElement.outerHTML;
-                        
-                        // Ensure proper namespace
-                        let processedSvg = svgString;
-                        if (!processedSvg.includes('xmlns="http://www.w3.org/2000/svg"')) {
-                            processedSvg = processedSvg.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
-                        }
-                        
-                        // Add xmlns:xlink if not present
-                        if (processedSvg.includes('xlink:href') && !processedSvg.includes('xmlns:xlink="http://www.w3.org/1999/xlink"')) {
-                            processedSvg = processedSvg.replace('<svg', '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
-                        }
-                        
-                        // Add XML declaration
-                        if (!processedSvg.startsWith('<?xml')) {
-                            processedSvg = '<?xml version="1.0" standalone="no"?>\r\n' + processedSvg;
-                        }
-                        
-                        const base64Encoded = btoa(unescape(encodeURIComponent(processedSvg)));
-                        resolve(`data:image/svg+xml;base64,${base64Encoded}`);
-                    } catch (fallbackError) {
-                        console.warn('Fallback SVG conversion also failed:', fallbackError);
-                        resolve(null);
-                    }
+                    console.error('Canvas drawing failed:', error);
+                    URL.revokeObjectURL(url);
+                    resolve(null);
                 }
             };
             
-            img.src = svgUrl;
+            img.onerror = function() {
+                console.error('SVG image loading failed');
+                URL.revokeObjectURL(url);
+                resolve(null);
+            };
+            
+            // Set a timeout to avoid hanging
+            setTimeout(() => {
+                if (!img.complete) {
+                    console.warn('SVG image loading timeout');
+                    URL.revokeObjectURL(url);
+                    resolve(null);
+                }
+            }, 3000);
+            
+            img.src = url;
+        }).catch(error => {
+            console.error('Canvas conversion promise failed:', error);
+            return null;
+        });
+        
+    } catch (error) {
+        console.error('Canvas conversion setup failed:', error);
+        return null;
+    }
+}
+
+// Helper function to collect MathJax styles
+function collectMathJaxStyles() {
+    try {
+        let styles = '';
+        
+        // Look for MathJax style elements
+        const styleElements = document.querySelectorAll('style');
+        for (const styleEl of styleElements) {
+            if (styleEl.textContent.includes('mjx-') || styleEl.textContent.includes('MathJax')) {
+                styles += styleEl.textContent + '\n';
+            }
+        }
+        
+        // Also check stylesheets
+        for (const sheet of document.styleSheets) {
+            try {
+                if (sheet.href && sheet.href.includes('mathjax')) {
+                    // Can't access cross-origin stylesheets, skip
+                    continue;
+                }
+                
+                for (const rule of sheet.cssRules || []) {
+                    if (rule.cssText && (rule.cssText.includes('mjx-') || rule.cssText.includes('MathJax'))) {
+                        styles += rule.cssText + '\n';
+                    }
+                }
+            } catch (e) {
+                // Skip inaccessible stylesheets
+                console.warn('Could not access stylesheet:', e);
+            }
+        }
+        
+        return styles;
+    } catch (error) {
+        console.warn('Failed to collect MathJax styles:', error);
+        return '';
+    }
+}
+
+// Helper function to process font references in SVG
+function processFontReferences(svgElement) {
+    try {
+        // Find all <use> elements that reference fonts
+        const useElements = svgElement.querySelectorAll('use');
+        if (useElements.length === 0) return;
+        
+        console.log(`Found ${useElements.length} <use> elements to process`);
+        
+        // Create defs section if it doesn't exist
+        let defs = svgElement.querySelector('defs');
+        if (!defs) {
+            defs = document.createElement('defs');
+            svgElement.insertBefore(defs, svgElement.firstChild);
+        }
+        
+        // Find MathJax global font definitions - they are often in the <head> or hidden elements
+        const globalDefs = new Map();
+        
+        // Method 1: Look for all defs elements in the document
+        const allDefs = document.querySelectorAll('defs');
+        allDefs.forEach(defElement => {
+            const paths = defElement.querySelectorAll('path[id], g[id]');
+            paths.forEach(path => {
+                const id = path.getAttribute('id');
+                if (id && (id.startsWith('MJX-') || id.includes('TEX'))) {
+                    globalDefs.set(id, path.cloneNode(true));
+                }
+            });
+        });
+        
+        // Method 2: Look in MathJax's internal structure
+        // MathJax 3 often stores fonts in a specific structure
+        if (window.MathJax && window.MathJax._.mathjax && window.MathJax._.mathjax.document) {
+            try {
+                const mjxDoc = window.MathJax._.mathjax.document;
+                if (mjxDoc.svg && mjxDoc.svg.fontData && mjxDoc.svg.fontData.defs) {
+                    const mjxDefs = mjxDoc.svg.fontData.defs;
+                    for (const [id, pathData] of Object.entries(mjxDefs)) {
+                        if (!globalDefs.has(id)) {
+                            const path = document.createElement('path');
+                            path.setAttribute('id', id);
+                            path.setAttribute('d', pathData);
+                            globalDefs.set(id, path);
+                        }
+                    }
+                }
+            } catch (e) {
+                console.log('Could not access MathJax internal font data:', e);
+            }
+        }
+        
+        // Method 3: Search for any SVG element that might contain the fonts
+        const allSvgs = document.querySelectorAll('svg');
+        allSvgs.forEach(svg => {
+            const elementsWithId = svg.querySelectorAll('[id]');
+            elementsWithId.forEach(element => {
+                const id = element.getAttribute('id');
+                if (id && (id.startsWith('MJX-') || id.includes('TEX')) && !globalDefs.has(id)) {
+                    globalDefs.set(id, element.cloneNode(true));
+                }
+            });
+        });
+        
+        console.log(`Found ${globalDefs.size} global font definitions`);
+        
+        // Process each <use> element
+        useElements.forEach(useEl => {
+            const href = useEl.getAttribute('href') || useEl.getAttribute('xlink:href');
+            if (href && href.startsWith('#')) {
+                const referencedId = href.substring(1);
+                
+                // Check if already in defs
+                if (defs.querySelector(`#${referencedId}`)) {
+                    return; // Already present
+                }
+                
+                // Try to find in global definitions
+                if (globalDefs.has(referencedId)) {
+                    const clonedRef = globalDefs.get(referencedId);
+                    defs.appendChild(clonedRef);
+                    console.log(`✓ Embedded font definition: ${referencedId}`);
+                    return;
+                }
+                
+                // Try getElementById as fallback
+                const referencedElement = document.getElementById(referencedId);
+                if (referencedElement) {
+                    const clonedRef = referencedElement.cloneNode(true);
+                    defs.appendChild(clonedRef);
+                    console.log(`✓ Embedded referenced element: ${referencedId}`);
+                } else {
+                    console.warn(`✗ Could not find referenced element: ${referencedId}`);
+                    
+                    // Create a visible fallback rectangle instead of empty path
+                    const fallback = document.createElement('rect');
+                    fallback.setAttribute('id', referencedId);
+                    fallback.setAttribute('x', '0');
+                    fallback.setAttribute('y', '0');
+                    fallback.setAttribute('width', '10');
+                    fallback.setAttribute('height', '10');
+                    fallback.setAttribute('fill', 'red'); // Make it visible for debugging
+                    defs.appendChild(fallback);
+                }
+            }
         });
     } catch (error) {
-        console.warn('Failed to convert SVG to base64:', error);
-        return Promise.resolve(null);
+        console.warn('Failed to process font references:', error);
+    }
+}
+
+// Helper function to clean up SVG string
+function cleanupSvgString(svgString) {
+    // Remove any script tags for security
+    svgString = svgString.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+    
+    // Ensure proper XML structure
+    if (!svgString.includes('<?xml')) {
+        svgString = '<?xml version="1.0" encoding="UTF-8"?>\n' + svgString;
+    }
+    
+    // Fix any malformed attributes
+    svgString = svgString.replace(/(\w+)=([^"\s>]+)/g, '$1="$2"');
+    
+    return svgString;
+}
+
+// Helper function to encode SVG to base64 with multiple fallback methods
+function encodeToBase64(svgString) {
+    // Method 1: Standard btoa with proper UTF-8 handling
+    try {
+        const base64 = btoa(unescape(encodeURIComponent(svgString)));
+        const dataURL = `data:image/svg+xml;base64,${base64}`;
+        
+        // Test if the data URL is valid by trying to create an image
+        return testAndReturnDataURL(dataURL, 'Method 1 (btoa with UTF-8)');
+    } catch (error) {
+        console.warn('Method 1 encoding failed:', error);
+    }
+    
+    // Method 2: TextEncoder approach
+    try {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(svgString);
+        const base64 = btoa(String.fromCharCode(...data));
+        const dataURL = `data:image/svg+xml;base64,${base64}`;
+        
+        return testAndReturnDataURL(dataURL, 'Method 2 (TextEncoder)');
+    } catch (error) {
+        console.warn('Method 2 encoding failed:', error);
+    }
+    
+    // Method 3: URL encoding (not base64, but often works)
+    try {
+        const encoded = encodeURIComponent(svgString);
+        const dataURL = `data:image/svg+xml,${encoded}`;
+        
+        return testAndReturnDataURL(dataURL, 'Method 3 (URL encoding)');
+    } catch (error) {
+        console.warn('Method 3 encoding failed:', error);
+    }
+    
+    console.error('All encoding methods failed');
+    return null;
+}
+
+// Helper function to test if a data URL is valid
+function testAndReturnDataURL(dataURL, methodName) {
+    // Basic validation
+    if (!dataURL || dataURL.length < 50) {
+        throw new Error(`${methodName}: Data URL too short`);
+    }
+    
+    // More sophisticated test could involve creating an image and checking if it loads
+    console.log(`${methodName}: Generated data URL of length ${dataURL.length}`);
+    return dataURL;
+}
+
+// Fallback conversion function
+function fallbackConversion(svgElement) {
+    try {
+        console.log('Attempting fallback conversion...');
+        
+        // Simple approach: just get outerHTML and encode
+        let svgString = svgElement.outerHTML;
+        
+        // Add basic namespace if missing
+        if (!svgString.includes('xmlns=')) {
+            svgString = svgString.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+        }
+        
+        // Try simple base64 encoding
+        const base64 = btoa(svgString);
+        const dataURL = `data:image/svg+xml;base64,${base64}`;
+        
+        console.log('Fallback conversion successful, length:', dataURL.length);
+        return dataURL;
+        
+    } catch (error) {
+        console.error('Fallback conversion also failed:', error);
+        return null;
     }
 }
 

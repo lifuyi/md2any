@@ -1226,175 +1226,19 @@
         });
     </script>
     <script>
-      // MathJax configuration
-      window.MathJax = {
-        tex: {
-          inlineMath: [['
-    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
-    
-    <script>
-        // Backend status check (simplified since we only use backend now)
-        async function checkBackendStatus() {
-            const backendStatusBtn = document.getElementById('backend-status');
-            const statusIndicator = backendStatusBtn?.querySelector('.backend-status-indicator');
-            const statusText = backendStatusBtn?.querySelector('span:last-child');
-            
-            if (!backendStatusBtn) return;
-            
-            try {
-                const response = await fetch('http://localhost:5005/health');
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    
-                    // Update UI to show backend is online
-                    backendStatusBtn.className = 'btn btn-secondary backend-online';
-                    if (statusText) statusText.textContent = '服务在线';
-                    if (statusIndicator) statusIndicator.className = 'backend-status-indicator status-online';
-                    
-                    console.log('✅ 后端API已连接:', data);
-                } else {
-                    throw new Error('Backend not responding');
-                }
-            } catch (error) {
-                console.warn('❌ 后端API离线:', error);
-                
-                // Show offline status
-                if (backendStatusBtn) {
-                    backendStatusBtn.className = 'btn btn-secondary backend-error';
-                    if (statusText) statusText.textContent = '服务离线';
-                    if (statusIndicator) statusIndicator.className = 'backend-status-indicator status-error';
-                }
+        // MathJax configuration
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true
+            },
+            svg: {
+                fontCache: 'global'
             }
-        }
-        
-        // Toggle dropdown functionality
-        function toggleDropdown(button) {
-            const dropdown = button.nextElementSibling;
-            if (dropdown && dropdown.classList.contains('dropdown-content')) {
-                dropdown.classList.toggle('show');
-                
-                // Close other dropdowns
-                document.querySelectorAll('.dropdown-content.show').forEach(menu => {
-                    if (menu !== dropdown) {
-                        menu.classList.remove('show');
-                    }
-                });
-            }
-        }
-        
-        // Hide specific dropdown
-        function hideDropdown(element) {
-            const dropdown = element.closest('.dropdown-content');
-            if (dropdown) {
-                dropdown.classList.remove('show');
-            }
-        }
-        
-        // Close dropdowns when clicking outside
-        document.addEventListener('click', function(event) {
-            if (!event.target.matches('.dropdown-toggle')) {
-                document.querySelectorAll('.dropdown-content.show').forEach(menu => {
-                    menu.classList.remove('show');
-                });
-            }
-        });
-        
-        // Make dropdown functions globally available
-        window.toggleDropdown = toggleDropdown;
-        window.hideDropdown = hideDropdown;
-        
-        // Note: Image functionality is now handled in frontend.js
-    </script>
-</body>
-</html>, '
-    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
-    
-    <script>
-        // Backend status check (simplified since we only use backend now)
-        async function checkBackendStatus() {
-            const backendStatusBtn = document.getElementById('backend-status');
-            const statusIndicator = backendStatusBtn?.querySelector('.backend-status-indicator');
-            const statusText = backendStatusBtn?.querySelector('span:last-child');
-            
-            if (!backendStatusBtn) return;
-            
-            try {
-                const response = await fetch('http://localhost:5005/health');
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    
-                    // Update UI to show backend is online
-                    backendStatusBtn.className = 'btn btn-secondary backend-online';
-                    if (statusText) statusText.textContent = '服务在线';
-                    if (statusIndicator) statusIndicator.className = 'backend-status-indicator status-online';
-                    
-                    console.log('✅ 后端API已连接:', data);
-                } else {
-                    throw new Error('Backend not responding');
-                }
-            } catch (error) {
-                console.warn('❌ 后端API离线:', error);
-                
-                // Show offline status
-                if (backendStatusBtn) {
-                    backendStatusBtn.className = 'btn btn-secondary backend-error';
-                    if (statusText) statusText.textContent = '服务离线';
-                    if (statusIndicator) statusIndicator.className = 'backend-status-indicator status-error';
-                }
-            }
-        }
-        
-        // Toggle dropdown functionality
-        function toggleDropdown(button) {
-            const dropdown = button.nextElementSibling;
-            if (dropdown && dropdown.classList.contains('dropdown-content')) {
-                dropdown.classList.toggle('show');
-                
-                // Close other dropdowns
-                document.querySelectorAll('.dropdown-content.show').forEach(menu => {
-                    if (menu !== dropdown) {
-                        menu.classList.remove('show');
-                    }
-                });
-            }
-        }
-        
-        // Hide specific dropdown
-        function hideDropdown(element) {
-            const dropdown = element.closest('.dropdown-content');
-            if (dropdown) {
-                dropdown.classList.remove('show');
-            }
-        }
-        
-        // Close dropdowns when clicking outside
-        document.addEventListener('click', function(event) {
-            if (!event.target.matches('.dropdown-toggle')) {
-                document.querySelectorAll('.dropdown-content.show').forEach(menu => {
-                    menu.classList.remove('show');
-                });
-            }
-        });
-        
-        // Make dropdown functions globally available
-        window.toggleDropdown = toggleDropdown;
-        window.hideDropdown = hideDropdown;
-        
-        // Note: Image functionality is now handled in frontend.js
-    </script>
-</body>
-</html>], ['\\(', '\\)']],
-          displayMath: [['$', '$'], ['\\[', '\\]']],
-          processEscapes: true,
-          processEnvironments: true
-        },
-        svg: {
-          fontCache: 'global'
-        }
-        // Removed the startup configuration that might be causing issues
-      };
+            // Removed the startup configuration that might be causing issues
+        };
     </script>
     <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
     
@@ -1472,5 +1316,81 @@
         
         // Note: Image functionality is now handled in frontend.js
     </script>
+    
+    <script>
+        // Backend status check (simplified since we only use backend now)
+        async function checkBackendStatus() {
+            const backendStatusBtn = document.getElementById('backend-status');
+            const statusIndicator = backendStatusBtn?.querySelector('.backend-status-indicator');
+            const statusText = backendStatusBtn?.querySelector('span:last-child');
+            
+            if (!backendStatusBtn) return;
+            
+            try {
+                const response = await fetch('http://localhost:5005/health');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Update UI to show backend is online
+                    backendStatusBtn.className = 'btn btn-secondary backend-online';
+                    if (statusText) statusText.textContent = '服务在线';
+                    if (statusIndicator) statusIndicator.className = 'backend-status-indicator status-online';
+                    
+                    console.log('✅ 后端API已连接:', data);
+                } else {
+                    throw new Error('Backend not responding');
+                }
+            } catch (error) {
+                console.warn('❌ 后端API离线:', error);
+                
+                // Show offline status
+                if (backendStatusBtn) {
+                    backendStatusBtn.className = 'btn btn-secondary backend-error';
+                    if (statusText) statusText.textContent = '服务离线';
+                    if (statusIndicator) statusIndicator.className = 'backend-status-indicator status-error';
+                }
+            }
+        }
+        
+        // Toggle dropdown functionality
+        function toggleDropdown(button) {
+            const dropdown = button.nextElementSibling;
+            if (dropdown && dropdown.classList.contains('dropdown-content')) {
+                dropdown.classList.toggle('show');
+                
+                // Close other dropdowns
+                document.querySelectorAll('.dropdown-content.show').forEach(menu => {
+                    if (menu !== dropdown) {
+                        menu.classList.remove('show');
+                    }
+                });
+            }
+        }
+        
+        // Hide specific dropdown
+        function hideDropdown(element) {
+            const dropdown = element.closest('.dropdown-content');
+            if (dropdown) {
+                dropdown.classList.remove('show');
+            }
+        }
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.matches('.dropdown-toggle')) {
+                document.querySelectorAll('.dropdown-content.show').forEach(menu => {
+                    menu.classList.remove('show');
+                });
+            }
+        });
+        
+        // Make dropdown functions globally available
+        window.toggleDropdown = toggleDropdown;
+        window.hideDropdown = hideDropdown;
+        
+        // Note: Image functionality is now handled in frontend.js
+    </script>
+    
 </body>
 </html>

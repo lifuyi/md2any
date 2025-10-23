@@ -32,65 +32,224 @@
     <div id="result"></div>
     
     <script>
-        // Utility function to convert SVG to base64 data URL
+        // Enhanced utility function to convert SVG to base64 data URL
         function svgToBase64DataURL(svgElement) {
             try {
                 // Clone the SVG element to avoid modifying the original
                 const clonedSvg = svgElement.cloneNode(true);
                 
-                // Ensure proper namespace on the cloned element
-                if (!clonedSvg.hasAttribute('xmlns')) {
-                    clonedSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+                // Ensure proper SVG namespace
+                clonedSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+                
+                // Add xlink namespace if needed (for MathJax font references)
+                if (clonedSvg.innerHTML.includes('xlink:href') || clonedSvg.innerHTML.includes('href')) {
+                    clonedSvg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
                 }
                 
-                // Process the SVG to make it more self-contained
-                const allStyleSheets = document.styleSheets;
+                // Collect and embed any referenced fonts or styles from MathJax
+                const mathJaxStyles = collectMathJaxStyles();
+                if (mathJaxStyles) {
+                    const styleElement = document.createElement('style');
+                    styleElement.textContent = mathJaxStyles;
+                    clonedSvg.insertBefore(styleElement, clonedSvg.firstChild);
+                }
                 
-                // Properly serialize the SVG element with all namespaces
+                // Handle font definitions - convert use elements to embedded paths
+                processFontReferences(clonedSvg);
+                
+                // Serialize the SVG
                 const serializer = new XMLSerializer();
                 let svgString = serializer.serializeToString(clonedSvg);
                 
-                // Ensure SVG has proper namespace and other required attributes
-                if (!svgString.includes('xmlns="http://www.w3.org/2000/svg"')) {
+                // Clean up and validate the SVG string
+                svgString = cleanupSvgString(svgString);
+                
+                console.log('Processed SVG length:', svgString.length);
+                console.log('SVG preview:', svgString.substring(0, 300) + '...');
+                
+                // Convert to base64 - try multiple encoding methods
+                return encodeToBase64(svgString);
+                
+            } catch (error) {
+                console.error('Primary SVG conversion failed:', error);
+                return fallbackConversion(svgElement);
+            }
+        }
+        
+        // Helper function to collect MathJax styles
+        function collectMathJaxStyles() {
+            try {
+                let styles = '';
+                
+                // Look for MathJax style elements
+                const styleElements = document.querySelectorAll('style');
+                for (const styleEl of styleElements) {
+                    if (styleEl.textContent.includes('mjx-') || styleEl.textContent.includes('MathJax')) {
+                        styles += styleEl.textContent + '\n';
+                    }
+                }
+                
+                // Also check stylesheets
+                for (const sheet of document.styleSheets) {
+                    try {
+                        if (sheet.href && sheet.href.includes('mathjax')) {
+                            // Can't access cross-origin stylesheets, skip
+                            continue;
+                        }
+                        
+                        for (const rule of sheet.cssRules || []) {
+                            if (rule.cssText && (rule.cssText.includes('mjx-') || rule.cssText.includes('MathJax'))) {
+                                styles += rule.cssText + '\n';
+                            }
+                        }
+                    } catch (e) {
+                        // Skip inaccessible stylesheets
+                        console.warn('Could not access stylesheet:', e);
+                    }
+                }
+                
+                return styles;
+            } catch (error) {
+                console.warn('Failed to collect MathJax styles:', error);
+                return '';
+            }
+        }
+        
+        // Helper function to process font references in SVG
+        function processFontReferences(svgElement) {
+            try {
+                // Find all <use> elements that reference fonts
+                const useElements = svgElement.querySelectorAll('use');
+                useElements.forEach(useEl => {
+                    const href = useEl.getAttribute('href') || useEl.getAttribute('xlink:href');
+                    if (href && href.startsWith('#')) {
+                        // Try to find the referenced element in the document
+                        const referencedId = href.substring(1);
+                        let referencedElement = document.getElementById(referencedId);
+                        
+                        if (!referencedElement) {
+                            // Look in MathJax's internal defs
+                            const mathJaxContainers = document.querySelectorAll('mjx-container');
+                            for (const container of mathJaxContainers) {
+                                const found = container.querySelector(`#${referencedId}`);
+                                if (found) {
+                                    referencedElement = found;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        if (referencedElement) {
+                            // Clone the referenced element into a defs section if not already present
+                            let defs = svgElement.querySelector('defs');
+                            if (!defs) {
+                                defs = document.createElement('defs');
+                                svgElement.insertBefore(defs, svgElement.firstChild);
+                            }
+                            
+                            // Only add if not already present
+                            if (!defs.querySelector(`#${referencedId}`)) {
+                                const clonedRef = referencedElement.cloneNode(true);
+                                defs.appendChild(clonedRef);
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.warn('Failed to process font references:', error);
+            }
+        }
+        
+        // Helper function to clean up SVG string
+        function cleanupSvgString(svgString) {
+            // Remove any script tags for security
+            svgString = svgString.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+            
+            // Ensure proper XML structure
+            if (!svgString.includes('<?xml')) {
+                svgString = '<?xml version="1.0" encoding="UTF-8"?>\n' + svgString;
+            }
+            
+            // Fix any malformed attributes
+            svgString = svgString.replace(/(\w+)=([^"\s>]+)/g, '$1="$2"');
+            
+            return svgString;
+        }
+        
+        // Helper function to encode SVG to base64 with multiple fallback methods
+        function encodeToBase64(svgString) {
+            // Method 1: Standard btoa with proper UTF-8 handling
+            try {
+                const base64 = btoa(unescape(encodeURIComponent(svgString)));
+                const dataURL = `data:image/svg+xml;base64,${base64}`;
+                
+                // Test if the data URL is valid by trying to create an image
+                return testAndReturnDataURL(dataURL, 'Method 1 (btoa with UTF-8)');
+            } catch (error) {
+                console.warn('Method 1 encoding failed:', error);
+            }
+            
+            // Method 2: TextEncoder approach
+            try {
+                const encoder = new TextEncoder();
+                const data = encoder.encode(svgString);
+                const base64 = btoa(String.fromCharCode(...data));
+                const dataURL = `data:image/svg+xml;base64,${base64}`;
+                
+                return testAndReturnDataURL(dataURL, 'Method 2 (TextEncoder)');
+            } catch (error) {
+                console.warn('Method 2 encoding failed:', error);
+            }
+            
+            // Method 3: URL encoding (not base64, but often works)
+            try {
+                const encoded = encodeURIComponent(svgString);
+                const dataURL = `data:image/svg+xml,${encoded}`;
+                
+                return testAndReturnDataURL(dataURL, 'Method 3 (URL encoding)');
+            } catch (error) {
+                console.warn('Method 3 encoding failed:', error);
+            }
+            
+            console.error('All encoding methods failed');
+            return null;
+        }
+        
+        // Helper function to test if a data URL is valid
+        function testAndReturnDataURL(dataURL, methodName) {
+            // Basic validation
+            if (!dataURL || dataURL.length < 50) {
+                throw new Error(`${methodName}: Data URL too short`);
+            }
+            
+            // More sophisticated test could involve creating an image and checking if it loads
+            console.log(`${methodName}: Generated data URL of length ${dataURL.length}`);
+            return dataURL;
+        }
+        
+        // Fallback conversion function
+        function fallbackConversion(svgElement) {
+            try {
+                console.log('Attempting fallback conversion...');
+                
+                // Simple approach: just get outerHTML and encode
+                let svgString = svgElement.outerHTML;
+                
+                // Add basic namespace if missing
+                if (!svgString.includes('xmlns=')) {
                     svgString = svgString.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
                 }
                 
-                // Add xmlns:xlink if not present (for MathJax fonts)
-                if (svgString.includes('xlink:href') && !svgString.includes('xmlns:xlink="http://www.w3.org/1999/xlink"')) {
-                    svgString = svgString.replace('<svg', '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
-                }
+                // Try simple base64 encoding
+                const base64 = btoa(svgString);
+                const dataURL = `data:image/svg+xml;base64,${base64}`;
                 
-                console.log('Processed SVG:', svgString.substring(0, 200) + '...');
+                console.log('Fallback conversion successful, length:', dataURL.length);
+                return dataURL;
                 
-                // Convert to base64 using btoa (more reliable than encodeURIComponent)
-                // First, we need to handle UTF-8 encoding properly
-                const base64Encoded = btoa(unescape(encodeURIComponent(svgString)));
-                return `data:image/svg+xml;base64,${base64Encoded}`;
             } catch (error) {
-                console.warn('Failed to convert SVG to base64:', error);
-                
-                // Try a fallback approach for MathJax
-                try {
-                    // If the standard approach fails, try to get the outerHTML directly
-                    const svgString = svgElement.outerHTML;
-                    
-                    // Ensure proper namespace
-                    let processedSvg = svgString;
-                    if (!processedSvg.includes('xmlns="http://www.w3.org/2000/svg"')) {
-                        processedSvg = processedSvg.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
-                    }
-                    
-                    // Add xmlns:xlink if not present
-                    if (processedSvg.includes('xlink:href') && !processedSvg.includes('xmlns:xlink="http://www.w3.org/1999/xlink"')) {
-                        processedSvg = processedSvg.replace('<svg', '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
-                    }
-                    
-                    const base64Encoded = btoa(unescape(encodeURIComponent(processedSvg)));
-                    return `data:image/svg+xml;base64,${base64Encoded}`;
-                } catch (fallbackError) {
-                    console.warn('Fallback SVG conversion also failed:', fallbackError);
-                    return null;
-                }
+                console.error('Fallback conversion also failed:', error);
+                return null;
             }
         }
         
@@ -123,7 +282,7 @@
                     if (svg) {
                         try {
                             // Convert SVG to base64 data URL using our reusable function
-                            const dataURL = await svgToBase64DataURL(svg);
+                            const dataURL = svgToBase64DataURL(svg);
                             
                             if (dataURL) {
                                 console.log('Data URL length:', dataURL.length);
@@ -143,6 +302,14 @@
                                 if (width) img.style.width = width;
                                 if (height) img.style.height = height;
                                 if (style) img.setAttribute('style', style + '; vertical-align: middle;');
+                                
+                                // Test if the image loads properly before replacing
+                                img.onload = function() {
+                                    console.log(`✓ MathJax element ${index} image loaded successfully`);
+                                };
+                                img.onerror = function() {
+                                    console.error(`✗ MathJax element ${index} image failed to load`);
+                                };
                                 
                                 // Replace the MathJax container with the image
                                 container.parentNode.replaceChild(img, container);
