@@ -306,6 +306,10 @@
                                 // Test if the image loads properly before replacing
                                 img.onload = function() {
                                     console.log(`✓ MathJax element ${index} image loaded successfully`);
+                                    // Validate that the image actually has content
+                                    if (this.naturalWidth === 0) {
+                                        console.warn(`✗ MathJax element ${index} image has no content`);
+                                    }
                                 };
                                 img.onerror = function() {
                                     console.error(`✗ MathJax element ${index} image failed to load`);

@@ -746,6 +746,15 @@ async function copyToClipboard() {
                             const reader = new FileReader();
                             reader.onload = () => {
                                 const dataURL = reader.result;
+                                
+                                // Validate the data URL
+                                if (!dataURL || dataURL.length < 100) {
+                                    console.warn(`图片 ${index + 1} 转换失败，数据无效`);
+                                    img.remove();
+                                    resolve();
+                                    return;
+                                }
+                                
                                 img.src = dataURL;
                                 
                                 // Also set as base64 attribute for better compatibility
@@ -794,6 +803,14 @@ async function copyToClipboard() {
                                 const reader = new FileReader();
                                 reader.onload = () => {
                                     const dataURL = reader.result;
+                                    
+                                    // Validate the data URL
+                                    if (!dataURL || dataURL.length < 100) {
+                                        console.warn(`外部图片 ${index + 1} 转换失败，数据无效，保留原URL`);
+                                        resolve();
+                                        return;
+                                    }
+                                    
                                     img.src = dataURL;
                                     
                                     const base64Data = dataURL.split(',')[1];
@@ -853,7 +870,14 @@ async function copyToClipboard() {
                         
                         if (dataURL) {
                             console.log(`✓ MathJax element ${index + 1} converted successfully`);
-                            console.log(`Data URL type: ${dataURL.substring(0, 30)}...`);
+                            console.log(`Data URL type: ${dataURL.substring(0, 50)}...`);
+                            console.log(`Data URL length: ${dataURL.length}`);
+                            
+                            // Validate the data URL
+                            if (dataURL.length < 100) {
+                                console.warn(`✗ MathJax element ${index + 1}: Data URL too short, likely invalid`);
+                                return;
+                            }
                             
                             // Create img element to replace the MathJax container
                             const img = document.createElement('img');
@@ -861,6 +885,23 @@ async function copyToClipboard() {
                             img.alt = 'Math formula';
                             img.style.verticalAlign = 'middle';
                             img.setAttribute('data-math', 'true'); // Mark as math element for debugging
+                            
+                            // Add onload validation
+                            img.onload = function() {
+                                if (this.naturalWidth === 0) {
+                                    console.warn(`✗ MathJax element ${index + 1} image has no content`);
+                                    // Remove the invalid image
+                                    this.remove();
+                                } else {
+                                    console.log(`✓ MathJax element ${index + 1} image validated successfully`);
+                                }
+                            };
+                            
+                            img.onerror = function() {
+                                console.warn(`✗ MathJax element ${index + 1} image failed to load`);
+                                // Remove the invalid image
+                                this.remove();
+                            };
                             
                             // Copy dimensions and important attributes from original SVG
                             const width = svg.getAttribute('width');
@@ -1280,15 +1321,24 @@ function convertSvgToCanvasPng(svgElement) {
                     ctx.fillStyle = 'white';
                     ctx.fillRect(0, 0, width, height);
                     
-                    // Draw the SVG image
-                    ctx.drawImage(img, 0, 0, width, height);
+                    // Draw the SVG image without scaling context to avoid issues
+                    // Reset transform and draw at actual canvas dimensions
+                    ctx.setTransform(1, 0, 0, 1, 0, 0);
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                     
                     // Convert to PNG data URL
                     const pngDataUrl = canvas.toDataURL('image/png');
                     
                     URL.revokeObjectURL(url);
                     console.log('✓ Canvas PNG conversion successful, size:', pngDataUrl.length);
-                    resolve(pngDataUrl);
+                    
+                    // Validate that we have actual image data
+                    if (pngDataUrl && pngDataUrl.length > 100) { // Basic validation
+                        resolve(pngDataUrl);
+                    } else {
+                        console.warn('Canvas PNG conversion resulted in invalid data');
+                        resolve(null);
+                    }
                 } catch (error) {
                     console.error('Canvas drawing failed:', error);
                     URL.revokeObjectURL(url);
