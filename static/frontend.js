@@ -1259,6 +1259,12 @@ function svgToBase64DataURL(svgElement) {
         const serializer = new XMLSerializer();
         let svgString = serializer.serializeToString(clonedSvg);
         
+        // Ensure svgString is valid
+        if (!svgString) {
+            console.warn('SVG serialization returned empty string, using outerHTML fallback');
+            svgString = clonedSvg.outerHTML;
+        }
+        
         // Clean up and validate the SVG string
         svgString = cleanupSvgString(svgString);
         
@@ -1299,6 +1305,12 @@ function convertSvgToCanvasPng(svgElement) {
         // Get the SVG data
         const serializer = new XMLSerializer();
         let svgString = serializer.serializeToString(svgElement);
+        
+        // Ensure svgString is valid
+        if (!svgString) {
+            console.warn('SVG serialization returned empty string in canvas conversion, using outerHTML fallback');
+            svgString = svgElement.outerHTML;
+        }
         
         // Ensure proper namespaces
         if (!svgString.includes('xmlns=')) {
@@ -1536,6 +1548,12 @@ function processFontReferences(svgElement) {
 
 // Helper function to clean up SVG string
 function cleanupSvgString(svgString) {
+    // Ensure we have a valid string
+    if (!svgString || typeof svgString !== 'string') {
+        console.warn('Invalid SVG string provided to cleanup function');
+        return '';
+    }
+    
     // Remove any script tags for security
     svgString = svgString.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
     
@@ -1544,8 +1562,12 @@ function cleanupSvgString(svgString) {
         svgString = '<?xml version="1.0" encoding="UTF-8"?>\n' + svgString;
     }
     
-    // Fix any malformed attributes
-    svgString = svgString.replace(/(\w+)=([^"\s>]+)/g, '$1="$2"');
+    // Fix any malformed attributes (be more careful with this regex)
+    try {
+        svgString = svgString.replace(/(\w+)=([^"\s>]+)/g, '$1="$2"');
+    } catch (e) {
+        console.warn('Failed to fix malformed attributes:', e);
+    }
     
     return svgString;
 }
