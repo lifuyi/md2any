@@ -1428,9 +1428,36 @@ function processFontReferences(svgElement) {
             svgElement.insertBefore(defs, svgElement.firstChild);
         }
         
-        // Method 1: Look for global MathJax definitions in the document
+        // Method 1: Access MathJax's global font cache
+        // MathJax 3 with fontCache: 'global' stores fonts in a global cache
+        if (window.MathJax && window.MathJax.svg && window.MathJax.svg.fontCache) {
+            try {
+                // Get the global font cache SVG element
+                const fontCache = window.MathJax.svg.fontCache;
+                if (fontCache && fontCache.id) {
+                    // Find the global font cache element in the document
+                    const globalFontCache = document.getElementById(fontCache.id);
+                    if (globalFontCache) {
+                        // Clone all children from global font cache to our SVG's defs
+                        const children = globalFontCache.children;
+                        for (let i = 0; i < children.length; i++) {
+                            const child = children[i];
+                            const id = child.getAttribute('id');
+                            if (id && !defs.querySelector(`#${id}`)) {
+                                defs.appendChild(child.cloneNode(true));
+                                console.log(`✓ Embedded MathJax global font cache definition: ${id}`);
+                            }
+                        }
+                    }
+                }
+            } catch (e) {
+                console.log('Could not access MathJax global font cache:', e);
+            }
+        }
+        
+        // Method 2: Look for global MathJax definitions in the document
         // MathJax creates global <defs> elements that contain font definitions
-        const globalMathJaxDefs = document.querySelectorAll('defs[id^="MathJax"]');
+        const globalMathJaxDefs = document.querySelectorAll('defs[id*="MathJax"], defs[id*="mjx"]');
         globalMathJaxDefs.forEach(globalDef => {
             // Clone all children from global defs to our SVG's defs
             const children = globalDef.children;
@@ -1444,7 +1471,7 @@ function processFontReferences(svgElement) {
             }
         });
         
-        // Method 2: Look for MathJax's internal SVG structure
+        // Method 3: Look for MathJax's internal SVG structure
         const mathJaxSvgs = document.querySelectorAll('svg[data-mjx]');
         mathJaxSvgs.forEach(mjxSvg => {
             const mjxDefs = mjxSvg.querySelector('defs');
@@ -1461,7 +1488,7 @@ function processFontReferences(svgElement) {
             }
         });
         
-        // Method 3: Look for any mjx-container elements that might contain definitions
+        // Method 4: Look for any mjx-container elements that might contain definitions
         const mjxContainers = document.querySelectorAll('mjx-container');
         mjxContainers.forEach(container => {
             const containerDefs = container.querySelector('defs');
@@ -1478,7 +1505,7 @@ function processFontReferences(svgElement) {
             }
         });
         
-        // Method 4: Direct access to referenced elements
+        // Method 5: Direct access to referenced elements
         useElements.forEach(useEl => {
             const href = useEl.getAttribute('href') || useEl.getAttribute('xlink:href');
             if (href && href.startsWith('#')) {
@@ -1497,16 +1524,6 @@ function processFontReferences(svgElement) {
                     console.log(`✓ Embedded referenced element: ${referencedId}`);
                 } else {
                     console.warn(`✗ Could not find referenced element: ${referencedId}`);
-                    
-                    // Create a visible fallback rectangle instead of empty path
-                    const fallback = document.createElement('rect');
-                    fallback.setAttribute('id', referencedId);
-                    fallback.setAttribute('x', '0');
-                    fallback.setAttribute('y', '0');
-                    fallback.setAttribute('width', '10');
-                    fallback.setAttribute('height', '10');
-                    fallback.setAttribute('fill', 'red'); // Make it visible for debugging
-                    defs.appendChild(fallback);
                 }
             }
         });

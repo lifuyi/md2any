@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>MathJax Font Debug</title>
+    <script>
+        // MathJax configuration
+        window.MathJax = {
+            tex: {
+                inlineMath: [[', '], ['\\(', '\\)']],
+                displayMath: [['$', '$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body>
+    <h1>MathJax Font Debug</h1>
+    
+    <p>Testing math expressions:</p>
+    
+    <p>Quadratic formula: \( x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a} \)</p>
+    
+    <p>Integral: \( \int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2} \)</p>
+    
+    <p>Matrix: \( \begin{pmatrix} a & b \\ c & d \end{pmatrix} \)</p>
+    
+    <button onclick="debugMathJax()">Debug MathJax Elements</button>
+    <button onclick="testConversion()">Test SVG Conversion</button>
+    
+    <div id="debug-output"></div>
+    
+    <script>
+        // Wait for MathJax to render
+        setTimeout(() => {
+            debugMathJax();
+        }, 2000);
+        
+        function debugMathJax() {
+            const output = document.getElementById('debug-output');
+            output.innerHTML = '<h2>MathJax Debug Information</h2>';
+            
+            // Check MathJax object
+            output.innerHTML += `<p>MathJax object exists: ${!!window.MathJax}</p>`;
+            if (window.MathJax) {
+                output.innerHTML += `<p>MathJax.svg exists: ${!!window.MathJax.svg}</p>`;
+                if (window.MathJax.svg) {
+                    output.innerHTML += `<p>MathJax.svg.fontCache exists: ${!!window.MathJax.svg.fontCache}</p>`;
+                    if (window.MathJax.svg.fontCache) {
+                        output.innerHTML += `<p>MathJax.svg.fontCache.id: ${window.MathJax.svg.fontCache.id || 'no id'}</p>`;
+                    }
+                }
+            }
+            
+            // Find all MathJax containers
+            const mjxContainers = document.querySelectorAll('mjx-container');
+            output.innerHTML += `<p>Found ${mjxContainers.length} mjx-container elements</p>`;
+            
+            // Find all SVG elements
+            const svgs = document.querySelectorAll('svg');
+            output.innerHTML += `<p>Found ${svgs.length} SVG elements</p>`;
+            
+            // Find all defs elements
+            const allDefs = document.querySelectorAll('defs');
+            output.innerHTML += `<p>Found ${allDefs.length} defs elements</p>`;
+            
+            // Look for MathJax-specific defs
+            const mathJaxDefs = document.querySelectorAll('defs[id*="MathJax"], defs[id*="mjx"]');
+            output.innerHTML += `<p>Found ${mathJaxDefs.length} MathJax-specific defs elements</p>`;
+            
+            // Look for global font cache
+            const globalFontCache = document.getElementById('MathJax-SVG-global-cache');
+            output.innerHTML += `<p>Global font cache exists: ${!!globalFontCache}</p>`;
+            if (globalFontCache) {
+                output.innerHTML += `<p>Global font cache has ${globalFontCache.children.length} children</p>`;
+            }
+            
+            // Show details of each defs element
+            allDefs.forEach((defs, index) => {
+                const id = defs.id || 'no-id';
+                const childCount = defs.children.length;
+                output.innerHTML += `<p>Defs ${index}: id="${id}", ${childCount} children</p>`;
+                
+                // Show first few child IDs
+                const children = Array.from(defs.children).slice(0, 5);
+                children.forEach((child, childIndex) => {
+                    const childId = child.getAttribute('id') || 'no-id';
+                    output.innerHTML += `<p style="margin-left: 20px;">Child ${childIndex}: id="${childId}", tag="${child.tagName}"</p>`;
+                });
+                
+                if (defs.children.length > 5) {
+                    output.innerHTML += `<p style="margin-left: 20px;">... and ${defs.children.length - 5} more children</p>`;
+                }
+            });
+            
+            // Show details of mjx-containers
+            mjxContainers.forEach((container, index) => {
+                output.innerHTML += `<p>Container ${index}: ${container.innerHTML.substring(0, 100)}...</p>`;
+                
+                // Look for defs inside container
+                const containerDefs = container.querySelector('defs');
+                if (containerDefs) {
+                    output.innerHTML += `<p style="margin-left: 20px;">Has defs with ${containerDefs.children.length} children</p>`;
+                }
+                
+                // Look for SVG inside container
+                const svg = container.querySelector('svg');
+                if (svg) {
+                    output.innerHTML += `<p style="margin-left: 20px;">Has SVG with ${svg.querySelectorAll('use').length} use elements</p>`;
+                }
+            });
+            
+            // Show global styles
+            output.innerHTML += '<h3>MathJax Styles</h3>';
+            const styleElements = document.querySelectorAll('style');
+            styleElements.forEach((style, index) => {
+                if (style.textContent.includes('MathJax') || style.textContent.includes('mjx')) {
+                    output.innerHTML += `<p>Style ${index}: ${style.textContent.substring(0, 100)}...</p>`;
+                }
+            });
+        }
+        
+        function testConversion() {
+            const output = document.getElementById('debug-output');
+            output.innerHTML += '<h2>SVG Conversion Test</h2>';
+            
+            // Get first MathJax container
+            const mjxContainer = document.querySelector('mjx-container');
+            if (!mjxContainer) {
+                output.innerHTML += '<p>No MathJax containers found</p>';
+                return;
+            }
+            
+            // Get SVG from container
+            const svg = mjxContainer.querySelector('svg');
+            if (!svg) {
+                output.innerHTML += '<p>No SVG found in MathJax container</p>';
+                return;
+            }
+            
+            output.innerHTML += '<p>Found SVG element, attempting conversion...</p>';
+            
+            // Try to convert to data URL
+            try {
+                const serializer = new XMLSerializer();
+                let svgString = serializer.serializeToString(svg);
+                
+                // Ensure proper namespaces
+                if (!svgString.includes('xmlns=')) {
+                    svgString = svgString.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+                }
+                if (svgString.includes('xlink:href') && !svgString.includes('xmlns:xlink=')) {
+                    svgString = svgString.replace('<svg', '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+                }
+                
+                output.innerHTML += `<p>SVG string length: ${svgString.length}</p>`;
+                output.innerHTML += `<p>SVG string preview: ${svgString.substring(0, 200)}...</p>`;
+                
+                // Try to convert to data URL
+                const dataURL = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
+                output.innerHTML += `<p>Data URL length: ${dataURL.length}</p>`;
+                output.innerHTML += `<p>Data URL preview: ${dataURL.substring(0, 100)}...</p>`;
+                
+                // Try to create image
+                const img = document.createElement('img');
+                img.src = dataURL;
+                img.style.border = '1px solid red';
+                img.style.maxWidth = '100%';
+                img.onload = function() {
+                    output.innerHTML += `<p>Image loaded successfully: ${this.naturalWidth}x${this.naturalHeight}</p>`;
+                };
+                img.onerror = function() {
+                    output.innerHTML += `<p>Image failed to load</p>`;
+                };
+                
+                output.appendChild(document.createElement('h3')).textContent = 'Converted Image:';
+                output.appendChild(img);
+            } catch (error) {
+                output.innerHTML += `<p>Error converting SVG: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
