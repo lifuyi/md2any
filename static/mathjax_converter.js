@@ -142,22 +142,59 @@ async function convertMathJaxSvgToImage(svgElement) {
             }
         }
         
-        // Get SVG dimensions
-        const bbox = clonedSvg.getBoundingClientRect();
-        const width = Math.max(bbox.width || parseFloat(clonedSvg.getAttribute('width')) || 100, 50);
-        const height = Math.max(bbox.height || parseFloat(clonedSvg.getAttribute('height')) || 50, 20);
+        // Get SVG dimensions - improved method
+        let width, height;
         
-        console.log(`MathJax SVG dimensions: ${width}x${height}`);
+        // First try to get dimensions from viewBox
+        const viewBox = clonedSvg.getAttribute('viewBox');
+        if (viewBox) {
+            const viewBoxValues = viewBox.split(/\s+|,/).map(v => parseFloat(v));
+            if (viewBoxValues.length >= 4) {
+                width = viewBoxValues[2];
+                height = viewBoxValues[3];
+                console.log(`Using viewBox dimensions: ${width}x${height}`);
+            }
+        }
         
-        // Create a canvas with higher resolution for better quality
+        // Fallback to explicit width/height attributes
+        if (!width || !height) {
+            width = parseFloat(clonedSvg.getAttribute('width')) || 0;
+            height = parseFloat(clonedSvg.getAttribute('height')) || 0;
+            console.log(`Using attribute dimensions: ${width}x${height}`);
+        }
+        
+        // Fallback to bounding box (but be careful with this)
+        if (!width || !height) {
+            const bbox = clonedSvg.getBoundingClientRect();
+            width = width || bbox.width || 100;
+            height = height || bbox.height || 50;
+            console.log(`Using bbox dimensions: ${width}x${height}`);
+        }
+        
+        // Ensure minimum dimensions
+        width = Math.max(width, 50);
+        height = Math.max(height, 20);
+        
+        // Ensure proper aspect ratio - don't force minimum that could distort
+        console.log(`Final SVG dimensions: ${width}x${height}`);
+        
+        // Create canvas with proper scaling
         const scale = 2; // 2x scale for better quality
         const canvas = document.createElement('canvas');
         canvas.width = width * scale;
         canvas.height = height * scale;
         const ctx = canvas.getContext('2d');
         
-        // Scale context for high DPI
-        ctx.scale(scale, scale);
+        // Important: Don't pre-scale the context, we'll handle scaling in drawImage
+        
+        // Ensure the SVG has explicit width and height attributes for proper rendering
+        clonedSvg.setAttribute('width', width.toString());
+        clonedSvg.setAttribute('height', height.toString());
+        
+        // If there's no viewBox, add one to preserve aspect ratio
+        if (!clonedSvg.getAttribute('viewBox')) {
+            clonedSvg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+        }
         
         // Serialize the cloned SVG with font definitions
         const serializer = new XMLSerializer();
@@ -186,14 +223,16 @@ async function convertMathJaxSvgToImage(svgElement) {
             
             img.onload = function() {
                 try {
-                    // Clear canvas with white background
+                    // Clear canvas with white background (use scaled canvas dimensions)
                     ctx.fillStyle = 'white';
-                    ctx.fillRect(0, 0, width, height);
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
                     
-                    // Draw the SVG image without scaling context to avoid issues
-                    // Reset transform and draw at actual canvas dimensions
-                    ctx.setTransform(1, 0, 0, 1, 0, 0);
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    // Draw the SVG image at the proper scaled size
+                    // The image will be drawn at its natural size, scaled to fit the canvas
+                    console.log(`Drawing image: natural size ${this.naturalWidth}x${this.naturalHeight} to canvas ${canvas.width}x${canvas.height}`);
+                    
+                    // Draw at full canvas size to get the scaling benefit
+                    ctx.drawImage(this, 0, 0, canvas.width, canvas.height);
                     
                     // Convert to PNG data URL
                     const pngDataUrl = canvas.toDataURL('image/png');
