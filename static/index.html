@@ -1081,14 +1081,10 @@
     <!-- 前端渲染库已移除，现在完全使用后端渲染 -->
     <script src="https://cdn.jsdelivr.net/npm/turndown/dist/turndown.min.js"></script>
     
-    <!-- Core functionality -->
-    <script src="/static/app.js"></script>
-    
-    <!-- Debug script to check if functions are loaded -->
-    <script>
-        // Remove this duplicate event listener setup since it's handled in app.js
-        // The setupStylePorter() function in app.js will handle the event listeners
-    </script>
+    <!-- Core functionality - New Modular Architecture -->
+    <script src="/static/shared.js"></script>
+    <script src="/static/core.js"></script>
+    <script src="/static/features.js"></script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
@@ -1113,7 +1109,6 @@
     </script>
     <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
     <script src="/static/mathjax_converter.js"></script>
-    <script src="/static/frontend.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <script>
         // Mermaid configuration with better error handling
@@ -1126,40 +1121,7 @@
     </script>
     
     <script>
-        // Backend status check (simplified since we only use backend now)
-        async function checkBackendStatus() {
-            const backendStatusBtn = document.getElementById('backend-status');
-            const statusIndicator = backendStatusBtn?.querySelector('.backend-status-indicator');
-            const statusText = backendStatusBtn?.querySelector('span:last-child');
-            
-            if (!backendStatusBtn) return;
-            
-            try {
-                const response = await fetch(`${API_BASE_URL}/health`);
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    
-                    // Update UI to show backend is online
-                    backendStatusBtn.className = 'btn btn-secondary backend-online';
-                    if (statusText) statusText.textContent = '服务在线';
-                    if (statusIndicator) statusIndicator.className = 'backend-status-indicator status-online';
-                    
-                    console.log('✅ 后端API已连接:', data);
-                } else {
-                    throw new Error('Backend not responding');
-                }
-            } catch (error) {
-                console.warn('❌ 后端API离线:', error);
-                
-                // Show offline status
-                if (backendStatusBtn) {
-                    backendStatusBtn.className = 'btn btn-secondary backend-error';
-                    if (statusText) statusText.textContent = '服务离线';
-                    if (statusIndicator) statusIndicator.className = 'backend-status-indicator status-error';
-                }
-            }
-        }
+        // UI utility functions (dropdowns are now handled in core.js)
         
         // Toggle dropdown functionality
         function toggleDropdown(button) {
