@@ -85,7 +85,7 @@ Since the latest update, md2any uses a **backend-only rendering approach**:
 │                        Frontend (Browser)                      │
 ├─────────────────────────────────────────────────────────────────┤
 │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
-│  │   Vue.js App    │  │  Image Store    │  │  API Client     │  │
+│  │   JavaScript App │  │  Image Store    │  │  API Client     │  │
 │  │                 │  │  (IndexedDB)    │  │                 │  │
 │  │ • Editor UI     │  │                 │  │ • HTTP Requests │  │
 │  │ • Theme Select  │  │ • Image Storage │  │ • Error Handling│  │
@@ -137,7 +137,7 @@ Rendered HTML → Platform-specific Processing → Style Optimization → Clipbo
 
 ### Frontend Components
 
-#### Vue.js Application (`app.js`)
+#### JavaScript Application (`app.js`)
 - **Editor Interface**: Real-time Markdown editing
 - **Theme Selection**: UI for choosing themes and platforms
 - **Image Management**: Integration with IndexedDB for image storage
@@ -185,7 +185,7 @@ Rendered HTML → Platform-specific Processing → Style Optimization → Clipbo
 ## 🔧 Technical Specifications
 
 ### Frontend Technology Stack
-- **Framework**: Vue 3 (CDN-based, no build step)
+- **Framework**: 原生 JavaScript (无框架依赖，轻量高效)
 - **Storage**: IndexedDB for image persistence
 - **Image Processing**: Canvas API for compression
 - **HTTP Client**: Fetch API with error handling

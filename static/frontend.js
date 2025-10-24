@@ -653,78 +653,18 @@ async function copyToClipboard() {
         return;
     }
 
+    // Check if preview has rendered content
+    if (!preview || !preview.innerHTML.trim() || preview.innerHTML.includes('在左侧编辑器输入内容')) {
+        alert('请先预览内容后再复制');
+        return;
+    }
+
     // Show loading status
     updateStatus('正在准备复制内容...');
 
     try {
-        let htmlContent;
-        
-        // Prioritize using already rendered preview content
-        if (preview && preview.innerHTML.trim() && !preview.innerHTML.includes('在左侧编辑器输入内容')) {
-            htmlContent = preview.innerHTML;
-        } else {
-            // Re-render content if preview is empty or shows placeholder
-            const themeSelector = document.getElementById('theme-selector');
-            const splitCheckbox = document.getElementById('split-checkbox');
-            const shouldSplit = splitCheckbox && splitCheckbox.checked;
-            const markdown = editor.value;
-            
-            updateStatus('正在渲染内容...');
-            
-            if (shouldSplit && markdown.includes('---')) {
-                // Handle section splitting
-                const sections = markdown.split(/^---$/gm).filter(section => section.trim());
-                let sectionedHtml = '';
-                
-                for (let i = 0; i < sections.length; i++) {
-                    const sectionMarkdown = sections[i].trim();
-                    if (sectionMarkdown) {
-                        const response = await fetch(`${API_BASE_URL}/render`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                markdown_text: sectionMarkdown,
-                                theme: themeSelector?.value || 'wechat-default',
-                                mode: 'light-mode',
-                                platform: 'wechat',
-                                dashseparator: false
-                            })
-                        });
-                        
-                        if (!response.ok) {
-                            throw new Error(`渲染第${i+1}部分失败: ${response.status}`);
-                        }
-                        
-                        const data = await response.json();
-                        sectionedHtml += `<section class="markdown-section" data-section="${i+1}">
-${data.html}
-</section>
-`;
-                    }
-                }
-                htmlContent = sectionedHtml;
-            } else {
-                // Normal rendering
-                const response = await fetch(`${API_BASE_URL}/render`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        markdown_text: markdown,
-                        theme: themeSelector?.value || 'wechat-default',
-                        mode: 'light-mode',
-                        platform: 'wechat',
-                        dashseparator: false
-                    })
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`渲染失败: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                htmlContent = data.html;
-            }
-        }
+        // Simply use the already rendered preview content
+        const htmlContent = preview.innerHTML;
         
         updateStatus('正在处理图片和内容...');
         
