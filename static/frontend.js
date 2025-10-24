@@ -940,7 +940,16 @@ ${data.html}
         // Clean up content
         tempDiv.querySelectorAll('script, style').forEach(el => el.remove());
         
-        const cleanHTML = tempDiv.innerHTML;
+        // Preserve container styles by wrapping content in a properly styled container
+        const containerStyle = getContainerStyleFromPreview();
+        let cleanHTML;
+        if (containerStyle) {
+            // Wrap content in a container with proper styles
+            cleanHTML = `<div style="${containerStyle}">${tempDiv.innerHTML}</div>`;
+        } else {
+            cleanHTML = tempDiv.innerHTML;
+        }
+        
         const plainText = tempDiv.textContent || tempDiv.innerText || '';
 
         
@@ -1065,6 +1074,32 @@ ${data.html}
         
         alert(message);
     }
+}
+
+// Helper function to extract container styles from preview
+function getContainerStyleFromPreview() {
+    const preview = document.getElementById('preview');
+    if (!preview) return '';
+    
+    // Look for the markdown-content section which should have the container styles
+    const contentSection = preview.querySelector('.markdown-content');
+    if (contentSection && contentSection.style.cssText) {
+        return contentSection.style.cssText;
+    }
+    
+    // Fallback: look for any section with container-like styles
+    const sections = preview.querySelectorAll('section');
+    for (const section of sections) {
+        if (section.style.cssText && 
+            (section.style.cssText.includes('max-width') || 
+             section.style.cssText.includes('margin') || 
+             section.style.cssText.includes('padding'))) {
+            return section.style.cssText;
+        }
+    }
+    
+    // Default container styles if none found
+    return 'max-width: 740px; margin: 0 auto; padding: 20px; font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; font-size: 16px; line-height: 1.8; color: #333; background-color: #ffffff;';
 }
 
 // Debug function to test clipboard content
