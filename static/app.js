@@ -1,8 +1,11 @@
 // Main application script - works with Python backend
 // Configuration
-const API_BASE_URL = window.location.hostname && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' ?
-    `http://${window.location.hostname}:5005` : 
-    'http://localhost:5005';
+// Allow overriding API base URL with a global variable
+const API_BASE_URL = typeof window.API_BASE_URL_OVERRIDE !== 'undefined' ? 
+    window.API_BASE_URL_OVERRIDE : 
+    (window.location.hostname && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' ?
+        `http://${window.location.hostname}:5005` : 
+        'http://localhost:5005');
 
 // Global state
 let THEMES = {};
