@@ -21,6 +21,127 @@ async function convertMathJaxSvgToImage(svgElement) {
             clonedSvg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
         }
         
+        // CRITICAL FIX: Resolve <use> elements to actual paths for self-contained SVG
+        // First, collect all font definitions from various sources
+        const allFontDefs = new Map(); // id -> element
+        
+        // Check global MathJax font cache
+        const globalFontCache = document.getElementById('MathJax-SVG-global-cache');
+        if (globalFontCache) {
+            console.log('Found global MathJax font cache, collecting font definitions...');
+            const globalDefs = globalFontCache.querySelector('defs');
+            if (globalDefs) {
+                Array.from(globalDefs.children).forEach(child => {
+                    const id = child.getAttribute('id');
+                    if (id) {
+                        allFontDefs.set(id, child);
+                    }
+                });
+                console.log(`Collected ${allFontDefs.size} font definitions from global cache`);
+            }
+        }
+        
+        // Check for any other defs elements in the document
+        const allDefs = document.querySelectorAll('defs');
+        allDefs.forEach(defsElement => {
+            Array.from(defsElement.children).forEach(child => {
+                const id = child.getAttribute('id');
+                if (id && !allFontDefs.has(id)) {
+                    allFontDefs.set(id, child);
+                }
+            });
+        });
+        
+        // Now resolve all <use> elements in the cloned SVG
+        const useElements = clonedSvg.querySelectorAll('use');
+        console.log(`Found ${useElements.length} <use> elements to resolve`);
+        
+        useElements.forEach(useElement => {
+            const href = useElement.getAttribute('href') || useElement.getAttribute('xlink:href');
+            if (href && href.startsWith('#')) {
+                const refId = href.substring(1);
+                const referencedElement = allFontDefs.get(refId);
+                
+                if (referencedElement) {
+                    console.log(`Resolving <use> reference to ${refId}`);
+                    
+                    // Create a group to replace the <use> element
+                    const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                    
+                    // Copy attributes from <use> element (except href)
+                    Array.from(useElement.attributes).forEach(attr => {
+                        if (attr.name !== 'href' && attr.name !== 'xlink:href') {
+                            group.setAttribute(attr.name, attr.value);
+                        }
+                    });
+                    
+                    // Clone the referenced element's content
+                    if (referencedElement.tagName === 'path') {
+                        // For path elements, create a new path with the same data
+                        const newPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        Array.from(referencedElement.attributes).forEach(attr => {
+                            if (attr.name !== 'id') { // Don't copy the id
+                                newPath.setAttribute(attr.name, attr.value);
+                            }
+                        });
+                        group.appendChild(newPath);
+                    } else {
+                        // For other elements, clone them completely
+                        const clonedRef = referencedElement.cloneNode(true);
+                        clonedRef.removeAttribute('id'); // Remove id to avoid conflicts
+                        group.appendChild(clonedRef);
+                    }
+                    
+                    // Replace the <use> element with the resolved group
+                    useElement.parentNode.replaceChild(group, useElement);
+                } else {
+                    console.warn(`Could not find referenced element: ${refId}`);
+                }
+            }
+        });
+        
+        // If we still have unresolved <use> elements, keep essential defs as fallback
+        const remainingUseElements = clonedSvg.querySelectorAll('use');
+        if (remainingUseElements.length > 0) {
+            console.warn(`${remainingUseElements.length} <use> elements could not be resolved, keeping defs as fallback`);
+            
+            // Create a minimal defs section with only the referenced elements
+            let fallbackDefs = clonedSvg.querySelector('defs');
+            if (!fallbackDefs) {
+                fallbackDefs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+                clonedSvg.insertBefore(fallbackDefs, clonedSvg.firstChild);
+            } else {
+                // Clear existing defs
+                fallbackDefs.innerHTML = '';
+            }
+            
+            // Add only the definitions that are actually referenced
+            const referencedIds = new Set();
+            remainingUseElements.forEach(useElement => {
+                const href = useElement.getAttribute('href') || useElement.getAttribute('xlink:href');
+                if (href && href.startsWith('#')) {
+                    referencedIds.add(href.substring(1));
+                }
+            });
+            
+            referencedIds.forEach(refId => {
+                const referencedElement = allFontDefs.get(refId);
+                if (referencedElement) {
+                    const clonedRef = referencedElement.cloneNode(true);
+                    fallbackDefs.appendChild(clonedRef);
+                }
+            });
+            
+            console.log(`Added ${fallbackDefs.children.length} fallback definitions for unresolved references`);
+        } else {
+            // Remove any existing defs since we've resolved all references
+            const existingDefs = clonedSvg.querySelector('defs');
+            if (existingDefs) {
+                existingDefs.remove();
+                console.log('Removed defs - all <use> elements successfully resolved');
+            }
+        }
+        
         // Get SVG dimensions
         const bbox = clonedSvg.getBoundingClientRect();
         const width = Math.max(bbox.width || parseFloat(clonedSvg.getAttribute('width')) || 100, 50);
@@ -38,7 +159,7 @@ async function convertMathJaxSvgToImage(svgElement) {
         // Scale context for high DPI
         ctx.scale(scale, scale);
         
-        // Serialize the cloned SVG
+        // Serialize the cloned SVG with font definitions
         const serializer = new XMLSerializer();
         let svgString = serializer.serializeToString(clonedSvg);
         
@@ -52,6 +173,9 @@ async function convertMathJaxSvgToImage(svgElement) {
         if (svgString && !svgString.includes('<?xml')) {
             svgString = '<?xml version="1.0" standalone="no"?>\r\n' + svgString;
         }
+        
+        // Log SVG string for debugging
+        console.log(`SVG string length: ${svgString.length}, contains defs: ${svgString.includes('<defs>')}`);
         
         // Create a blob URL for the SVG
         const svgBlob = new Blob([svgString], { type: 'image/svg+xml' });

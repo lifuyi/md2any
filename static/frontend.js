@@ -696,7 +696,10 @@ async function copyToClipboard() {
                         }
                         
                         const data = await response.json();
-                        sectionedHtml += `<section class="markdown-section" data-section="${i+1}">\n${data.html}\n</section>\n`;
+                        sectionedHtml += `<section class="markdown-section" data-section="${i+1}">
+${data.html}
+</section>
+`;
                     }
                 }
                 htmlContent = sectionedHtml;
@@ -725,9 +728,93 @@ async function copyToClipboard() {
         
         updateStatus('正在处理图片和内容...');
         
-        // Process HTML content
+        // Process HTML content - CRITICAL: Create a completely isolated copy to avoid MathJax conflicts
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = htmlContent;
+        
+        // Convert MathJax SVG elements to images for better clipboard compatibility
+        // This works on the isolated copy, not the original DOM
+        const mathJaxElements = tempDiv.querySelectorAll('mjx-container[jax="SVG"]');
+        
+        if (mathJaxElements.length > 0) {
+            updateStatus(`正在处理数学公式 (共 ${mathJaxElements.length} 个)...`);
+            
+            // Process MathJax elements one at a time to avoid conflicts
+            for (let index = 0; index < mathJaxElements.length; index++) {
+                const container = mathJaxElements[index];
+                const svg = container.querySelector('svg');
+                
+                if (svg) {
+                    try {
+                        console.log(`Processing MathJax element ${index + 1}/${mathJaxElements.length}`);
+                        
+                        // Convert SVG to base64 data URL using our reusable function
+                        // We'll use a modified approach to avoid conflicts
+                        const dataURL = await convertMathJaxSvgToImage(svg);
+                        
+                        if (dataURL) {
+                            console.log(`✓ MathJax element ${index + 1} converted successfully`);
+                            console.log(`Data URL type: ${dataURL.substring(0, 50)}...`);
+                            console.log(`Data URL length: ${dataURL.length}`);
+                            
+                            // Validate the data URL
+                            if (dataURL.length < 100) {
+                                console.warn(`✗ MathJax element ${index + 1}: Data URL too short, likely invalid`);
+                                continue;
+                            }
+                            
+                            // Create img element to replace the MathJax container
+                            const img = document.createElement('img');
+                            img.src = dataURL;
+                            img.alt = 'Math formula';
+                            img.style.verticalAlign = 'middle';
+                            img.setAttribute('data-math', 'true'); // Mark as math element for debugging
+                            
+                            // Add onload validation
+                            img.onload = function() {
+                                if (this.naturalWidth === 0) {
+                                    console.warn(`✗ MathJax element ${index + 1} image has no content`);
+                                    // Remove the invalid image
+                                    this.remove();
+                                } else {
+                                    console.log(`✓ MathJax element ${index + 1} image validated successfully`);
+                                }
+                            };
+                            
+                            img.onerror = function() {
+                                console.warn(`✗ MathJax element ${index + 1} image failed to load`);
+                                // Remove the invalid image
+                                this.remove();
+                            };
+                            
+                            // Copy dimensions and important attributes from original SVG
+                            const width = svg.getAttribute('width');
+                            const height = svg.getAttribute('height');
+                            const style = svg.getAttribute('style');
+                            
+                            if (width) img.style.width = width;
+                            if (height) img.style.height = height;
+                            if (style) img.setAttribute('style', style + '; vertical-align: middle;');
+                            
+                            // Replace the MathJax container with the image - in the isolated copy only
+                            container.parentNode.replaceChild(img, container);
+                        } else {
+                            console.warn(`✗ MathJax element ${index + 1}: No data URL returned`);
+                        }
+                    } catch (error) {
+                        console.warn(`✗ Failed to convert MathJax SVG element ${index + 1}:`, error);
+                        // Keep original structure as fallback
+                    }
+                } else {
+                    console.warn(`✗ MathJax element ${index + 1}: No SVG found`);
+                }
+                
+                // Small delay between processing elements to avoid overwhelming the system
+                await new Promise(resolve => setTimeout(resolve, 10));
+            }
+            
+            console.log('All MathJax elements processed');
+        }
         
         // Enhanced image processing for better clipboard compatibility
         const images = tempDiv.querySelectorAll('img');
@@ -852,90 +939,6 @@ async function copyToClipboard() {
         
         // Clean up content
         tempDiv.querySelectorAll('script, style').forEach(el => el.remove());
-        
-        // Convert MathJax SVG elements to images for better clipboard compatibility
-        // We need to be very careful here to avoid interfering with MathJax's internal operations
-        const mathJaxElements = tempDiv.querySelectorAll('mjx-container[jax="SVG"]');
-        
-        if (mathJaxElements.length > 0) {
-            updateStatus(`正在处理数学公式 (共 ${mathJaxElements.length} 个)...`);
-            
-            // Process MathJax elements one at a time to avoid conflicts
-            for (let index = 0; index < mathJaxElements.length; index++) {
-                const container = mathJaxElements[index];
-                const svg = container.querySelector('svg');
-                
-                if (svg) {
-                    try {
-                        console.log(`Processing MathJax element ${index + 1}/${mathJaxElements.length}`);
-                        
-                        // Convert SVG to base64 data URL using our reusable function
-                        // We'll use a modified approach to avoid conflicts
-                        const dataURL = await convertMathJaxSvgToImage(svg);
-                        
-                        if (dataURL) {
-                            console.log(`✓ MathJax element ${index + 1} converted successfully`);
-                            console.log(`Data URL type: ${dataURL.substring(0, 50)}...`);
-                            console.log(`Data URL length: ${dataURL.length}`);
-                            
-                            // Validate the data URL
-                            if (dataURL.length < 100) {
-                                console.warn(`✗ MathJax element ${index + 1}: Data URL too short, likely invalid`);
-                                continue;
-                            }
-                            
-                            // Create img element to replace the MathJax container
-                            const img = document.createElement('img');
-                            img.src = dataURL;
-                            img.alt = 'Math formula';
-                            img.style.verticalAlign = 'middle';
-                            img.setAttribute('data-math', 'true'); // Mark as math element for debugging
-                            
-                            // Add onload validation
-                            img.onload = function() {
-                                if (this.naturalWidth === 0) {
-                                    console.warn(`✗ MathJax element ${index + 1} image has no content`);
-                                    // Remove the invalid image
-                                    this.remove();
-                                } else {
-                                    console.log(`✓ MathJax element ${index + 1} image validated successfully`);
-                                }
-                            };
-                            
-                            img.onerror = function() {
-                                console.warn(`✗ MathJax element ${index + 1} image failed to load`);
-                                // Remove the invalid image
-                                this.remove();
-                            };
-                            
-                            // Copy dimensions and important attributes from original SVG
-                            const width = svg.getAttribute('width');
-                            const height = svg.getAttribute('height');
-                            const style = svg.getAttribute('style');
-                            
-                            if (width) img.style.width = width;
-                            if (height) img.style.height = height;
-                            if (style) img.setAttribute('style', style + '; vertical-align: middle;');
-                            
-                            // Replace the MathJax container with the image
-                            container.parentNode.replaceChild(img, container);
-                        } else {
-                            console.warn(`✗ MathJax element ${index + 1}: No data URL returned`);
-                        }
-                    } catch (error) {
-                        console.warn(`✗ Failed to convert MathJax SVG element ${index + 1}:`, error);
-                        // Keep original structure as fallback
-                    }
-                } else {
-                    console.warn(`✗ MathJax element ${index + 1}: No SVG found`);
-                }
-                
-                // Small delay between processing elements to avoid overwhelming the system
-                await new Promise(resolve => setTimeout(resolve, 10));
-            }
-            
-            console.log('All MathJax elements processed');
-        }
         
         const cleanHTML = tempDiv.innerHTML;
         const plainText = tempDiv.textContent || tempDiv.innerText || '';
@@ -1232,9 +1235,12 @@ function updateStatus(message, isError = false) {
 // Enhanced utility function to convert SVG to base64 data URL
 function svgToBase64DataURL(svgElement) {
     try {
+        console.log('Starting SVG to base64 conversion...');
+        
         // First, try canvas-based conversion (PNG format) which handles fonts better
         const canvasResult = convertSvgToCanvasPng(svgElement);
         if (canvasResult) {
+            console.log('Canvas conversion successful');
             return canvasResult;
         }
         
@@ -1254,18 +1260,16 @@ function svgToBase64DataURL(svgElement) {
             clonedSvg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
         }
         
-        // Collect and embed any referenced fonts or styles from MathJax
-        // We do this BEFORE processing font references to avoid conflicts
+        // CRITICAL: Embed all necessary font definitions BEFORE serialization
+        embedMathJaxFontDefinitions(clonedSvg);
+        
+        // Collect and embed any referenced styles from MathJax
         const mathJaxStyles = collectMathJaxStyles();
         if (mathJaxStyles) {
             const styleElement = document.createElement('style');
             styleElement.textContent = mathJaxStyles;
             clonedSvg.insertBefore(styleElement, clonedSvg.firstChild);
         }
-        
-        // Handle font definitions - convert use elements to embedded paths
-        // This needs to be done AFTER collecting styles but BEFORE serialization
-        processFontReferences(clonedSvg);
         
         // Serialize the SVG
         const serializer = new XMLSerializer();
@@ -1291,6 +1295,125 @@ function svgToBase64DataURL(svgElement) {
     } catch (error) {
         console.error('Primary SVG conversion failed:', error);
         return fallbackConversion(svgElement);
+    }
+}
+
+// Specialized function to embed MathJax font definitions
+function embedMathJaxFontDefinitions(svgElement) {
+    try {
+        console.log('Embedding MathJax font definitions...');
+        
+        // Create defs section if it doesn't exist
+        let defs = svgElement.querySelector('defs');
+        if (!defs) {
+            defs = document.createElement('defs');
+            svgElement.insertBefore(defs, svgElement.firstChild);
+        }
+        
+        // Keep track of what we've embedded to avoid duplicates
+        const embeddedIds = new Set();
+        
+        // Method 1: Systematically search for ALL defs elements and copy ALL their contents
+        // This is a more aggressive approach that ensures we get everything MathJax might need
+        const allDefs = document.querySelectorAll('defs');
+        console.log('Found', allDefs.length, 'defs elements in document');
+        
+        allDefs.forEach((sourceDefs, defIndex) => {
+            // Skip defs that are already inside our target SVG to avoid duplication
+            if (svgElement.contains(sourceDefs)) {
+                return;
+            }
+            
+            const children = Array.from(sourceDefs.children);
+            let embeddedCount = 0;
+            
+            for (const child of children) {
+                const id = child.getAttribute('id');
+                if (id) {
+                    // Always embed MathJax-related elements, be more permissive
+                    if (!defs.querySelector(`#${id}`)) {
+                        defs.appendChild(child.cloneNode(true));
+                        embeddedIds.add(id);
+                        embeddedCount++;
+                        console.log('Embedded element:', id);
+                    }
+                } else {
+                    // Even embed elements without IDs if they look MathJax-related
+                    if (child.tagName === 'path' || child.tagName === 'glyph' || child.hasAttribute('d')) {
+                        const clonedChild = child.cloneNode(true);
+                        // Give it a unique ID to avoid conflicts
+                        clonedChild.setAttribute('id', 'cloned-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9));
+                        defs.appendChild(clonedChild);
+                        embeddedCount++;
+                        console.log('Embedded element without ID:', child.tagName);
+                    }
+                }
+            }
+            
+            if (embeddedCount > 0) {
+                console.log('Embedded', embeddedCount, 'elements from defs', defIndex);
+            }
+        });
+        
+        // Method 2: Look for any SVG elements that might contain font definitions
+        // and copy their defs contents too
+        const allSvgs = document.querySelectorAll('svg');
+        console.log('Found', allSvgs.length, 'SVG elements in document');
+        
+        allSvgs.forEach((sourceSvg, svgIndex) => {
+            // Skip the target SVG itself
+            if (sourceSvg === svgElement) {
+                return;
+            }
+            
+            const sourceDefs = sourceSvg.querySelector('defs');
+            if (sourceDefs) {
+                const children = Array.from(sourceDefs.children);
+                let embeddedCount = 0;
+                
+                for (const child of children) {
+                    const id = child.getAttribute('id');
+                    if (id && !defs.querySelector(`#${id}`)) {
+                        defs.appendChild(child.cloneNode(true));
+                        embeddedIds.add(id);
+                        embeddedCount++;
+                        console.log('Embedded element from SVG defs:', id);
+                    }
+                }
+                
+                if (embeddedCount > 0) {
+                    console.log('Embedded', embeddedCount, 'elements from SVG', svgIndex, 'defs');
+                }
+            }
+        });
+        
+        // Method 3: Handle use elements that reference external definitions
+        const useElements = svgElement.querySelectorAll('use');
+        console.log('Found', useElements.length, 'use elements in target SVG');
+        
+        useElements.forEach(useElement => {
+            const href = useElement.getAttribute('href') || useElement.getAttribute('xlink:href');
+            if (href && href.startsWith('#')) {
+                const refId = href.substring(1);
+                if (!defs.querySelector(`#${refId}`)) {
+                    // Try to find the referenced element anywhere in the document
+                    const referencedElement = document.getElementById(refId);
+                    if (referencedElement) {
+                        defs.appendChild(referencedElement.cloneNode(true));
+                        embeddedIds.add(refId);
+                        console.log('Embedded referenced element:', refId);
+                    } else {
+                        console.warn('Could not find referenced element:', refId);
+                    }
+                }
+            }
+        });
+        
+        console.log('MathJax font definitions embedding completed. Total embedded:', embeddedIds.size);
+        return embeddedIds.size > 0;
+    } catch (error) {
+        console.warn('Failed to embed MathJax font definitions:', error);
+        return false;
     }
 }
 
@@ -1320,6 +1443,10 @@ function convertSvgToCanvasPng(svgElement) {
         // Create a completely fresh clone that doesn't share references with the original
         const clonedSvg = svgElement.cloneNode(true);
         
+        // CRITICAL: Embed all necessary font definitions for proper rendering
+        const hasFontDefs = embedMathJaxFontDefinitions(clonedSvg);
+        console.log('Font definitions embedded:', hasFontDefs);
+        
         // Ensure proper namespaces
         if (!clonedSvg.hasAttribute('xmlns')) {
             clonedSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
@@ -1343,6 +1470,8 @@ function convertSvgToCanvasPng(svgElement) {
         if (svgString && !svgString.includes('<?xml')) {
             svgString = '<?xml version="1.0" standalone="no"?>\r\n' + svgString;
         }
+        
+        console.log('Serialized SVG length:', svgString.length);
         
         const svgBlob = new Blob([svgString], { type: 'image/svg+xml' });
         const url = URL.createObjectURL(svgBlob);
@@ -1369,6 +1498,7 @@ function convertSvgToCanvasPng(svgElement) {
                     
                     // Validate that we have actual image data
                     if (pngDataUrl && pngDataUrl.length > 100) { // Basic validation
+                        console.log('PNG data URL generated successfully');
                         resolve(pngDataUrl);
                     } else {
                         console.warn('Canvas PNG conversion resulted in invalid data');
@@ -1447,127 +1577,7 @@ function collectMathJaxStyles() {
     }
 }
 
-// Helper function to process font references in SVG
-function processFontReferences(svgElement) {
-    try {
-        // Find all <use> elements that reference fonts
-        const useElements = svgElement.querySelectorAll('use');
-        if (useElements.length === 0) return;
-        
-        console.log(`Found ${useElements.length} <use> elements to process`);
-        
-        // Create defs section if it doesn't exist
-        let defs = svgElement.querySelector('defs');
-        if (!defs) {
-            defs = document.createElement('defs');
-            svgElement.insertBefore(defs, svgElement.firstChild);
-        }
-        
-        // Method 1: Access MathJax's global font cache
-        // MathJax 3 with fontCache: 'global' stores fonts in a global cache
-        if (window.MathJax && window.MathJax.svg && window.MathJax.svg.fontCache) {
-            try {
-                // Get the global font cache SVG element
-                const fontCache = window.MathJax.svg.fontCache;
-                if (fontCache && fontCache.id) {
-                    // Find the global font cache element in the document
-                    const globalFontCache = document.getElementById(fontCache.id);
-                    if (globalFontCache) {
-                        // Clone all children from global font cache to our SVG's defs
-                        const children = globalFontCache.children;
-                        for (let i = 0; i < children.length; i++) {
-                            const child = children[i];
-                            const id = child.getAttribute('id');
-                            if (id && !defs.querySelector(`#${id}`)) {
-                                defs.appendChild(child.cloneNode(true));
-                                console.log(`✓ Embedded MathJax global font cache definition: ${id}`);
-                            }
-                        }
-                    }
-                }
-            } catch (e) {
-                console.log('Could not access MathJax global font cache:', e);
-            }
-        }
-        
-        // Method 2: Look for global MathJax definitions in the document
-        // MathJax creates global <defs> elements that contain font definitions
-        const globalMathJaxDefs = document.querySelectorAll('defs[id*="MathJax"], defs[id*="mjx"]');
-        globalMathJaxDefs.forEach(globalDef => {
-            // Clone all children from global defs to our SVG's defs
-            const children = globalDef.children;
-            for (let i = 0; i < children.length; i++) {
-                const child = children[i];
-                const id = child.getAttribute('id');
-                if (id && !defs.querySelector(`#${id}`)) {
-                    defs.appendChild(child.cloneNode(true));
-                    console.log(`✓ Embedded global MathJax font definition: ${id}`);
-                }
-            }
-        });
-        
-        // Method 3: Look for MathJax's internal SVG structure
-        const mathJaxSvgs = document.querySelectorAll('svg[data-mjx]');
-        mathJaxSvgs.forEach(mjxSvg => {
-            const mjxDefs = mjxSvg.querySelector('defs');
-            if (mjxDefs) {
-                const children = mjxDefs.children;
-                for (let i = 0; i < children.length; i++) {
-                    const child = children[i];
-                    const id = child.getAttribute('id');
-                    if (id && !defs.querySelector(`#${id}`)) {
-                        defs.appendChild(child.cloneNode(true));
-                        console.log(`✓ Embedded MathJax SVG font definition: ${id}`);
-                    }
-                }
-            }
-        });
-        
-        // Method 4: Look for any mjx-container elements that might contain definitions
-        const mjxContainers = document.querySelectorAll('mjx-container');
-        mjxContainers.forEach(container => {
-            const containerDefs = container.querySelector('defs');
-            if (containerDefs) {
-                const children = containerDefs.children;
-                for (let i = 0; i < children.length; i++) {
-                    const child = children[i];
-                    const id = child.getAttribute('id');
-                    if (id && !defs.querySelector(`#${id}`)) {
-                        defs.appendChild(child.cloneNode(true));
-                        console.log(`✓ Embedded mjx-container font definition: ${id}`);
-                    }
-                }
-            }
-        });
-        
-        // Method 5: Direct access to referenced elements
-        useElements.forEach(useEl => {
-            const href = useEl.getAttribute('href') || useEl.getAttribute('xlink:href');
-            if (href && href.startsWith('#')) {
-                const referencedId = href.substring(1);
-                
-                // Check if already in defs
-                if (defs.querySelector(`#${referencedId}`)) {
-                    return; // Already present
-                }
-                
-                // Try to find the referenced element in the document
-                const referencedElement = document.getElementById(referencedId);
-                if (referencedElement) {
-                    const clonedRef = referencedElement.cloneNode(true);
-                    defs.appendChild(clonedRef);
-                    console.log(`✓ Embedded referenced element: ${referencedId}`);
-                } else {
-                    console.warn(`✗ Could not find referenced element: ${referencedId}`);
-                }
-            }
-        });
-        
-        console.log(`Processed font references for SVG element`);
-    } catch (error) {
-        console.warn('Failed to process font references:', error);
-    }
-}
+
 
 // Helper function to clean up SVG string
 function cleanupSvgString(svgString) {
