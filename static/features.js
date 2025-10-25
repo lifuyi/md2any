@@ -344,14 +344,32 @@ async function downloadHTML() {
         let htmlContent;
         
         if (preview && preview.innerHTML.trim()) {
-            // Use rendered content from preview
+            // Use rendered content from preview - but we need to include MathJax font definitions
             htmlContent = preview.innerHTML;
+            
+            // Check if we need to include MathJax font definitions
+            if (htmlContent.includes('mjx-container')) {
+                // Find and include MathJax font definitions from the document
+                const mjxFontDefs = document.querySelector('#MJX-SVG-global-cache');
+                if (mjxFontDefs) {
+                    // Prepend the font definitions to the content
+                    htmlContent = mjxFontDefs.outerHTML + htmlContent;
+                }
+            }
         } else {
             // Render fresh content
             htmlContent = await renderMarkdownForExport(editor.value, themeSelector?.value);
         }
         
-        const fullHtml = `<!DOCTYPE html>
+        // Check if content has MathJax elements (either SVG containers or raw formulas)
+        const hasMathJaxContainers = htmlContent.includes('mjx-container');
+        const hasFormulaDelimiters = htmlContent.includes('$') || htmlContent.includes('\\(') || htmlContent.includes('\\[');
+        
+        let fullHtml;
+        
+        if (hasMathJaxContainers || hasFormulaDelimiters) {
+            // Include MathJax support for formula rendering
+            fullHtml = `<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -360,12 +378,57 @@ async function downloadHTML() {
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\\\(', '\\\\)']],
+                displayMath: [['$$', '$$'], ['\\\\[', '\\\\]']],
+                processEscapes: true,
+                processEnvironments: true
+            },
+            svg: {
+                fontCache: 'global'
+            },
+            startup: {
+                ready: () => {
+                    console.log('MathJax is loaded and ready');
+                    MathJax.startup.defaultReady();
+                    // Re-render any existing formulas that may have incomplete font definitions
+                    if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+                        setTimeout(() => {
+                            MathJax.typesetPromise().then(() => {
+                                console.log('MathJax re-rendering complete');
+                            });
+                        }, 100);
+                    }
+                }
+            }
+        };
+    </script>
     <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body>
     ${htmlContent}
 </body>
 </html>`;
+        } else {
+            // No formulas detected - simple HTML
+            fullHtml = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Markdown Output</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+</head>
+<body>
+    ${htmlContent}
+</body>
+</html>`;
+        }
         
         const filename = generateFilename('markdown', 'html', themeSelector?.value || 'default');
         downloadFile(fullHtml, filename, 'text/html');

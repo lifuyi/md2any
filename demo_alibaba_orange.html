@@ -80,6 +80,16 @@
 
 这里有一些**粗体文字**和*斜体文字*的组合效果。
 
+### 数学公式测试
+
+行内公式：质能方程 $E = mc^2$ 是爱因斯坦的著名公式。
+
+块级公式：
+$$\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$$
+
+另一个例子：
+$$f(x) = \frac{1}{\sqrt{2\pi\sigma^2}} e^{-\frac{(x-\mu)^2}{2\sigma^2}}$$
+
 - 列表项目1：展示了列表的样式
 - 列表项目2：带有橙色背景的列表容器
 - 列表项目3：统一的视觉风格
@@ -97,6 +107,7 @@
 |------|------|------|
 | 自定义样式 | ✅ | 完全支持 |
 | 实时预览 | ✅ | 即时反馈 |
+| 数学公式 | ✅ | MathJax支持 |
 | 一键保存 | ✅ | 方便快捷 |</textarea>
     </div>
     
@@ -273,6 +284,16 @@
                 const result = await response.json();
                 if (result.success) {
                     document.getElementById('preview').innerHTML = result.html;
+                    
+                    // Re-render MathJax formulas after content update
+                    if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+                        MathJax.typesetPromise([document.getElementById('preview')]).then(() => {
+                            console.log('MathJax formulas rendered in preview');
+                        }).catch((error) => {
+                            console.error('MathJax rendering failed:', error);
+                        });
+                    }
+                    
                     showStatus('✅ 预览已更新！');
                 } else {
                     throw new Error(result.message);
@@ -302,5 +323,31 @@
             loadAlibabaStyle();
         });
     </script>
+
+    <!-- MathJax configuration - MUST be defined before loading MathJax -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true
+            },
+            svg: {
+                fontCache: 'global'
+            },
+            startup: {
+                ready: () => {
+                    console.log('MathJax is loaded and ready');
+                    MathJax.startup.defaultReady();
+                    // Re-render any existing formulas after MathJax is ready
+                    if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+                        MathJax.typesetPromise();
+                    }
+                }
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </body>
 </html>
