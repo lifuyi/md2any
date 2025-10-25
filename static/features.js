@@ -708,7 +708,7 @@ async function renderMarkdownForExport(markdown, theme) {
 // =============================================================================
 
 /**
- * Copy rendered content to clipboard
+ * Copy rendered content to clipboard with enhanced formula support
  */
 async function copyToClipboard() {
     const editor = document.getElementById('editor');
@@ -940,6 +940,7 @@ async function copyToClipboard() {
         alert(message);
     }
 }
+
 
 /**
  * Helper function to extract container styles from preview
