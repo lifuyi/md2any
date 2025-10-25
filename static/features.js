@@ -477,7 +477,23 @@ async function downloadPNG() {
         
         document.body.appendChild(iframe);
         
-        // Render content in iframe
+        // Get rendered content from preview to preserve MathJax SVG elements
+        const preview = document.getElementById('preview');
+        let finalHtmlContent = htmlContent;
+        
+        if (preview && preview.innerHTML.trim()) {
+            finalHtmlContent = preview.innerHTML;
+            
+            // Include MathJax font definitions if needed
+            if (finalHtmlContent.includes('mjx-container')) {
+                const mjxFontDefs = document.querySelector('#MJX-SVG-global-cache');
+                if (mjxFontDefs) {
+                    finalHtmlContent = mjxFontDefs.outerHTML + finalHtmlContent;
+                }
+            }
+        }
+        
+        // Render content in iframe with MathJax support
         const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
         iframeDoc.open();
         iframeDoc.write(`
@@ -493,19 +509,35 @@ async function downloadPNG() {
                         background-color: #ffffff;
                         width: 760px;
                     }
+                    /* Ensure MathJax elements are visible */
+                    mjx-container {
+                        display: inline-block !important;
+                    }
+                    mjx-container[display="block"] {
+                        display: block !important;
+                        text-align: center;
+                        margin: 1em 0;
+                    }
                 </style>
             </head>
             <body>
-                ${htmlContent}
+                ${finalHtmlContent}
             </body>
             </html>
         `);
         iframeDoc.close();
         
-        // Wait for content to render
+        // Wait for content to render, including MathJax
         await new Promise(resolve => {
-            iframe.onload = resolve;
-            setTimeout(resolve, 1000); // Max wait 1 second
+            iframe.onload = () => {
+                // Additional wait for MathJax rendering if present
+                if (finalHtmlContent.includes('mjx-container')) {
+                    setTimeout(resolve, 2000); // Wait longer for MathJax
+                } else {
+                    setTimeout(resolve, 500);
+                }
+            };
+            setTimeout(resolve, 3000); // Max wait 3 seconds
         });
         
         // Get iframe body
@@ -520,7 +552,31 @@ async function downloadPNG() {
             width: iframeBody.scrollWidth,
             height: iframeBody.scrollHeight,
             scrollX: 0,
-            scrollY: 0
+            scrollY: 0,
+            // Enhanced SVG and MathJax support
+            foreignObjectRendering: true,
+            logging: false,
+            imageTimeout: 15000,
+            onclone: function(clonedDoc) {
+                // Ensure SVG elements are properly handled in the clone
+                const svgElements = clonedDoc.querySelectorAll('svg');
+                svgElements.forEach(svg => {
+                    if (!svg.getAttribute('width') || !svg.getAttribute('height')) {
+                        const rect = svg.getBoundingClientRect();
+                        if (rect.width && rect.height) {
+                            svg.setAttribute('width', rect.width);
+                            svg.setAttribute('height', rect.height);
+                        }
+                    }
+                });
+                
+                // Ensure MathJax containers are visible
+                const mathContainers = clonedDoc.querySelectorAll('mjx-container');
+                mathContainers.forEach(container => {
+                    container.style.display = container.getAttribute('display') === 'block' ? 'block' : 'inline-block';
+                    container.style.visibility = 'visible';
+                });
+            }
         });
         
         // Remove iframe
