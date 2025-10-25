@@ -763,14 +763,26 @@ async function copyToClipboard() {
                             img.alt = 'Math formula';
                             img.style.verticalAlign = 'middle';
                             
-                            // Copy dimensions from original SVG
+                            // Copy dimensions from original SVG and resize to 1/4
                             const width = svg.getAttribute('width');
                             const height = svg.getAttribute('height');
                             const style = svg.getAttribute('style');
                             
-                            if (width) img.style.width = width;
-                            if (height) img.style.height = height;
-                            if (style) img.setAttribute('style', style + '; vertical-align: middle;');
+                            if (width) {
+                                const numWidth = parseFloat(width);
+                                img.style.width = (numWidth * 0.25) + (width.includes('ex') ? 'ex' : 'px');
+                            }
+                            if (height) {
+                                const numHeight = parseFloat(height);
+                                img.style.height = (numHeight * 0.25) + (height.includes('ex') ? 'ex' : 'px');
+                            }
+                            if (style) {
+                                img.setAttribute('style', style + '; vertical-align: middle; transform: scale(0.25); transform-origin: left center;');
+                            } else {
+                                img.style.transform = 'scale(0.25)';
+                                img.style.transformOrigin = 'left center';
+                                img.style.verticalAlign = 'middle';
+                            }
                             
                             // Replace the MathJax container with the image
                             container.parentNode.replaceChild(img, container);
