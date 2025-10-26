@@ -708,7 +708,7 @@ async function renderMarkdownForExport(markdown, theme) {
 // =============================================================================
 
 /**
- * Copy preview content to clipboard as rich media format
+ * Copy preview content to clipboard as rich media format with container styles
  */
 async function copyToClipboard() {
     const preview = document.getElementById('preview');
@@ -719,15 +719,21 @@ async function copyToClipboard() {
     }
 
     try {
-        // Get preview content directly
+        // Get preview content and preserve container styles
         const htmlContent = preview.innerHTML;
         const plainText = preview.textContent || preview.innerText || '';
+        
+        // Get container styles from preview element
+        const containerStyle = getContainerStyleFromPreview();
+        
+        // Wrap content with proper container styling
+        const styledContent = `<div style="${containerStyle}">${htmlContent}</div>`;
         
         // Modern Clipboard API - copy as rich media
         if (navigator.clipboard && window.ClipboardItem) {
             await navigator.clipboard.write([
                 new ClipboardItem({
-                    'text/html': new Blob([htmlContent], { type: 'text/html' }),
+                    'text/html': new Blob([styledContent], { type: 'text/html' }),
                     'text/plain': new Blob([plainText], { type: 'text/plain' })
                 })
             ]);
@@ -737,7 +743,7 @@ async function copyToClipboard() {
         
         // Fallback: contentEditable selection copy
         const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = htmlContent;
+        tempDiv.innerHTML = styledContent;
         tempDiv.contentEditable = true;
         tempDiv.style.position = 'fixed';
         tempDiv.style.left = '-9999px';
