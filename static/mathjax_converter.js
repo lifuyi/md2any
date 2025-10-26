@@ -179,13 +179,17 @@ async function convertMathJaxSvgToImage(svgElement) {
         console.log(`Final SVG dimensions: ${width}x${height}`);
         
         // Create canvas with proper scaling
-        const scale = 2; // 2x scale for better quality
+        // We want 2x rendering quality but with a 1/4 size reduction for the final output
+        // So we render at 2x resolution and then scale down to 1/4 size = 0.5x final size
+        const renderScale = 2; // Render at 2x resolution for better quality
+        const outputScale = 0.25; // Final output size is 1/4 of original
         const canvas = document.createElement('canvas');
-        canvas.width = width * scale;
-        canvas.height = height * scale;
+        canvas.width = width * renderScale;
+        canvas.height = height * renderScale;
         const ctx = canvas.getContext('2d');
         
-        // Important: Don't pre-scale the context, we'll handle scaling in drawImage
+        // Scale the context for high-quality rendering
+        ctx.scale(renderScale, renderScale);
         
         // Ensure the SVG has explicit width and height attributes for proper rendering
         clonedSvg.setAttribute('width', width.toString());
@@ -223,19 +227,30 @@ async function convertMathJaxSvgToImage(svgElement) {
             
             img.onload = function() {
                 try {
-                    // Clear canvas with white background (use scaled canvas dimensions)
+                    // Clear canvas with white background
                     ctx.fillStyle = 'white';
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillRect(0, 0, width, height);
                     
-                    // Draw the SVG image at the proper scaled size
-                    // The image will be drawn at its natural size, scaled to fit the canvas
+                    // Draw the SVG image at the proper size
+                    // Since we've scaled the context by renderScale, we draw at the original dimensions
                     console.log(`Drawing image: natural size ${this.naturalWidth}x${this.naturalHeight} to canvas ${canvas.width}x${canvas.height}`);
+                    console.log(`Drawing at original size: ${width}x${height}`);
                     
-                    // Draw at full canvas size to get the scaling benefit
-                    ctx.drawImage(this, 0, 0, canvas.width, canvas.height);
+                    // Draw at original size - the context scaling will handle the high-resolution rendering
+                    ctx.drawImage(this, 0, 0, width, height);
+                    
+                    // Create a second canvas for the final scaled output
+                    // We want the final image to be 1/4 the size (sizeReduction = 0.25)
+                    const outputCanvas = document.createElement('canvas');
+                    outputCanvas.width = width * outputScale;
+                    outputCanvas.height = height * outputScale;
+                    const outputCtx = outputCanvas.getContext('2d');
+                    
+                    // Draw the high-resolution image to the smaller canvas for scaling
+                    outputCtx.drawImage(canvas, 0, 0, outputCanvas.width, outputCanvas.height);
                     
                     // Convert to PNG data URL
-                    const pngDataUrl = canvas.toDataURL('image/png');
+                    const pngDataUrl = outputCanvas.toDataURL('image/png');
                     
                     URL.revokeObjectURL(url);
                     console.log('✓ MathJax SVG to PNG conversion successful, size:', pngDataUrl.length);

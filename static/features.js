@@ -763,24 +763,23 @@ async function copyToClipboard() {
                             img.alt = 'Math formula';
                             img.style.verticalAlign = 'middle';
                             
-                            // Copy dimensions from original SVG and resize to 1/4
+                            // Copy dimensions from original SVG
+                            // The image is already scaled to 1/4 size by the converter
                             const width = svg.getAttribute('width');
                             const height = svg.getAttribute('height');
                             const style = svg.getAttribute('style');
                             
                             if (width) {
                                 const numWidth = parseFloat(width);
-                                img.style.width = (numWidth * 0.25) + (width.includes('ex') ? 'ex' : 'px');
+                                img.style.width = numWidth + (width.includes('ex') ? 'ex' : 'px');
                             }
                             if (height) {
                                 const numHeight = parseFloat(height);
-                                img.style.height = (numHeight * 0.25) + (height.includes('ex') ? 'ex' : 'px');
+                                img.style.height = numHeight + (height.includes('ex') ? 'ex' : 'px');
                             }
                             if (style) {
-                                img.setAttribute('style', style + '; vertical-align: middle; transform: scale(0.25); transform-origin: left center;');
+                                img.setAttribute('style', style + '; vertical-align: middle;');
                             } else {
-                                img.style.transform = 'scale(0.25)';
-                                img.style.transformOrigin = 'left center';
                                 img.style.verticalAlign = 'middle';
                             }
                             
