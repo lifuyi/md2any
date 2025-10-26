@@ -729,8 +729,11 @@ async function copyToClipboard() {
     updateStatus('正在准备复制内容...');
 
     try {
-        // Simply use the already rendered preview content
+        // Capture the preview content immediately to avoid any modifications
         const htmlContent = preview.innerHTML;
+        
+        // Log the content to debug what we're actually getting
+        console.log('Preview content being copied:', htmlContent.substring(0, 500) + '...');
         
         updateStatus('正在处理图片和内容...');
         
