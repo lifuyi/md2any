@@ -842,13 +842,13 @@ async function copyToClipboard() {
         tempDiv.querySelectorAll('script, style').forEach(el => el.remove());
         
         // Get container styles and prepare final HTML with proper structure
-        const preview = document.getElementById('preview');
+        const previewElement = document.getElementById('preview');
         let cleanHTML;
         
-        if (preview) {
+        if (previewElement) {
             // Find the markdown-content section in the preview
-            const contentSection = preview.querySelector('.markdown-content');
-            const innerContainer = preview.querySelector('.inner-container');
+            const contentSection = previewElement.querySelector('.markdown-content');
+            const innerContainer = previewElement.querySelector('.inner-container');
             
             if (contentSection) {
                 // Preserve the full structure with both container and innercontainer
@@ -984,17 +984,17 @@ async function copyToClipboard() {
  * Helper function to extract container styles from preview
  */
 function getContainerStyleFromPreview() {
-    const preview = document.getElementById('preview');
-    if (!preview) return '';
+    const previewElement = document.getElementById('preview');
+    if (!previewElement) return '';
     
     // Look for the markdown-content section
-    const contentSection = preview.querySelector('.markdown-content');
+    const contentSection = previewElement.querySelector('.markdown-content');
     if (contentSection && contentSection.style.cssText) {
         return contentSection.style.cssText;
     }
     
     // Fallback: look for any section with container-like styles
-    const sections = preview.querySelectorAll('section');
+    const sections = previewElement.querySelectorAll('section');
     for (const section of sections) {
         if (section.style.cssText && 
             (section.style.cssText.includes('max-width') || 
