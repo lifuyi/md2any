@@ -708,7 +708,7 @@ async function renderMarkdownForExport(markdown, theme) {
 // =============================================================================
 
 /**
- * Copy preview content to clipboard as rich media format with container styles
+ * Copy preview content to clipboard as rich media format with embedded container styles
  */
 async function copyToClipboard() {
     const preview = document.getElementById('preview');
@@ -719,21 +719,18 @@ async function copyToClipboard() {
     }
 
     try {
-        // Get preview content and preserve container styles
+        // Get preview content
         const htmlContent = preview.innerHTML;
         const plainText = preview.textContent || preview.innerText || '';
         
-        // Get container styles from preview element
-        const containerStyle = getContainerStyleFromPreview();
-        
-        // Wrap content with proper container styling
-        const styledContent = `<div style="${containerStyle}">${htmlContent}</div>`;
+        // Create complete HTML document with embedded styles for reliable copying
+        const fullHtmlDocument = htmlContent;
         
         // Modern Clipboard API - copy as rich media
         if (navigator.clipboard && window.ClipboardItem) {
             await navigator.clipboard.write([
                 new ClipboardItem({
-                    'text/html': new Blob([styledContent], { type: 'text/html' }),
+                    'text/html': new Blob([fullHtmlDocument], { type: 'text/html' }),
                     'text/plain': new Blob([plainText], { type: 'text/plain' })
                 })
             ]);
@@ -741,9 +738,9 @@ async function copyToClipboard() {
             return;
         }
         
-        // Fallback: contentEditable selection copy
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = styledContent;
+        // Fallback: contentEditable selection copy with embedded styles
+        const tempDiv = document.createElement('section');
+        tempDiv.innerHTML = `<section style="max-width: 740px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; font-size: 16px; line-height: 1.8; color: #333; background-color: #ffffff;">${htmlContent}</div>`;
         tempDiv.contentEditable = true;
         tempDiv.style.position = 'fixed';
         tempDiv.style.left = '-9999px';
