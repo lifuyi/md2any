@@ -845,7 +845,7 @@ async function copyToClipboard() {
         const containerStyle = getContainerStyleFromPreview();
         let cleanHTML;
         if (containerStyle) {
-            cleanHTML = `<div style="${containerStyle}">${tempDiv.innerHTML}</div>`;
+            cleanHTML = `<section style="${containerStyle}">${tempDiv.innerHTML}</section>`;
         } else {
             cleanHTML = tempDiv.innerHTML;
         }
@@ -858,7 +858,7 @@ async function copyToClipboard() {
         if (hasClipboardAPI()) {
             try {
                 // Modern Clipboard API (best quality)
-                const clipboardHTML = `<html><body>${cleanHTML}</body></html>`;
+                const clipboardHTML = `<section>${cleanHTML}</section>`;
                 
                 await navigator.clipboard.write([
                     new ClipboardItem({
@@ -876,7 +876,7 @@ async function copyToClipboard() {
         
         // Fallback: ContentEditable method
         try {
-            const container = document.createElement('div');
+            const container = document.createElement('section');
             container.contentEditable = true;
             container.innerHTML = cleanHTML;
             Object.assign(container.style, {
