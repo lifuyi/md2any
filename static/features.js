@@ -735,7 +735,7 @@ async function copyToClipboard() {
         updateStatus('正在处理图片和内容...');
         
         // Process HTML content - create isolated copy to avoid MathJax conflicts
-        const tempDiv = document.createElement('div');
+        const tempDiv = document.createElement('section');
         tempDiv.innerHTML = htmlContent;
         
         // Convert MathJax SVG elements to images for better clipboard compatibility
