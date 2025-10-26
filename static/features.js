@@ -841,41 +841,8 @@ async function copyToClipboard() {
         // Clean up content
         tempDiv.querySelectorAll('script, style').forEach(el => el.remove());
         
-        // Get container styles and prepare final HTML with proper structure
-        const previewElement = document.getElementById('preview');
-        let cleanHTML;
-        
-        if (previewElement) {
-            // Find the markdown-content section in the preview
-            const contentSection = previewElement.querySelector('.markdown-content');
-            const innerContainer = previewElement.querySelector('.inner-container');
-            
-            if (contentSection) {
-                // Preserve the full structure with both container and innercontainer
-                const containerStyle = contentSection.style.cssText || '';
-                const innerContainerStyle = innerContainer ? innerContainer.style.cssText : '';
-                
-                if (innerContainer && innerContainerStyle) {
-                    // Create structure with both container and innercontainer, ensuring all styles are preserved
-                    cleanHTML = `<section class="markdown-content" style="${containerStyle}"><section class="inner-container" style="${innerContainerStyle}">${tempDiv.innerHTML}</section></section>`;
-                } else if (containerStyle) {
-                    // Create structure with only container, but ensure styles are preserved
-                    cleanHTML = `<section class="markdown-content" style="${containerStyle}">${tempDiv.innerHTML}</section>`;
-                } else {
-                    // Fallback: wrap content in section with default container styles to preserve structure
-                    const defaultContainerStyle = getContainerStyleFromPreview();
-                    cleanHTML = `<section class="markdown-content" style="${defaultContainerStyle}">${tempDiv.innerHTML}</section>`;
-                }
-            } else {
-                // Fallback: wrap content in section with default container styles to preserve structure
-                const defaultContainerStyle = getContainerStyleFromPreview();
-                cleanHTML = `<section class="markdown-content" style="${defaultContainerStyle}">${tempDiv.innerHTML}</section>`;
-            }
-        } else {
-            // Fallback: wrap content in section with default container styles to preserve structure
-            const defaultContainerStyle = getContainerStyleFromPreview();
-            cleanHTML = `<section class="markdown-content" style="${defaultContainerStyle}">${tempDiv.innerHTML}</section>`;
-        }
+        // Just copy the entire processed content as-is, preserving the original structure
+        cleanHTML = tempDiv.innerHTML;
         
         const plainText = tempDiv.textContent || tempDiv.innerText || '';
         
