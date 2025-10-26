@@ -871,19 +871,28 @@ async function copyToClipboard() {
             }
         }
         
-        // Fallback: ContentEditable method
+        // Fallback: ContentEditable method with better content preservation
         try {
             const container = document.createElement('div');
-            container.contentEditable = true;
-            container.innerHTML = cleanHTML;
+            // Don't make it contentEditable initially to avoid content modification
             Object.assign(container.style, {
                 position: 'fixed',
                 left: '-9999px',
+                top: '-9999px',
                 opacity: '0',
-                pointerEvents: 'none'
+                pointerEvents: 'none',
+                width: '1px',
+                height: '1px',
+                overflow: 'hidden'
             });
             
+            // Set the HTML content first
+            container.innerHTML = cleanHTML;
             document.body.appendChild(container);
+            
+            // Now make it contentEditable and immediately select and copy
+            container.contentEditable = true;
+            container.focus();
             
             const range = document.createRange();
             range.selectNodeContents(container);
