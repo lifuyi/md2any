@@ -841,12 +841,36 @@ async function copyToClipboard() {
         // Clean up content
         tempDiv.querySelectorAll('script, style').forEach(el => el.remove());
         
-        // Get container styles and prepare final HTML
-        const containerStyle = getContainerStyleFromPreview();
+        // Get container styles and prepare final HTML with proper structure
+        const preview = document.getElementById('preview');
         let cleanHTML;
-        if (containerStyle) {
-            cleanHTML = `<section style="${containerStyle}">${tempDiv.innerHTML}</section>`;
+        
+        if (preview) {
+            // Find the markdown-content section in the preview
+            const contentSection = preview.querySelector('.markdown-content');
+            const innerContainer = preview.querySelector('.inner-container');
+            
+            if (contentSection) {
+                // Preserve the full structure with both container and innercontainer
+                const containerStyle = contentSection.style.cssText || '';
+                const innerContainerStyle = innerContainer ? innerContainer.style.cssText : '';
+                
+                if (innerContainer && innerContainerStyle) {
+                    // Create structure with both container and innercontainer
+                    cleanHTML = `<section class="markdown-content" style="${containerStyle}"><section class="inner-container" style="${innerContainerStyle}">${tempDiv.innerHTML}</section></section>`;
+                } else if (containerStyle) {
+                    // Create structure with only container
+                    cleanHTML = `<section class="markdown-content" style="${containerStyle}">${tempDiv.innerHTML}</section>`;
+                } else {
+                    // Fallback to simple structure
+                    cleanHTML = tempDiv.innerHTML;
+                }
+            } else {
+                // Fallback to simple structure
+                cleanHTML = tempDiv.innerHTML;
+            }
         } else {
+            // Fallback to simple structure
             cleanHTML = tempDiv.innerHTML;
         }
         
@@ -858,7 +882,7 @@ async function copyToClipboard() {
         if (hasClipboardAPI()) {
             try {
                 // Modern Clipboard API (best quality)
-                const clipboardHTML = `<section>${cleanHTML}</section>`;
+                const clipboardHTML = `<html><body>${cleanHTML}</body></html>`;
                 
                 await navigator.clipboard.write([
                     new ClipboardItem({
@@ -876,7 +900,7 @@ async function copyToClipboard() {
         
         // Fallback: ContentEditable method
         try {
-            const container = document.createElement('section');
+            const container = document.createElement('div');
             container.contentEditable = true;
             container.innerHTML = cleanHTML;
             Object.assign(container.style, {
