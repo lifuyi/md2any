@@ -708,177 +708,64 @@ async function renderMarkdownForExport(markdown, theme) {
 // =============================================================================
 
 /**
- * Copy rendered content to clipboard as rich media format
+ * Copy preview content to clipboard as rich media format
  */
 async function copyToClipboard() {
-    const editor = document.getElementById('editor');
     const preview = document.getElementById('preview');
     
-    if (!editor || !editor.value.trim()) {
-        alert('请先输入Markdown内容');
-        return;
-    }
-
-    // Check if preview has rendered content
-    if (!preview || !preview.innerHTML.trim() || preview.innerHTML.includes('在左侧编辑器输入内容')) {
+    if (!preview || !preview.innerHTML.trim()) {
         alert('请先预览内容后再复制');
         return;
     }
 
-    updateStatus('正在复制到剪贴板...');
-
     try {
-        // Get the preview content as-is - no modifications
+        // Get preview content directly
         const htmlContent = preview.innerHTML;
+        const plainText = preview.textContent || preview.innerText || '';
         
-        // Create a clean container for clipboard content
-        const clipboardContainer = document.createElement('div');
-        clipboardContainer.innerHTML = htmlContent;
-        
-        // Remove any script tags for security
-        clipboardContainer.querySelectorAll('script').forEach(el => el.remove());
-        
-        // Get the clean HTML content
-        const cleanHTML = clipboardContainer.innerHTML;
-        
-        // Extract plain text version
-        const plainText = clipboardContainer.textContent || clipboardContainer.innerText || '';
-        
-        // Try modern Clipboard API first (best rich media support)
-        if (hasClipboardAPI()) {
-            try {
-                // Create proper HTML document structure for clipboard
-                const clipboardHTML = `<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <style>
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: none;
-            margin: 0;
-            padding: 0;
-        }
-    </style>
-</head>
-<body>
-    ${cleanHTML}
-</body>
-</html>`;
-                
-                await navigator.clipboard.write([
-                    new ClipboardItem({
-                        'text/html': new Blob([clipboardHTML], { type: 'text/html' }),
-                        'text/plain': new Blob([plainText], { type: 'text/plain' })
-                    })
-                ]);
-                
-                updateStatus('✅ 已复制到剪贴板（富文本格式）');
-                SharedUtils.log('Features', '复制成功: 现代剪贴板API');
-                return;
-            } catch (error) {
-                SharedUtils.logError('Features', '现代剪贴板API失败', error);
-            }
+        // Modern Clipboard API - copy as rich media
+        if (navigator.clipboard && window.ClipboardItem) {
+            await navigator.clipboard.write([
+                new ClipboardItem({
+                    'text/html': new Blob([htmlContent], { type: 'text/html' }),
+                    'text/plain': new Blob([plainText], { type: 'text/plain' })
+                })
+            ]);
+            updateStatus('✅ 已复制到剪贴板（富文本格式）');
+            return;
         }
         
-        // Fallback: Use contentEditable method for rich text copy
-        try {
-            const container = document.createElement('div');
-            container.style.cssText = `
-                position: fixed;
-                left: -9999px;
-                top: 0;
-                width: 1px;
-                height: 1px;
-                opacity: 0;
-                overflow: hidden;
-                pointer-events: none;
-            `;
-            
-            // Set content and make it editable
-            container.innerHTML = cleanHTML;
-            container.contentEditable = 'true';
-            
-            document.body.appendChild(container);
-            
-            // Select all content
-            const range = document.createRange();
-            range.selectNodeContents(container);
-            
-            const selection = window.getSelection();
-            selection.removeAllRanges();
-            selection.addRange(range);
-            
-            // Execute copy command
-            const success = document.execCommand('copy');
-            
-            // Clean up
-            selection.removeAllRanges();
-            document.body.removeChild(container);
-            
-            if (success) {
-                updateStatus('✅ 已复制到剪贴板（富文本格式）');
-                SharedUtils.log('Features', '复制成功: ContentEditable方法');
-                return;
-            } else {
-                throw new Error('execCommand复制失败');
-            }
-        } catch (error) {
-            SharedUtils.logError('Features', 'ContentEditable复制失败', error);
-        }
+        // Fallback: contentEditable selection copy
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = htmlContent;
+        tempDiv.contentEditable = true;
+        tempDiv.style.position = 'fixed';
+        tempDiv.style.left = '-9999px';
+        tempDiv.style.opacity = '0';
         
-        // Final fallback: Plain text only
-        try {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                await navigator.clipboard.writeText(plainText);
-                updateStatus('✅ 已复制到剪贴板（纯文本格式）');
-                SharedUtils.log('Features', '复制成功: 纯文本API');
-                return;
-            }
-            
-            // Legacy plain text fallback
-            const textarea = document.createElement('textarea');
-            textarea.value = plainText;
-            textarea.style.cssText = `
-                position: fixed;
-                left: -9999px;
-                top: 0;
-                opacity: 0;
-            `;
-            
-            document.body.appendChild(textarea);
-            textarea.select();
-            textarea.setSelectionRange(0, textarea.value.length);
-            
-            const success = document.execCommand('copy');
-            document.body.removeChild(textarea);
-            
-            if (success) {
-                updateStatus('✅ 已复制到剪贴板（纯文本格式）');
-                SharedUtils.log('Features', '复制成功: 纯文本方法');
-                return;
-            }
-        } catch (error) {
-            SharedUtils.logError('Features', '纯文本复制失败', error);
-        }
+        document.body.appendChild(tempDiv);
         
-        throw new Error('所有复制方法都失败了');
+        const range = document.createRange();
+        range.selectNodeContents(tempDiv);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        
+        const success = document.execCommand('copy');
+        
+        selection.removeAllRanges();
+        document.body.removeChild(tempDiv);
+        
+        if (success) {
+            updateStatus('✅ 已复制到剪贴板（富文本格式）');
+        } else {
+            throw new Error('复制操作失败');
+        }
         
     } catch (error) {
-        SharedUtils.logError('Features', '复制失败', error);
+        console.error('Copy failed:', error);
         updateStatus('❌ 复制失败', true);
-        
-        let message = `复制失败: ${error.message}`;
-        
-        if (!isSecureContext()) {
-            message += '\n\n💡 提示：非安全协议可能限制剪贴板功能，建议使用 HTTPS 或 localhost';
-        }
-        
-        message += '\n\n替代方案：\n• 手动选择预览内容复制\n• 使用下载功能保存文件\n• 刷新页面后重试';
-        
-        alert(message);
+        alert('复制失败: ' + error.message);
     }
 }
 
