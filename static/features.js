@@ -708,7 +708,7 @@ async function renderMarkdownForExport(markdown, theme) {
 // =============================================================================
 
 /**
- * Copy rendered content to clipboard with enhanced formula support
+ * Copy rendered content to clipboard as rich media format
  */
 async function copyToClipboard() {
     const editor = document.getElementById('editor');
@@ -725,137 +725,48 @@ async function copyToClipboard() {
         return;
     }
 
-    // Show loading status
-    updateStatus('正在准备复制内容...');
+    updateStatus('正在复制到剪贴板...');
 
     try {
-        // Capture the preview content immediately to avoid any modifications
+        // Get the preview content as-is - no modifications
         const htmlContent = preview.innerHTML;
         
-        // Log the content to debug what we're actually getting
-        console.log('Preview content being copied:', htmlContent.substring(0, 500) + '...');
+        // Create a clean container for clipboard content
+        const clipboardContainer = document.createElement('div');
+        clipboardContainer.innerHTML = htmlContent;
         
-        updateStatus('正在处理图片和内容...');
+        // Remove any script tags for security
+        clipboardContainer.querySelectorAll('script').forEach(el => el.remove());
         
-        // Process HTML content - create isolated copy to avoid MathJax conflicts
-        const tempDiv = document.createElement('section');
-        tempDiv.innerHTML = htmlContent;
+        // Get the clean HTML content
+        const cleanHTML = clipboardContainer.innerHTML;
         
-        // Convert MathJax SVG elements to images for better clipboard compatibility
-        const mathJaxElements = tempDiv.querySelectorAll('mjx-container[jax="SVG"]');
+        // Extract plain text version
+        const plainText = clipboardContainer.textContent || clipboardContainer.innerText || '';
         
-        if (mathJaxElements.length > 0) {
-            updateStatus(`正在处理数学公式 (共 ${mathJaxElements.length} 个)...`);
-            
-            // Process MathJax elements
-            for (let index = 0; index < mathJaxElements.length; index++) {
-                const container = mathJaxElements[index];
-                const svg = container.querySelector('svg');
-                
-                if (svg) {
-                    try {
-                        SharedUtils.log('Features', `Processing MathJax element ${index + 1}/${mathJaxElements.length}`);
-                        
-                        // Convert SVG to base64 data URL
-                        const dataURL = await window.convertMathJaxSvgToImage(svg);
-                        
-                        if (dataURL && dataURL.length > 100) {
-                            // Create img element to replace the MathJax container
-                            const img = document.createElement('img');
-                            img.src = dataURL;
-                            img.alt = 'Math formula';
-                            img.style.verticalAlign = 'middle';
-                            
-                            // Copy dimensions from original SVG
-                            // The image is already scaled to 1/4 size by the converter
-                            const width = svg.getAttribute('width');
-                            const height = svg.getAttribute('height');
-                            const style = svg.getAttribute('style');
-                            
-                            if (width) {
-                                const numWidth = parseFloat(width);
-                                img.style.width = numWidth + (width.includes('ex') ? 'ex' : 'px');
-                            }
-                            if (height) {
-                                const numHeight = parseFloat(height);
-                                img.style.height = numHeight + (height.includes('ex') ? 'ex' : 'px');
-                            }
-                            if (style) {
-                                img.setAttribute('style', style + '; vertical-align: middle;');
-                            } else {
-                                img.style.verticalAlign = 'middle';
-                            }
-                            
-                            // Replace the MathJax container with the image
-                            container.parentNode.replaceChild(img, container);
-                            SharedUtils.log('Features', `✓ MathJax element ${index + 1} converted successfully`);
-                        }
-                    } catch (error) {
-                        SharedUtils.logError('Features', `Failed to convert MathJax SVG element ${index + 1}`, error);
-                    }
-                }
-                
-                // Small delay between processing elements
-                await new Promise(resolve => setTimeout(resolve, 10));
-            }
-        }
-        
-        // Process regular images for better clipboard compatibility
-        const images = tempDiv.querySelectorAll('img');
-        if (images.length > 0) {
-            updateStatus('正在处理图片 (共 ' + images.length + ' 张)...');
-            
-            const imagePromises = Array.from(images).map(async (img, index) => {
-                try {
-                    if (img.src.startsWith('blob:')) {
-                        // Convert blob URL to base64 data URL
-                        const response = await fetch(img.src);
-                        const blob = await response.blob();
-                        
-                        return new Promise((resolve) => {
-                            const reader = new FileReader();
-                            reader.onload = () => {
-                                const dataURL = reader.result;
-                                if (dataURL && dataURL.length > 100) {
-                                    img.src = dataURL;
-                                    SharedUtils.log('Features', `图片 ${index + 1} 转换成功`);
-                                }
-                                resolve();
-                            };
-                            reader.onerror = () => {
-                                SharedUtils.logError('Features', `图片 ${index + 1} 转换失败，将移除`);
-                                img.remove();
-                                resolve();
-                            };
-                            reader.readAsDataURL(blob);
-                        });
-                    } else if (img.src.startsWith('data:')) {
-                        // Already a data URL
-                        SharedUtils.log('Features', `图片 ${index + 1} 已是data URL格式`);
-                    }
-                } catch (error) {
-                    SharedUtils.logError('Features', `处理图片 ${index + 1} 时出错`, error);
-                }
-            });
-            
-            await Promise.all(imagePromises.filter(Boolean));
-        }
-        
-        // Clean up content
-        tempDiv.querySelectorAll('script, style').forEach(el => el.remove());
-        
-        // Just copy the entire processed content as-is, preserving the original structure
-        cleanHTML = tempDiv.innerHTML;
-        
-        const plainText = tempDiv.textContent || tempDiv.innerText || '';
-        
-        updateStatus('正在复制到剪贴板...');
-        
-        // Try different clipboard methods
+        // Try modern Clipboard API first (best rich media support)
         if (hasClipboardAPI()) {
             try {
-                // Modern Clipboard API (best quality)
-                const clipboardHTML = `<html><body>${cleanHTML}</body></html>`;
+                // Create proper HTML document structure for clipboard
+                const clipboardHTML = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: none;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    ${cleanHTML}
+</body>
+</html>`;
                 
                 await navigator.clipboard.write([
                     new ClipboardItem({
@@ -863,6 +774,7 @@ async function copyToClipboard() {
                         'text/plain': new Blob([plainText], { type: 'text/plain' })
                     })
                 ]);
+                
                 updateStatus('✅ 已复制到剪贴板（富文本格式）');
                 SharedUtils.log('Features', '复制成功: 现代剪贴板API');
                 return;
@@ -871,29 +783,27 @@ async function copyToClipboard() {
             }
         }
         
-        // Fallback: ContentEditable method with better content preservation
+        // Fallback: Use contentEditable method for rich text copy
         try {
             const container = document.createElement('div');
-            // Don't make it contentEditable initially to avoid content modification
-            Object.assign(container.style, {
-                position: 'fixed',
-                left: '-9999px',
-                top: '-9999px',
-                opacity: '0',
-                pointerEvents: 'none',
-                width: '1px',
-                height: '1px',
-                overflow: 'hidden'
-            });
+            container.style.cssText = `
+                position: fixed;
+                left: -9999px;
+                top: 0;
+                width: 1px;
+                height: 1px;
+                opacity: 0;
+                overflow: hidden;
+                pointer-events: none;
+            `;
             
-            // Set the HTML content first
+            // Set content and make it editable
             container.innerHTML = cleanHTML;
+            container.contentEditable = 'true';
+            
             document.body.appendChild(container);
             
-            // Now make it contentEditable and immediately select and copy
-            container.contentEditable = true;
-            container.focus();
-            
+            // Select all content
             const range = document.createRange();
             range.selectNodeContents(container);
             
@@ -901,8 +811,10 @@ async function copyToClipboard() {
             selection.removeAllRanges();
             selection.addRange(range);
             
+            // Execute copy command
             const success = document.execCommand('copy');
             
+            // Clean up
             selection.removeAllRanges();
             document.body.removeChild(container);
             
@@ -910,23 +822,35 @@ async function copyToClipboard() {
                 updateStatus('✅ 已复制到剪贴板（富文本格式）');
                 SharedUtils.log('Features', '复制成功: ContentEditable方法');
                 return;
+            } else {
+                throw new Error('execCommand复制失败');
             }
         } catch (error) {
             SharedUtils.logError('Features', 'ContentEditable复制失败', error);
         }
         
-        // Final fallback: Plain text
+        // Final fallback: Plain text only
         try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(plainText);
+                updateStatus('✅ 已复制到剪贴板（纯文本格式）');
+                SharedUtils.log('Features', '复制成功: 纯文本API');
+                return;
+            }
+            
+            // Legacy plain text fallback
             const textarea = document.createElement('textarea');
             textarea.value = plainText;
-            Object.assign(textarea.style, {
-                position: 'fixed',
-                left: '-9999px',
-                opacity: '0'
-            });
+            textarea.style.cssText = `
+                position: fixed;
+                left: -9999px;
+                top: 0;
+                opacity: 0;
+            `;
             
             document.body.appendChild(textarea);
             textarea.select();
+            textarea.setSelectionRange(0, textarea.value.length);
             
             const success = document.execCommand('copy');
             document.body.removeChild(textarea);
