@@ -791,22 +791,111 @@ async function copyToClipboard() {
             word-wrap: break-word;
         ">${htmlContent}</section>`;
         
-        // Only use Modern Clipboard API for consistent rich formatting
+        // Try Modern Clipboard API first (HTTPS/localhost)
         if (navigator.clipboard && window.ClipboardItem) {
-            console.log('Using Modern Clipboard API...');
-            await navigator.clipboard.write([
-                new ClipboardItem({
-                    'text/html': new Blob([styledHtml], { type: 'text/html' }),
-                    'text/plain': new Blob([plainText], { type: 'text/plain' })
-                })
-            ]);
-            updateStatus('✅ 已复制到剪贴板（富文本格式）');
-            console.log('Modern Clipboard API succeeded');
-            return;
-        } else {
-            // Show clear error message for non-HTTPS environments
-            throw new Error('需要HTTPS环境才能使用富文本复制功能');
+            try {
+                console.log('Using Modern Clipboard API...');
+                await navigator.clipboard.write([
+                    new ClipboardItem({
+                        'text/html': new Blob([styledHtml], { type: 'text/html' }),
+                        'text/plain': new Blob([plainText], { type: 'text/plain' })
+                    })
+                ]);
+                updateStatus('✅ 已复制到剪贴板（富文本格式）');
+                console.log('Modern Clipboard API succeeded');
+                return;
+            } catch (error) {
+                console.log('Modern Clipboard API failed:', error);
+            }
         }
+        
+        // Fallback: ContentEditable method (works on HTTP)
+        try {
+            console.log('Using ContentEditable fallback method...');
+            
+            // Create temporary container for rich content copying
+            const container = document.createElement('div');
+            container.style.cssText = `
+                position: fixed;
+                left: -9999px;
+                top: 0;
+                width: 800px;
+                opacity: 0;
+                pointer-events: none;
+                background: white;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            `;
+            
+            // Set the styled HTML content
+            container.innerHTML = styledHtml;
+            container.contentEditable = true;
+            
+            // Add to DOM temporarily
+            document.body.appendChild(container);
+            
+            // Focus and select all content
+            container.focus();
+            const range = document.createRange();
+            range.selectNodeContents(container);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            
+            // Copy using execCommand (works on HTTP)
+            const success = document.execCommand('copy');
+            
+            // Cleanup
+            selection.removeAllRanges();
+            document.body.removeChild(container);
+            
+            if (success) {
+                updateStatus('✅ 已复制到剪贴板（富文本格式）');
+                console.log('ContentEditable method succeeded');
+                return;
+            } else {
+                throw new Error('ContentEditable copy failed');
+            }
+            
+        } catch (error) {
+            console.log('ContentEditable method failed:', error);
+        }
+        
+        // Final fallback: Plain text
+        try {
+            console.log('Using plain text fallback...');
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(plainText);
+                updateStatus('✅ 已复制到剪贴板（纯文本）');
+                console.log('Plain text clipboard API succeeded');
+                return;
+            }
+            
+            // Legacy textarea method for very old browsers
+            const textarea = document.createElement('textarea');
+            textarea.value = plainText;
+            textarea.style.cssText = `
+                position: fixed;
+                left: -9999px;
+                opacity: 0;
+            `;
+            
+            document.body.appendChild(textarea);
+            textarea.select();
+            const success = document.execCommand('copy');
+            document.body.removeChild(textarea);
+            
+            if (success) {
+                updateStatus('✅ 已复制到剪贴板（纯文本）');
+                console.log('Legacy textarea method succeeded');
+                return;
+            }
+            
+        } catch (error) {
+            console.log('Plain text fallback failed:', error);
+        }
+        
+        throw new Error('所有复制方法都失败了');
         
     } catch (error) {
         console.error('All copy methods failed:', error);
