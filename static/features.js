@@ -722,7 +722,7 @@ async function copyToClipboard() {
 
     try {
         // Get preview content
-        const htmlContent = preview.innerHTML;
+        let htmlContent = preview.innerHTML;
         const plainText = preview.textContent || preview.innerText || '';
         
         // Log environment info for debugging
@@ -730,6 +730,53 @@ async function copyToClipboard() {
         console.log('ClipboardItem available:', !!window.ClipboardItem);
         console.log('Secure context:', window.isSecureContext);
         console.log('Protocol:', window.location.protocol);
+        
+        // Convert MathJax SVGs to images for better clipboard compatibility
+        const mathContainers = preview.querySelectorAll('mjx-container[jax="SVG"]');
+        if (mathContainers.length > 0) {
+            console.log(`Found ${mathContainers.length} MathJax SVG elements, converting to images...`);
+            
+            // Create a temporary container with the content for processing
+            const tempContainer = document.createElement('div');
+            tempContainer.innerHTML = htmlContent;
+            
+            const tempMathContainers = tempContainer.querySelectorAll('mjx-container[jax="SVG"]');
+            
+            // Convert each MathJax SVG to image
+            for (let i = 0; i < tempMathContainers.length; i++) {
+                const container = tempMathContainers[i];
+                const svgElement = container.querySelector('svg');
+                
+                if (svgElement && window.convertMathJaxSvgToImage) {
+                    try {
+                        const imageDataUrl = await window.convertMathJaxSvgToImage(svgElement);
+                        if (imageDataUrl) {
+                            // Replace the SVG with an image
+                            const img = document.createElement('img');
+                            img.src = imageDataUrl;
+                            img.style.cssText = svgElement.style.cssText;
+                            img.style.display = 'inline-block';
+                            img.style.verticalAlign = 'middle';
+                            
+                            // Copy dimensions from SVG
+                            if (svgElement.style.width) img.style.width = svgElement.style.width;
+                            if (svgElement.style.height) img.style.height = svgElement.style.height;
+                            
+                            container.replaceChild(img, svgElement);
+                            console.log(`✓ Converted MathJax SVG ${i + 1} to image`);
+                        } else {
+                            console.warn(`Failed to convert MathJax SVG ${i + 1} to image`);
+                        }
+                    } catch (error) {
+                        console.error(`Error converting MathJax SVG ${i + 1}:`, error);
+                    }
+                }
+            }
+            
+            // Update htmlContent with processed content
+            htmlContent = tempContainer.innerHTML;
+            console.log('✓ MathJax SVG conversion completed');
+        }
         
         // Wrap content in section to preserve original structure
         const styledHtml = `<section style="
