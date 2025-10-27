@@ -731,8 +731,8 @@ async function copyToClipboard() {
         console.log('Secure context:', window.isSecureContext);
         console.log('Protocol:', window.location.protocol);
         
-        // Create styled content with inline styles (most compatible approach)
-        const styledHtml = `<div style="
+        // Wrap content in section to preserve original structure
+        const styledHtml = `<section style="
             max-width: 740px;
             margin: 0 auto;
             padding: 20px;
@@ -742,10 +742,11 @@ async function copyToClipboard() {
             color: #333333;
             background-color: #ffffff;
             word-wrap: break-word;
-        ">${htmlContent}</div>`;
+        ">${htmlContent}</section>`;
         
-        // Try method 1: Modern Clipboard API (requires HTTPS)
-        if (window.isSecureContext && navigator.clipboard && window.ClipboardItem) {
+        // Try method 1: Modern Clipboard API - Force enable for server environments
+        // Removed security context check to make server use this method
+        if (navigator.clipboard && window.ClipboardItem) {
             try {
                 console.log('Trying modern Clipboard API...');
                 await navigator.clipboard.write([
@@ -759,11 +760,12 @@ async function copyToClipboard() {
                 return;
             } catch (error) {
                 console.log('Modern Clipboard API failed:', error);
+                // Only log the error but continue to fallback methods
             }
         }
         
-        // Try method 2: Simple text/html clipboard API
-        if (window.isSecureContext && navigator.clipboard) {
+        // Try method 2: Simple text/html clipboard API - Force enable for server environments
+        if (navigator.clipboard) {
             try {
                 console.log('Trying simple clipboard writeText...');
                 // Some browsers support writing HTML directly
@@ -773,6 +775,7 @@ async function copyToClipboard() {
                 return;
             } catch (error) {
                 console.log('Simple clipboard API failed:', error);
+                // Only log the error but continue to fallback methods
             }
         }
         
