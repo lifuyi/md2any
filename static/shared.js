@@ -18,7 +18,7 @@ const CONFIG = {
     API_BASE_URL: typeof window.API_BASE_URL_OVERRIDE !== 'undefined' ? 
         window.API_BASE_URL_OVERRIDE : 
         (window.location.hostname && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' ?
-            `http://${window.location.hostname}:5005` : 
+            `${window.location.protocol}//${window.location.hostname}` : 
             'http://localhost:5005'),
     
     // UI Configuration
