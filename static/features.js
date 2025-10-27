@@ -730,6 +730,7 @@ async function copyToClipboard() {
         console.log('ClipboardItem available:', !!window.ClipboardItem);
         console.log('Secure context:', window.isSecureContext);
         console.log('Protocol:', window.location.protocol);
+        console.log('User agent:', navigator.userAgent);
         
         // Wrap content in section to preserve original structure
         const styledHtml = `<section style="
@@ -749,6 +750,7 @@ async function copyToClipboard() {
         if (navigator.clipboard && window.ClipboardItem) {
             try {
                 console.log('Trying modern Clipboard API...');
+                console.log('Creating ClipboardItem with HTML and plain text...');
                 await navigator.clipboard.write([
                     new ClipboardItem({
                         'text/html': new Blob([styledHtml], { type: 'text/html' }),
@@ -759,9 +761,13 @@ async function copyToClipboard() {
                 console.log('Modern Clipboard API succeeded');
                 return;
             } catch (error) {
-                console.log('Modern Clipboard API failed:', error);
+                console.log('Modern Clipboard API failed with error:', error);
+                console.log('Error name:', error.name);
+                console.log('Error message:', error.message);
                 // Only log the error but continue to fallback methods
             }
+        } else {
+            console.log('Modern Clipboard API not available - navigator.clipboard:', !!navigator.clipboard, 'ClipboardItem:', !!window.ClipboardItem);
         }
         
         // Try method 2: Simple text/html clipboard API - Force enable for server environments
