@@ -745,11 +745,10 @@ async function copyToClipboard() {
             word-wrap: break-word;
         ">${htmlContent}</section>`;
         
-        // Try method 1: Modern Clipboard API - Force enable for server environments
-        // Removed security context check to make server use this method
+        // Try method 1: Standard Modern Clipboard API (for HTTPS environments)
         if (navigator.clipboard && window.ClipboardItem) {
             try {
-                console.log('Trying modern Clipboard API...');
+                console.log('Trying standard Modern Clipboard API...');
                 console.log('Creating ClipboardItem with HTML and plain text...');
                 await navigator.clipboard.write([
                     new ClipboardItem({
@@ -758,13 +757,12 @@ async function copyToClipboard() {
                     })
                 ]);
                 updateStatus('✅ 已复制到剪贴板（富文本格式）');
-                console.log('Modern Clipboard API succeeded');
+                console.log('Standard Modern Clipboard API succeeded');
                 return;
             } catch (error) {
-                console.log('Modern Clipboard API failed with error:', error);
+                console.log('Standard Modern Clipboard API failed with error:', error);
                 console.log('Error name:', error.name);
                 console.log('Error message:', error.message);
-                // Only log the error but continue to fallback methods
             }
         } else {
             console.log('Modern Clipboard API not available - navigator.clipboard:', !!navigator.clipboard, 'ClipboardItem:', !!window.ClipboardItem);
@@ -785,12 +783,16 @@ async function copyToClipboard() {
             }
         }
         
-        // Try method 3: Enhanced ContentEditable approach (works in most environments)
-        // This method now produces the same rich HTML result as Modern Clipboard API
+        // Try method 3: Advanced ContentEditable with Rich Text Focus
+        // Attempt to maximize rich formatting preservation
         try {
-            console.log('Trying enhanced contentEditable approach...');
+            console.log('Trying advanced contentEditable approach with rich text optimization...');
             
-            // Create invisible container with proper dimensions for better compatibility
+            // Create a proper document fragment with rich content
+            const tempContainer = document.createElement('div');
+            tempContainer.innerHTML = styledHtml;
+            
+            // Create invisible rich text editor container
             const container = document.createElement('div');
             container.style.cssText = `
                 position: fixed;
@@ -801,30 +803,68 @@ async function copyToClipboard() {
                 opacity: 0;
                 overflow: hidden;
                 pointer-events: none;
-                background: white;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                background: #ffffff;
+                color: #333333;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+                font-size: 16px;
+                line-height: 1.8;
+                padding: 20px;
+                max-width: 740px;
+                margin: 0 auto;
+                word-wrap: break-word;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
             `;
             
-            // Set HTML content with the same styling as Modern Clipboard API
+            // Insert the styled HTML content
             container.innerHTML = styledHtml;
             container.contentEditable = true;
+            container.setAttribute('role', 'textbox');
+            container.setAttribute('aria-label', 'Rich text content');
             
-            // Add to DOM temporarily
+            // Add to DOM
             document.body.appendChild(container);
             
-            // Wait a moment for the content to render properly
-            await new Promise(resolve => setTimeout(resolve, 10));
-            
-            // Focus and select content
+            // Force browser to recognize this as rich content
             container.focus();
+            
+            // Wait for rendering and focus
+            await new Promise(resolve => setTimeout(resolve, 50));
+            
+            // Create comprehensive selection
             const range = document.createRange();
             range.selectNodeContents(container);
+            
             const selection = window.getSelection();
             selection.removeAllRanges();
             selection.addRange(range);
             
-            // Execute copy - this will copy both HTML and plain text formats
+            // Ensure selection includes all formatting
+            if (selection.rangeCount > 0) {
+                const selectedRange = selection.getRangeAt(0);
+                console.log('Selected range includes:', selectedRange.toString().length, 'characters');
+                console.log('HTML content length:', container.innerHTML.length);
+            }
+            
+            // Execute copy with maximum compatibility
             const success = document.execCommand('copy');
+            
+            // Alternative copy attempt if first fails
+            if (!success) {
+                console.log('First copy attempt failed, trying alternative method...');
+                
+                // Try selecting the entire document content
+                range.setStart(container, 0);
+                range.setEnd(container, container.childNodes.length);
+                selection.removeAllRanges();
+                selection.addRange(range);
+                
+                const secondAttempt = document.execCommand('copy');
+                
+                if (secondAttempt) {
+                    console.log('Second copy attempt succeeded');
+                }
+            }
             
             // Cleanup
             selection.removeAllRanges();
@@ -832,14 +872,14 @@ async function copyToClipboard() {
             
             if (success) {
                 updateStatus('✅ 已复制到剪贴板（富文本格式）');
-                console.log('Enhanced ContentEditable approach succeeded - rich HTML copied');
+                console.log('Advanced ContentEditable approach succeeded - rich HTML formatting preserved');
                 return;
             } else {
-                throw new Error('execCommand returned false');
+                throw new Error('execCommand copy failed');
             }
             
         } catch (error) {
-            console.log('Enhanced ContentEditable approach failed:', error);
+            console.log('Advanced ContentEditable approach failed:', error);
         }
         
         // Try method 4: Plain text fallback
