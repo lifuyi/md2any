@@ -785,29 +785,35 @@ async function copyToClipboard() {
             }
         }
         
-        // Try method 3: ContentEditable approach (works in most environments)
+        // Try method 3: Enhanced ContentEditable approach (works in most environments)
+        // This method now produces the same rich HTML result as Modern Clipboard API
         try {
-            console.log('Trying contentEditable approach...');
+            console.log('Trying enhanced contentEditable approach...');
             
-            // Create invisible container
+            // Create invisible container with proper dimensions for better compatibility
             const container = document.createElement('div');
             container.style.cssText = `
                 position: fixed;
                 left: -9999px;
                 top: 0;
-                width: 1px;
-                height: 1px;
+                width: 800px;
+                height: auto;
                 opacity: 0;
                 overflow: hidden;
                 pointer-events: none;
+                background: white;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             `;
             
-            // Set HTML content with proper styling
+            // Set HTML content with the same styling as Modern Clipboard API
             container.innerHTML = styledHtml;
             container.contentEditable = true;
             
             // Add to DOM temporarily
             document.body.appendChild(container);
+            
+            // Wait a moment for the content to render properly
+            await new Promise(resolve => setTimeout(resolve, 10));
             
             // Focus and select content
             container.focus();
@@ -817,7 +823,7 @@ async function copyToClipboard() {
             selection.removeAllRanges();
             selection.addRange(range);
             
-            // Execute copy
+            // Execute copy - this will copy both HTML and plain text formats
             const success = document.execCommand('copy');
             
             // Cleanup
@@ -826,14 +832,14 @@ async function copyToClipboard() {
             
             if (success) {
                 updateStatus('✅ 已复制到剪贴板（富文本格式）');
-                console.log('ContentEditable approach succeeded');
+                console.log('Enhanced ContentEditable approach succeeded - rich HTML copied');
                 return;
             } else {
                 throw new Error('execCommand returned false');
             }
             
         } catch (error) {
-            console.log('ContentEditable approach failed:', error);
+            console.log('Enhanced ContentEditable approach failed:', error);
         }
         
         // Try method 4: Plain text fallback
