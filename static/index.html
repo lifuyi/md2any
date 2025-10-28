@@ -130,6 +130,20 @@
         .btn-secondary:hover {
             background: #e0e0e0;
         }
+        
+        /* Focus styles for accessibility */
+        .btn:focus,
+        select:focus,
+        textarea:focus {
+            outline: 2px solid #007bff;
+            outline-offset: 2px;
+        }
+        
+        .dropdown-content a:focus {
+            background-color: #bbdefb;
+            outline: 2px solid #007bff;
+            outline-offset: -2px;
+        }
 
         /* Backend toggle button styles */
         #backend-toggle {
@@ -297,6 +311,21 @@
             border-radius: 4px;
             font-size: 14px;
         }
+        
+        .form-control {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .form-control:focus {
+            outline: 2px solid #007bff;
+            outline-offset: 2px;
+            border-color: #007bff;
+        }
 
         .loading {
             display: none;
@@ -422,6 +451,27 @@
             resize: none;
             outline: none;
         }
+        
+        #codemirror-container {
+            flex: 1;
+            border: none;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .CodeMirror {
+            height: 100% !important;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+        
+        .CodeMirror-scroll {
+            padding: 20px;
+        }
+        
+        .CodeMirror-linenumber {
+            color: #999;
+            font-size: 12px;
+        }
 
         #preview {
             flex: 1;
@@ -527,6 +577,23 @@
             outline: none;
             border-color: #007bff;
             box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+        
+        .format-textarea.modified {
+            border-color: #28a745;
+            background-color: #f8fff9;
+        }
+        
+        .format-preview-indicator {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: #28a745;
+            color: white;
+            font-size: 10px;
+            padding: 2px 5px;
+            border-radius: 3px;
+            display: none;
         }
 
         .format-textarea::placeholder {
@@ -751,6 +818,70 @@
             .left-drawer.open {
                 left: 0;
             }
+            
+            /* Improved mobile toolbar */
+            .header-right {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            
+            .header-right .btn {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+            
+            .header-right select {
+                padding: 6px 8px;
+                font-size: 12px;
+            }
+            
+            /* Better mobile editor/preview layout */
+            .pane-header {
+                padding: 12px 15px;
+                font-size: 14px;
+            }
+            
+            #editor, #preview {
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            header {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+            }
+            
+            .header-left h1 {
+                font-size: 16px;
+            }
+            
+            .header-right {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .main-content {
+                padding: 10px;
+                padding-bottom: 60px;
+            }
+            
+            .pane-header {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+            
+            #editor, #preview {
+                padding: 12px;
+            }
+            
+            /* Better mobile dropdowns */
+            .dropdown-content {
+                min-width: 140px;
+                right: 0;
+                left: auto;
+            }
         }
         
         /* Custom CSS Editor Floating Panel */
@@ -811,27 +942,27 @@
     </style>
 </head>
 <body>
-    <header>
+    <header role="banner">
         <div class="header-left" style="display: flex; align-items: center;">
-            <h1>Markdown编辑器</h1>
-            <button class="btn btn-secondary backend-online" id="backend-status" title="服务状态" style="margin-left: 15px; font-size: 12px; padding: 4px 8px;" disabled>
+            <h1 aria-label="Markdown编辑器">Markdown编辑器</h1>
+            <button class="btn btn-secondary backend-online" id="backend-status" title="服务状态" aria-label="服务状态" style="margin-left: 15px; font-size: 12px; padding: 4px 8px;" disabled>
                 <span class="backend-status-indicator status-online"></span>
-                <i class="fas fa-server"></i> <span>服务在线</span>
+                <i class="fas fa-server" aria-hidden="true"></i> <span>服务在线</span>
             </button>
         </div>
-        <div class="header-right">
+        <div class="header-right" role="toolbar" aria-label="编辑器工具栏">
             <div class="checkbox-container">
-                <input type="checkbox" id="split-checkbox">
+                <input type="checkbox" id="split-checkbox" aria-label="分隔线拆分">
                 <label for="split-checkbox">分隔线拆分</label>
             </div>
-            <select id="theme-selector">
+            <select id="theme-selector" aria-label="选择主题">
               
             </select>
-            <button class="btn btn-secondary" onclick="loadSample()">
-                <i class="fas fa-file-code"></i> 示例
+            <button class="btn btn-secondary" onclick="loadSample()" aria-label="加载示例">
+                <i class="fas fa-file-code" aria-hidden="true"></i> 示例
             </button>
-            <button class="btn btn-secondary" id="settings-toggle">
-                <i class="fas fa-cog"></i> 自定义主题
+            <button class="btn btn-secondary" id="settings-toggle" aria-label="自定义主题设置">
+                <i class="fas fa-cog" aria-hidden="true"></i> 自定义主题
             </button>
             <!-- button class="btn btn-secondary" id="style-porter-btn" style="background-color: #FF9800; color: white;">
                 <i class="fas fa-palette"></i> 样式搬运工
@@ -862,23 +993,25 @@
             </div>
             <div class="image-paste-status" id="imagePasteStatus"></div>
             <div id="imagePreviewContainer"></div>
-            <textarea id="editor" placeholder="请输入Markdown内容...&#10;&#10;💡 提示：您可以直接粘贴图片(Ctrl+V)或拖拽图片文件到编辑器中！"></textarea>
+            <textarea id="editor" placeholder="请输入Markdown内容...&#10;&#10;💡 提示：您可以直接粘贴图片(Ctrl+V)或拖拽图片文件到编辑器中！" aria-label="Markdown编辑器" role="textbox" aria-multiline="true"></textarea>
         </div>
 
         <div class="preview-pane">
             <div class="pane-header">
                 <i class="fas fa-eye"></i> 预览
                 <div style="float: right; display: flex; gap: 8px; align-items: center;">
-                    <button class="btn btn-secondary" onclick="copyToClipboard()" style="background-color: #1e3a8a; color: white; padding: 6px 10px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer; transition: all 0.2s ease; height: 32px; display: flex; align-items: center;">
-                        <i class="fas fa-copy"></i> 复制
+                    <button class="btn btn-secondary" onclick="copyToClipboard()" style="background-color: #1e3a8a; color: white; padding: 6px 10px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer; transition: all 0.2s ease; height: 32px; display: flex; align-items: center;" aria-label="复制预览内容">
+                        <i class="fas fa-copy" aria-hidden="true"></i> 复制
                     </button>
                     <div class="dropdown">
-                        <button class="btn btn-primary dropdown-toggle" onclick="toggleDropdown(this)" style="padding: 6px 10px; font-size: 12px; height: 32px; display: flex; align-items: center;">
-                            <i class="fas fa-download"></i> 下载 <i class="fas fa-caret-down"></i>
+                        <button class="btn btn-primary dropdown-toggle" onclick="toggleDropdown(this)" style="padding: 6px 10px; font-size: 12px; height: 32px; display: flex; align-items: center;" aria-expanded="false" aria-haspopup="true" aria-label="下载选项">
+                            <i class="fas fa-download" aria-hidden="true"></i> 下载 <i class="fas fa-caret-down" aria-hidden="true"></i>
                         </button>
                         <div class="dropdown-content">
                             <a href="#" onclick="downloadHTML(); hideDropdown(this)"><i class="fas fa-file-code"></i> 下载HTML</a>
                             <a href="#" onclick="downloadPNG(); hideDropdown(this)"><i class="fas fa-image"></i> 下载PNG</a>
+                            <a href="#" onclick="downloadPDF(); hideDropdown(this)"><i class="fas fa-file-pdf"></i> 下载PDF</a>
+                            <a href="#" onclick="downloadDOCX(); hideDropdown(this)"><i class="fas fa-file-word"></i> 下载DOCX</a>
                             <a href="#" onclick="downloadMD(); hideDropdown(this)"><i class="fas fa-file-alt"></i> 下载MD</a>
                             <a href="#" onclick="downloadTXT(); hideDropdown(this)"><i class="fas fa-file-alt"></i> 下载TXT</a>
                         </div>
@@ -894,9 +1027,9 @@
                     </div--> 
                 </div>
             </div>
-            <div id="preview">
+            <div id="preview" role="region" aria-label="预览区域">
                 <div style="text-align: center; color: #999; margin-top: 50px;">
-                    <i class="fas fa-arrow-left" style="font-size: 48px; margin-bottom: 20px; opacity: 0.3;"></i>
+                    <i class="fas fa-arrow-left" style="font-size: 48px; margin-bottom: 20px; opacity: 0.3;" aria-hidden="true"></i>
                     <p>在左侧编辑器输入内容，右侧将实时预览</p>
                 </div>
             </div>
@@ -912,101 +1045,125 @@
                    <div class="setting-group">
                     <h3>格式自定义 <button id="load-default-format" class="btn btn-secondary" style="margin-left: 10px; padding: 4px 12px; font-size: 12px;">加载阿里橙样式为样例</button></h3>
                     <div class="format-customization">
-                        <div class="format-option">
+                        <div class="format-option" style="position: relative;">
                             <label for="format-container">Container:</label>
                             <textarea id="format-container" class="format-textarea" placeholder="输入Container的CSS样式..."></textarea>
+                            <span class="format-preview-indicator" id="indicator-container">预览</span>
                         </div>
-                        <div class="format-option">
+                        <div class="format-option" style="position: relative;">
                             <label for="format-h1">H1:</label>
                             <textarea id="format-h1" class="format-textarea" placeholder="输入H1的CSS样式..."></textarea>
+                            <span class="format-preview-indicator" id="indicator-h1">预览</span>
                         </div>
-                        <div class="format-option">
+                        <div class="format-option" style="position: relative;">
                             <label for="format-h2">H2:</label>
                             <textarea id="format-h2" class="format-textarea" placeholder="输入H2的CSS样式..."></textarea>
+                            <span class="format-preview-indicator" id="indicator-h2">预览</span>
                         </div>
-                        <div class="format-option">
+                        <div class="format-option" style="position: relative;">
                             <label for="format-h3">H3:</label>
                             <textarea id="format-h3" class="format-textarea" placeholder="输入H3的CSS样式..."></textarea>
+                            <span class="format-preview-indicator" id="indicator-h3">预览</span>
                         </div>
-                        <div class="format-option">
+                        <div class="format-option" style="position: relative;">
                             <label for="format-h4">H4:</label>
                             <textarea id="format-h4" class="format-textarea" placeholder="输入H4的CSS样式..."></textarea>
+                            <span class="format-preview-indicator" id="indicator-h4">预览</span>
                         </div>
-                        <div class="format-option">
+                        <div class="format-option" style="position: relative;">
                             <label for="format-h5">H5:</label>
                             <textarea id="format-h5" class="format-textarea" placeholder="输入H5的CSS样式..."></textarea>
+                            <span class="format-preview-indicator" id="indicator-h5">预览</span>
                         </div>
-                        <div class="format-option">
+                        <div class="format-option" style="position: relative;">
                             <label for="format-h6">H6:</label>
                             <textarea id="format-h6" class="format-textarea" placeholder="输入H6的CSS样式..."></textarea>
+                            <span class="format-preview-indicator" id="indicator-h6">预览</span>
                         </div>
-                        <div class="format-option">
+                        <div class="format-option" style="position: relative;">
                             <label for="format-p">P:</label>
                             <textarea id="format-p" class="format-textarea" placeholder="输入P的CSS样式..."></textarea>
+                            <span class="format-preview-indicator" id="indicator-p">预览</span>
                         </div>
-                        <div class="format-option">
+                        <div class="format-option" style="position: relative;">
                             <label for="format-strong">Strong:</label>
                             <textarea id="format-strong" class="format-textarea" placeholder="输入Strong的CSS样式..."></textarea>
+                            <span class="format-preview-indicator" id="indicator-strong">预览</span>
                         </div>
-                        <div class="format-option">
+                        <div class="format-option" style="position: relative;">
                             <label for="format-em">Em:</label>
                             <textarea id="format-em" class="format-textarea" placeholder="输入Em的CSS样式..."></textarea>
+                            <span class="format-preview-indicator" id="indicator-em">预览</span>
                         </div>
-                        <div class="format-option">
+                        <div class="format-option" style="position: relative;">
                             <label for="format-a">A:</label>
                             <textarea id="format-a" class="format-textarea" placeholder="输入A的CSS样式..."></textarea>
+                            <span class="format-preview-indicator" id="indicator-a">预览</span>
                         </div>
-                        <div class="format-option">
+                        <div class="format-option" style="position: relative;">
                             <label for="format-ul">Ul:</label>
                             <textarea id="format-ul" class="format-textarea" placeholder="输入Ul的CSS样式..."></textarea>
+                            <span class="format-preview-indicator" id="indicator-ul">预览</span>
                         </div>
-                        <div class="format-option">
+                        <div class="format-option" style="position: relative;">
                             <label for="format-ol">Ol:</label>
                             <textarea id="format-ol" class="format-textarea" placeholder="输入Ol的CSS样式..."></textarea>
+                            <span class="format-preview-indicator" id="indicator-ol">预览</span>
                         </div>
-                        <div class="format-option">
+                        <div class="format-option" style="position: relative;">
                             <label for="format-li">Li:</label>
                             <textarea id="format-li" class="format-textarea" placeholder="输入Li的CSS样式..."></textarea>
+                            <span class="format-preview-indicator" id="indicator-li">预览</span>
                         </div>
-                        <div class="format-option">
+                        <div class="format-option" style="position: relative;">
                             <label for="format-blockquote">Blockquote:</label>
                             <textarea id="format-blockquote" class="format-textarea" placeholder="输入Blockquote的CSS样式..."></textarea>
+                            <span class="format-preview-indicator" id="indicator-blockquote">预览</span>
                         </div>
-                        <div class="format-option">
+                        <div class="format-option" style="position: relative;">
                             <label for="format-code">Code:</label>
                             <textarea id="format-code" class="format-textarea" placeholder="输入Code的CSS样式..."></textarea>
+                            <span class="format-preview-indicator" id="indicator-code">预览</span>
                         </div>
-                        <div class="format-option">
+                        <div class="format-option" style="position: relative;">
                             <label for="format-pre">Pre:</label>
                             <textarea id="format-pre" class="format-textarea" placeholder="输入Pre的CSS样式..."></textarea>
+                            <span class="format-preview-indicator" id="indicator-pre">预览</span>
                         </div>
-                        <div class="format-option">
+                        <div class="format-option" style="position: relative;">
                             <label for="format-hr">Hr:</label>
                             <textarea id="format-hr" class="format-textarea" placeholder="输入Hr的CSS样式..."></textarea>
+                            <span class="format-preview-indicator" id="indicator-hr">预览</span>
                         </div>
-                        <div class="format-option">
+                        <div class="format-option" style="position: relative;">
                             <label for="format-img">Img:</label>
                             <textarea id="format-img" class="format-textarea" placeholder="输入Img的CSS样式..."></textarea>
+                            <span class="format-preview-indicator" id="indicator-img">预览</span>
                         </div>
-                        <div class="format-option">
+                        <div class="format-option" style="position: relative;">
                             <label for="format-table">Table:</label>
                             <textarea id="format-table" class="format-textarea" placeholder="输入Table的CSS样式..."></textarea>
+                            <span class="format-preview-indicator" id="indicator-table">预览</span>
                         </div>
-                        <div class="format-option">
+                        <div class="format-option" style="position: relative;">
                             <label for="format-th">Th:</label>
                             <textarea id="format-th" class="format-textarea" placeholder="输入Th的CSS样式..."></textarea>
+                            <span class="format-preview-indicator" id="indicator-th">预览</span>
                         </div>
-                        <div class="format-option">
+                        <div class="format-option" style="position: relative;">
                             <label for="format-td">Td:</label>
                             <textarea id="format-td" class="format-textarea" placeholder="输入Td的CSS样式..."></textarea>
+                            <span class="format-preview-indicator" id="indicator-td">预览</span>
                         </div>
-                        <div class="format-option">
+                        <div class="format-option" style="position: relative;">
                             <label for="format-tr">Tr:</label>
                             <textarea id="format-tr" class="format-textarea" placeholder="输入Tr的CSS样式..."></textarea>
+                            <span class="format-preview-indicator" id="indicator-tr">预览</span>
                         </div>
-                        <div class="format-option">
+                        <div class="format-option" style="position: relative;">
                             <label for="format-innercontainer">Inner Container:</label>
                             <textarea id="format-innercontainer" class="format-textarea" placeholder="输入Inner Container的CSS样式..."></textarea>
+                            <span class="format-preview-indicator" id="indicator-innercontainer">预览</span>
                         </div>
                         <div class="format-buttons">
                             <button id="save-format" class="btn btn-primary">保存格式</button>
@@ -1014,6 +1171,23 @@
                         </div>
                     </div>
                    </div>    
+                   <div class="setting-group">
+                    <h3>图片压缩设置</h3>
+                    <div class="input-group">
+                        <label for="compression-preset">压缩质量:</label>
+                        <select id="compression-preset" class="form-control">
+                            <option value="low">低质量 (高压缩率)</option>
+                            <option value="medium" selected>中等质量</option>
+                            <option value="high">高质量 (低压缩率)</option>
+                            <option value="max">最大质量</option>
+                            <option value="web">WebP格式</option>
+                        </select>
+                        <p style="margin-top: 5px; font-size: 12px; color: #666;">选择图片压缩质量，影响文件大小和加载速度</p>
+                    </div>
+                    <div class="button-group">
+                        <button id="save-compression-settings" class="btn btn-primary">保存设置</button>
+                    </div>
+                   </div>
             </div>
         </div>
 
@@ -1081,6 +1255,13 @@
     <!-- 前端渲染库已移除，现在完全使用后端渲染 -->
     <script src="https://cdn.jsdelivr.net/npm/turndown/dist/turndown.min.js"></script>
     
+    <!-- CodeMirror for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/markdown/markdown.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
+    
     <!-- Core functionality - New Modular Architecture -->
     <script src="/static/shared.js?v=59adec1"></script>
     <script src="/static/core.js?v=59adec1"></script>
@@ -1120,6 +1301,44 @@
         });
     </script>
     
+    <!-- Service Worker Registration -->
+    <script>
+        // Register service worker for offline support
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/static/service-worker.js')
+                    .then(function(registration) {
+                        console.log('[Service Worker] Registered:', registration.scope);
+                        
+                        // Check for updates
+                        registration.addEventListener('updatefound', function() {
+                            console.log('[Service Worker] Update found');
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', function() {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // New update available
+                                    console.log('[Service Worker] New update ready');
+                                    // Optionally notify user about update
+                                    const updateNotice = document.createElement('div');
+                                    updateNotice.innerHTML = `
+                                        <div style="position: fixed; bottom: 20px; right: 20px; background: #4CAF50; color: white; padding: 10px 15px; border-radius: 4px; z-index: 10000; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                                            <span>应用有新版本可用</span>
+                                            <button onclick="location.reload()" style="margin-left: 10px; background: white; color: #4CAF50; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">刷新</button>
+                                            <button onclick="this.parentElement.remove()" style="margin-left: 5px; background: transparent; color: white; border: none; cursor: pointer;">×</button>
+                                        </div>
+                                    `;
+                                    document.body.appendChild(updateNotice);
+                                }
+                            });
+                        });
+                    })
+                    .catch(function(error) {
+                        console.log('[Service Worker] Registration failed:', error);
+                    });
+            });
+        }
+    </script>
+    
     <script>
         // UI utility functions (dropdowns are now handled in core.js)
         
@@ -1127,12 +1346,18 @@
         function toggleDropdown(button) {
             const dropdown = button.nextElementSibling;
             if (dropdown && dropdown.classList.contains('dropdown-content')) {
-                dropdown.classList.toggle('show');
+                const isExpanded = dropdown.classList.toggle('show');
+                button.setAttribute('aria-expanded', isExpanded);
                 
                 // Close other dropdowns
                 document.querySelectorAll('.dropdown-content.show').forEach(menu => {
                     if (menu !== dropdown) {
                         menu.classList.remove('show');
+                        // Update aria-expanded for other dropdown buttons
+                        const otherButton = menu.previousElementSibling;
+                        if (otherButton && otherButton.hasAttribute('aria-expanded')) {
+                            otherButton.setAttribute('aria-expanded', 'false');
+                        }
                     }
                 });
             }
@@ -1151,7 +1376,45 @@
             if (!event.target.matches('.dropdown-toggle')) {
                 document.querySelectorAll('.dropdown-content.show').forEach(menu => {
                     menu.classList.remove('show');
+                    // Update aria-expanded for dropdown buttons
+                    const button = menu.previousElementSibling;
+                    if (button && button.hasAttribute('aria-expanded')) {
+                        button.setAttribute('aria-expanded', 'false');
+                    }
                 });
+            }
+        });
+        
+        // Keyboard navigation for dropdowns
+        document.addEventListener('keydown', function(event) {
+            // ESC key to close dropdowns
+            if (event.key === 'Escape') {
+                document.querySelectorAll('.dropdown-content.show').forEach(menu => {
+                    menu.classList.remove('show');
+                    // Update aria-expanded for dropdown buttons
+                    const button = menu.previousElementSibling;
+                    if (button && button.hasAttribute('aria-expanded')) {
+                        button.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            }
+            
+            // Tab key navigation
+            if (event.key === 'Tab') {
+                // Close dropdowns when tabbing away
+                setTimeout(() => {
+                    document.querySelectorAll('.dropdown-content.show').forEach(menu => {
+                        const isFocused = menu.contains(document.activeElement);
+                        if (!isFocused) {
+                            menu.classList.remove('show');
+                            // Update aria-expanded for dropdown buttons
+                            const button = menu.previousElementSibling;
+                            if (button && button.hasAttribute('aria-expanded')) {
+                                button.setAttribute('aria-expanded', 'false');
+                            }
+                        }
+                    });
+                }, 10);
             }
         });
         

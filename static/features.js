@@ -94,7 +94,10 @@ class ImageCompressor {
             maxWidth = SharedUtils.CONFIG.MAX_IMAGE_WIDTH,
             maxHeight = SharedUtils.CONFIG.MAX_IMAGE_HEIGHT,
             quality = SharedUtils.CONFIG.IMAGE_QUALITY,
-            mimeType = 'image/jpeg'
+            mimeType = 'image/jpeg',
+            // New compression options
+            preserveAspectRatio = true,
+            compressionLevel = 'medium' // 'low', 'medium', 'high'
         } = options;
         
         return new Promise((resolve) => {
@@ -106,10 +109,24 @@ class ImageCompressor {
                 // Calculate new dimensions
                 let { width, height } = img;
                 
+                // Apply compression level adjustments
+                let adjustedQuality = quality;
+                if (compressionLevel === 'high') {
+                    adjustedQuality = 0.7; // Higher compression (lower quality)
+                } else if (compressionLevel === 'low') {
+                    adjustedQuality = 0.9; // Lower compression (higher quality)
+                }
+                
                 if (width > maxWidth || height > maxHeight) {
-                    const ratio = Math.min(maxWidth / width, maxHeight / height);
-                    width *= ratio;
-                    height *= ratio;
+                    if (preserveAspectRatio) {
+                        const ratio = Math.min(maxWidth / width, maxHeight / height);
+                        width *= ratio;
+                        height *= ratio;
+                    } else {
+                        // Don't preserve aspect ratio, just fit in the bounds
+                        width = Math.min(width, maxWidth);
+                        height = Math.min(height, maxHeight);
+                    }
                 }
                 
                 canvas.width = width;
@@ -117,11 +134,44 @@ class ImageCompressor {
                 
                 // Draw and compress
                 ctx.drawImage(img, 0, 0, width, height);
-                canvas.toBlob(resolve, mimeType, quality);
-            };
+                canvas.toBlob(resolve, mimeType, adjustedQuality);
+            }; 
             
             img.src = URL.createObjectURL(file);
         });
+    }
+    
+    // Enhanced compression with specific quality presets
+    static async compressWithPreset(file, preset = 'medium') {
+        const options = {};
+        
+        switch(preset) {
+            case 'low':
+                options.quality = 0.9;
+                options.compressionLevel = 'low';
+                break;
+            case 'high':
+                options.quality = 0.7;
+                options.compressionLevel = 'high';
+                break;
+            case 'max':
+                options.quality = 0.5;
+                options.compressionLevel = 'high';
+                options.maxWidth = 1200;
+                options.maxHeight = 800;
+                break;
+            case 'web':
+                options.quality = 0.8;
+                options.compressionLevel = 'medium';
+                options.mimeType = 'image/webp';
+                break;
+            default: // medium
+                options.quality = 0.8;
+                options.compressionLevel = 'medium';
+                break;
+        }
+        
+        return this.compress(file, options);
     }
 }
 
@@ -251,8 +301,11 @@ async function handleImageUpload(file) {
     try {
         showImageStatus('🔄 正在处理图片...', 'info');
         
-        // Compress image
-        const compressedBlob = await ImageCompressor.compress(file);
+        // Get compression settings from localStorage or use defaults
+        const compressionPreset = localStorage.getItem('imageCompressionPreset') || 'medium';
+        
+        // Compress image with enhanced options
+        const compressedBlob = await ImageCompressor.compressWithPreset(file, compressionPreset);
         const originalSize = file.size;
         const compressedSize = compressedBlob.size;
         
@@ -261,7 +314,8 @@ async function handleImageUpload(file) {
         await imageStore.saveImage(imageId, compressedBlob, {
             name: file.name || 'pasted-image',
             originalSize: originalSize,
-            type: compressedBlob.type
+            type: compressedBlob.type,
+            compressionPreset: compressionPreset
         });
         
         // Create object URL and insert markdown
@@ -286,12 +340,20 @@ async function handleImageUpload(file) {
         // Show preview in editor pane
         const previewContainer = document.getElementById('imagePreviewContainer');
         if (previewContainer) {
+            const presetText = {
+                'low': '低压缩',
+                'medium': '中等压缩',
+                'high': '高压缩',
+                'max': '最大压缩',
+                'web': 'WebP格式'
+            }[compressionPreset] || compressionPreset;
+            
             const previewDiv = document.createElement('section');
             previewDiv.className = 'image-preview-container';
             previewDiv.innerHTML = `
                 <img src="${objectURL}" class="image-preview" alt="${file.name || 'image'}">
                 <div class="image-info">
-                    ${file.name || '粘贴的图片'} (${formatFileSize(originalSize)} → ${formatFileSize(compressedSize)})
+                    ${file.name || '粘贴的图片'} (${formatFileSize(originalSize)} → ${formatFileSize(compressedSize)}, ${presetText})
                     <button onclick="this.parentElement.parentElement.remove()" style="margin-left: 10px; background: #f44336; color: white; border: none; padding: 2px 6px; border-radius: 2px; cursor: pointer;">删除</button>
                 </div>
             `;
@@ -640,6 +702,199 @@ function downloadTXT() {
     
     const filename = generateFilename('markdown', 'txt', themeSelector?.value || 'default');
     downloadFile(plainText, filename, 'text/plain');
+}
+
+/**
+ * Download content as PDF file
+ */
+async function downloadPDF() {
+    const editor = document.getElementById('editor');
+    const themeSelector = document.getElementById('theme-selector');
+    
+    if (!editor || !editor.value.trim()) {
+        alert('请先输入Markdown内容');
+        return;
+    }
+
+    try {
+        updateStatus('正在生成PDF...');
+        showLoading();
+        
+        // Get the preview content
+        const preview = document.getElementById('preview');
+        let contentHTML = '';
+        
+        if (preview && preview.innerHTML.trim()) {
+            contentHTML = preview.innerHTML;
+        } else {
+            // Fallback: render content
+            const response = await fetch(`${SharedUtils.CONFIG.API_BASE_URL}/render`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    markdown_text: editor.value,
+                    theme: themeSelector?.value || SharedUtils.CONFIG.DEFAULT_THEME,
+                    mode: SharedUtils.CONFIG.DEFAULT_MODE,
+                    platform: SharedUtils.CONFIG.DEFAULT_PLATFORM,
+                    dashseparator: false
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`渲染失败: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            contentHTML = data.html;
+        }
+        
+        // Create a new window with the content to print as PDF
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Markdown Content</title>
+                <style>
+                    body {
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                        max-width: 740px;
+                        margin: 0 auto;
+                        padding: 20px;
+                        line-height: 1.6;
+                    }
+                    /* Include MathJax font definitions */
+                    #MJX-SVG-global-cache { display: none; }
+                    /* Add page break styles */
+                    @media print {
+                        @page {
+                            margin: 2cm;
+                        }
+                        body {
+                            -webkit-print-color-adjust: exact;
+                            color-adjust: exact;
+                        }
+                    }
+                </style>
+                <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+                <script>
+                    mermaid.initialize({ startOnLoad: true });
+                </script>
+            </head>
+            <body>
+                ${contentHTML}
+            </body>
+            </html>
+        `);
+        
+        printWindow.document.close();
+        
+        // Wait for the content to load
+        printWindow.onload = function() {
+            // Try to print as PDF
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+                updateStatus('PDF已生成');
+                hideLoading();
+            }, 1000);
+        };
+        
+        setTimeout(() => {
+            if (!printWindow.onload) {
+                printWindow.print();
+                printWindow.close();
+                updateStatus('PDF已生成');
+                hideLoading();
+            }
+        }, 1500);
+        
+    } catch (error) {
+        SharedUtils.logError('Features', '生成PDF失败', error);
+        updateStatus('生成PDF失败', true);
+        hideLoading();
+        alert('生成PDF失败: ' + error.message);
+    }
+}
+
+/**
+ * Download content as DOCX file
+ */
+async function downloadDOCX() {
+    const editor = document.getElementById('editor');
+    const themeSelector = document.getElementById('theme-selector');
+    
+    if (!editor || !editor.value.trim()) {
+        alert('请先输入Markdown内容');
+        return;
+    }
+
+    try {
+        updateStatus('正在生成DOCX...');
+        showLoading();
+        
+        // Convert markdown to DOCX using external service or library
+        // For now, we'll generate HTML and provide a way to save it
+        const response = await fetch(`${SharedUtils.CONFIG.API_BASE_URL}/render`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                markdown_text: editor.value,
+                theme: themeSelector?.value || SharedUtils.CONFIG.DEFAULT_THEME,
+                mode: SharedUtils.CONFIG.DEFAULT_MODE,
+                platform: SharedUtils.CONFIG.DEFAULT_PLATFORM,
+                dashseparator: false
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`渲染失败: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Create a Word document-like HTML
+        const docContent = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Markdown Document</title>
+    <style>
+        body {
+            font-family: "Times New Roman", serif;
+            margin: 40px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    ${data.html}
+</body>
+</html>`;
+        
+        const filename = generateFilename('markdown', 'docx', themeSelector?.value || 'default');
+        
+        // Create a data URI for the document
+        const blob = new Blob([docContent], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        updateStatus('DOCX已生成');
+        
+    } catch (error) {
+        SharedUtils.logError('Features', '生成DOCX失败', error);
+        updateStatus('生成DOCX失败', true);
+        alert('生成DOCX失败: ' + error.message);
+    } finally {
+        hideLoading();
+    }
 }
 
 /**
@@ -1455,6 +1710,8 @@ Object.assign(window, {
     // Download functions
     downloadHTML,
     downloadPNG,
+    downloadPDF,
+    downloadDOCX,
     downloadMD,
     downloadTXT,
     

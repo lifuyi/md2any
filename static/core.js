@@ -40,12 +40,104 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateStatus('就绪');
         renderMarkdown();
         
-        SharedUtils.log('Core', 'Application initialized successfully');
+        // Initialize collaborative editing
+    initializeCollaborativeEditing();
+    
+    SharedUtils.log('Core', 'Application initialized successfully');
     } catch (error) {
         SharedUtils.logError('Core', 'Application initialization failed', error);
         updateStatus('应用初始化失败', true);
     }
 });
+
+/**
+ * Initialize collaborative editing features
+ */
+function initializeCollaborativeEditing() {
+    // Set up local storage event listener to sync content across tabs
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'markdownContent' && e.newValue !== e.oldValue) {
+            // Content changed in another tab - update our editor
+            if (window.codeMirrorInstance) {
+                window.codeMirrorInstance.setValue(e.newValue || '');
+            } else {
+                const editor = document.getElementById('editor');
+                if (editor) {
+                    editor.value = e.newValue || '';
+                }
+            }
+            
+            // Update preview
+            renderMarkdown();
+            
+            // Update status
+            updateStatus('内容已从其他标签页同步');
+        } else if (e.key === 'currentTheme' && e.newValue !== e.oldValue) {
+            // Theme changed in another tab - update theme
+            const themeSelector = document.getElementById('theme-selector');
+            if (themeSelector && e.newValue) {
+                themeSelector.value = e.newValue;
+                currentTheme = e.newValue;
+                renderMarkdown();
+            }
+        }
+    });
+    
+    // Add content sync function
+    if (window.codeMirrorInstance) {
+        // For CodeMirror
+        window.codeMirrorInstance.on('change', function() {
+            const content = window.codeMirrorInstance.getValue();
+            localStorage.setItem('markdownContent', content);
+        });
+    } else {
+        const editor = document.getElementById('editor');
+        if (editor) {
+            editor.addEventListener('input', function() {
+                localStorage.setItem('markdownContent', editor.value);
+            });
+        }
+    }
+    
+    // Load saved content if available
+    const savedContent = localStorage.getItem('markdownContent');
+    if (savedContent) {
+        if (window.codeMirrorInstance) {
+            window.codeMirrorInstance.setValue(savedContent);
+        } else {
+            const editor = document.getElementById('editor');
+            if (editor) {
+                editor.value = savedContent;
+            }
+        }
+        renderMarkdown();
+    }
+    
+    // Add collaborative editing indicator
+    addCollaborativeIndicator();
+    
+    SharedUtils.log('Core', 'Collaborative editing initialized');
+}
+
+/**
+ * Add collaborative editing indicator
+ */
+function addCollaborativeIndicator() {
+    const headerRight = document.querySelector('.header-right');
+    if (!headerRight) return;
+    
+    const collabIndicator = document.createElement('div');
+    collabIndicator.id = 'collab-indicator';
+    collabIndicator.innerHTML = `
+        <div style="display: flex; align-items: center; padding: 4px 8px; background: #e8f5e8; border-radius: 4px; border: 1px solid #66bb6a;">
+            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #4CAF50; margin-right: 5px;"></span>
+            <span style="font-size: 12px; color: #2e7d32;">协作模式</span>
+        </div>
+    `;
+    collabIndicator.title = '内容将在标签页间同步';
+    
+    headerRight.insertBefore(collabIndicator, headerRight.firstChild);
+}
 
 // =============================================================================
 // THEME MANAGEMENT
@@ -154,23 +246,77 @@ function initializeUI() {
     // Initialize format customization
     initializeFormatCustomization();
     
+    // Initialize CodeMirror editor
+    initializeCodeMirror();
+    
     SharedUtils.log('Core', 'UI components initialized');
+}
+
+/**
+ * Initialize CodeMirror editor
+ */
+function initializeCodeMirror() {
+    const editorElement = document.getElementById('editor');
+    if (!editorElement) return;
+    
+    // Hide the textarea and create a container for CodeMirror
+    editorElement.style.display = 'none';
+    
+    // Create a container for CodeMirror
+    const container = document.createElement('div');
+    container.id = 'codemirror-container';
+    container.style.height = '100%';
+    container.style.width = '100%';
+    
+    // Insert container before the textarea
+    editorElement.parentNode.insertBefore(container, editorElement);
+    
+    // Initialize CodeMirror
+    const cm = CodeMirror(container, {
+        value: editorElement.value,
+        mode: 'markdown',
+        theme: 'default',
+        lineNumbers: true,
+        lineWrapping: true,
+        autoCloseBrackets: true,
+        matchBrackets: true,
+        tabSize: 2,
+        indentUnit: 2,
+        extraKeys: {
+            'Enter': 'newlineAndIndentContinueMarkdownList',
+            'Tab': 'indentMore',
+            'Shift-Tab': 'indentLess'
+        }
+    });
+    
+    // Set the height
+    cm.setSize('100%', '100%');
+    
+    // Add event listeners
+    cm.on('change', function(cmInstance) {
+        // Update the hidden textarea
+        editorElement.value = cmInstance.getValue();
+        
+        // Update character count
+        updateCharCount();
+        
+        // Trigger preview update with debounce
+        SharedUtils.debounce(() => {
+            renderMarkdown();
+        }, 300)();
+    });
+    
+    // Store reference to CodeMirror instance
+    window.codeMirrorInstance = cm;
+    
+    SharedUtils.log('Core', 'CodeMirror editor initialized');
 }
 
 /**
  * Set up event listeners
  */
 function setupEventListeners() {
-    const editor = document.getElementById('editor');
     const themeSelector = document.getElementById('theme-selector');
-    
-    // Editor input with debouncing
-    if (editor) {
-        editor.addEventListener('input', debounce(() => {
-            updateCharCount();
-            renderMarkdown();
-        }));
-    }
     
     // Theme change
     if (themeSelector) {
@@ -315,8 +461,164 @@ function initializeFormatCustomization() {
         loadDefaultBtn.addEventListener('click', loadDefaultFormatValues);
     }
     
+    // Add live preview functionality
+    setupLivePreview();
+    
+    // Initialize image compression settings
+    initializeImageCompressionSettings();
+    
     // Load saved custom formats
     loadCustomFormats();
+}
+
+/**
+ * Initialize image compression settings
+ */
+function initializeImageCompressionSettings() {
+    const presetSelect = document.getElementById('compression-preset');
+    const saveBtn = document.getElementById('save-compression-settings');
+    
+    if (presetSelect) {
+        // Load saved preset
+        const savedPreset = localStorage.getItem('imageCompressionPreset') || 'medium';
+        presetSelect.value = savedPreset;
+    }
+    
+    if (saveBtn) {
+        saveBtn.addEventListener('click', function() {
+            if (presetSelect) {
+                localStorage.setItem('imageCompressionPreset', presetSelect.value);
+                SharedUtils.log('Core', 'Image compression preset saved:', presetSelect.value);
+                
+                // Show confirmation
+                const status = document.getElementById('status');
+                if (status) {
+                    const originalText = status.textContent;
+                    status.textContent = '图片压缩设置已保存';
+                    status.style.color = '#28a745';
+                    
+                    setTimeout(() => {
+                        status.textContent = originalText;
+                        status.style.color = '#666';
+                    }, 2000);
+                }
+            }
+        });
+    }
+}
+
+/**
+ * Setup live preview for format customization
+ */
+function setupLivePreview() {
+    // Get all format input elements
+    const formatInputs = document.querySelectorAll('.format-textarea');
+    
+    formatInputs.forEach(input => {
+        input.addEventListener('input', SharedUtils.debounce(() => {
+            applyLivePreview();
+        }, 500));
+    });
+}
+
+/**
+ * Apply live preview of custom styles
+ */
+function applyLivePreview() {
+    // Get the preview pane
+    const previewPane = document.getElementById('preview');
+    if (!previewPane) return;
+    
+    // Get all custom format values
+    const formatElements = [
+        'container', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+        'p', 'strong', 'em', 'a', 'ul', 'ol', 'li',
+        'blockquote', 'code', 'pre', 'hr', 'img', 'table', 'th', 'td', 'tr', 'innercontainer'
+    ];
+    
+    // Create a style element with all custom styles
+    let customCSS = '';
+    
+    formatElements.forEach(element => {
+        const textarea = document.getElementById(`format-${element}`);
+        if (textarea && textarea.value.trim()) {
+            // Apply styles to the preview pane
+            const styleRules = textarea.value.trim();
+            
+            // Show preview indicator
+            const indicator = document.getElementById(`indicator-${element}`);
+            if (indicator) {
+                indicator.style.display = 'inline-block';
+            }
+            
+            // Add modified class to textarea
+            textarea.classList.add('modified');
+            
+            // Create CSS selector based on the element
+            let selector = '';
+            switch(element) {
+                case 'container':
+                    selector = '#preview';
+                    break;
+                case 'innercontainer':
+                    selector = '#preview .inner-container';
+                    break;
+                case 'h1':
+                case 'h2':
+                case 'h3':
+                case 'h4':
+                case 'h5':
+                case 'h6':
+                case 'p':
+                case 'strong':
+                case 'em':
+                case 'a':
+                case 'ul':
+                case 'ol':
+                case 'li':
+                case 'blockquote':
+                case 'code':
+                case 'pre':
+                case 'hr':
+                case 'img':
+                case 'table':
+                case 'th':
+                case 'td':
+                case 'tr':
+                    selector = `#preview ${element}`;
+                    break;
+            }
+            
+            if (selector) {
+                customCSS += `${selector} { ${styleRules} }\n`;
+            }
+        } else {
+            // Hide preview indicator if no styles
+            const indicator = document.getElementById(`indicator-${element}`);
+            if (indicator) {
+                indicator.style.display = 'none';
+            }
+            
+            // Remove modified class from textarea
+            const textAreaElement = document.getElementById(`format-${element}`);
+            if (textAreaElement) {
+                textAreaElement.classList.remove('modified');
+            }
+        }
+    });
+    
+    // Create or update the live preview style element
+    let previewStyle = document.getElementById('live-preview-style');
+    if (!previewStyle) {
+        previewStyle = document.createElement('style');
+        previewStyle.id = 'live-preview-style';
+        document.head.appendChild(previewStyle);
+    }
+    
+    previewStyle.textContent = customCSS;
+    
+    // Re-render the preview with current markdown
+    renderMarkdown();
 }
 
 /**
@@ -679,11 +981,18 @@ function updateCharCount() {
  * Clear editor content
  */
 function clearEditor() {
-    const editor = document.getElementById('editor');
-    if (editor) {
-        editor.value = '';
+    // Check if CodeMirror is initialized
+    if (window.codeMirrorInstance) {
+        window.codeMirrorInstance.setValue('');
         updateCharCount();
         renderMarkdown();
+    } else {
+        const editor = document.getElementById('editor');
+        if (editor) {
+            editor.value = '';
+            updateCharCount();
+            renderMarkdown();
+        }
     }
 }
 
@@ -739,9 +1048,7 @@ function closeStylePorter() {
  * Load sample markdown content
  */
 function loadSample() {
-    const editor = document.getElementById('editor');
-    if (editor) {
-        const sampleMarkdown = `# 测试文档 - 完整功能演示
+    const sampleMarkdown = `# 测试文档 - 完整功能演示
 
 ## 标题层级测试
 
@@ -835,9 +1142,19 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
 #### 数学符号
 ± × ÷ ≤ ≥ ≠ ∞ ∑ ∏ √ ∛ ∛
 `;
-        editor.value = sampleMarkdown;
+    
+    // Check if CodeMirror is initialized
+    if (window.codeMirrorInstance) {
+        window.codeMirrorInstance.setValue(sampleMarkdown);
         updateCharCount();
         renderMarkdown();
+    } else {
+        const editor = document.getElementById('editor');
+        if (editor) {
+            editor.value = sampleMarkdown;
+            updateCharCount();
+            renderMarkdown();
+        }
     }
 }
 
