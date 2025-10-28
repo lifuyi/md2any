@@ -29,6 +29,9 @@
 - **文件上传**：支持 .md / .markdown 文件
 - **代码高亮**：优雅的代码块展示，支持多种语言
 - **响应式设计**：完美适配桌面、平板、手机
+- **语法高亮编辑器**：集成CodeMirror，提供更好的Markdown编辑体验
+- **多种导出格式**：支持HTML、PNG、PDF、DOCX等多种格式导出
+- **无障碍访问**：支持键盘导航和屏幕阅读器
 
 ### 🎯 多平台支持
 - **微信公众号**：完美适配公众号编辑器格式
@@ -61,7 +64,7 @@
 ## 🛠️ 技术栈
 
 - **原生 JavaScript** - 无框架依赖的纯JS实现
-- **Markdown-it** - 强大的 Markdown 解析器
+- **CodeMirror** - 代码编辑器组件
 - **Highlight.js** - 代码语法高亮
 - **IndexedDB** - 本地图片持久化存储
 - **Canvas API** - 客户端图片压缩
@@ -73,11 +76,12 @@
 ```
 md2any/
 ├── index.html          # 主页面
-├── app.js              # 核心应用逻辑和交互功能
+├── core.js             # 核心应用逻辑和交互功能
+├── features.js         # 功能模块
 ├── styles.js           # 样式配置
-├── frontend.js         # 前端交互逻辑
-├── api_server.py       # Python API 服务器
-├── fallback_libs.js    # 降级库支持
+├── shared.js           # 共享工具函数
+├── api.py              # Python API 服务器
+├── service-worker.js   # 离线支持
 └── README.md           # 项目说明
 ```
 

@@ -11,10 +11,10 @@ Welcome to the md2any documentation hub. This directory contains all the documen
 - **[API_README.md](./API_README.md)** - Complete API documentation, setup instructions, and integration guide
 
 ### 🏗️ Architecture & Implementation
-- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Technical architecture, system design, and implementation details
+- **Architecture Documentation** - Technical architecture, system design, and implementation details (see below)
 
 ### 📋 Project Notes
-- **[proj.md](./proj.md)** - Original project documentation and historical notes (legacy)
+- **Project Notes** - Original project documentation and historical notes (see below)
 
 ---
 
@@ -27,12 +27,12 @@ Welcome to the md2any documentation hub. This directory contains all the documen
 
 ### For Developers
 1. Read [API_README.md](./API_README.md) for backend setup
-2. Study [ARCHITECTURE.md](./ARCHITECTURE.md) for technical details
+2. Study the architecture documentation below for technical details
 3. Review the codebase and implementation
 
 ### For Contributors
 1. Understand the project from [README.md](./README.md)
-2. Learn the architecture from [ARCHITECTURE.md](./ARCHITECTURE.md)
+2. Learn the architecture from the documentation below
 3. Check the contribution guidelines in the README
 
 ---
@@ -55,6 +55,42 @@ This documentation structure is designed to be:
 - **Up-to-date**: Reflects the current backend-only architecture
 
 For documentation updates or corrections, please submit a pull request or create an issue.
+
+---
+
+[Continue with the architecture documentation below]
+
+## 🆕 Recent Feature Updates
+
+### Enhanced Web Interface
+The web interface has been significantly enhanced with the following features:
+
+#### Syntax Highlighting Editor
+- Integrated CodeMirror for improved Markdown editing experience
+- Line numbers and bracket matching
+- Real-time syntax highlighting
+
+#### Multiple Export Formats
+- Added PDF export functionality
+- Added DOCX export functionality
+- Enhanced existing HTML and PNG export options
+
+#### Improved Image Handling
+- Enhanced image compression with configurable quality presets
+- Added UI controls for compression settings
+- Visual feedback showing compression levels
+
+#### Accessibility Improvements
+- Added ARIA labels throughout the interface
+- Improved keyboard navigation
+- Better focus indicators for all interactive elements
+
+#### Responsive Design
+- Enhanced mobile responsiveness with better breakpoints
+- Improved layout for small screens
+- Better handling of toolbar elements on mobile
+
+These enhancements significantly improve the user experience, making the editor more powerful, accessible, and user-friendly across different devices and usage scenarios.
 
 # 🏗️ md2any Architecture
 
@@ -82,10 +118,10 @@ Since the latest update, md2any uses a **backend-only rendering approach**:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        Frontend (Browser)                      │
+│                        Frontend (Browser)                       │
 ├─────────────────────────────────────────────────────────────────┤
 │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
-│  │   JavaScript App │  │  Image Store    │  │  API Client     │  │
+│  │  JavaScript App │  │  Image Store    │  │  API Client     │  │
 │  │                 │  │  (IndexedDB)    │  │                 │  │
 │  │ • Editor UI     │  │                 │  │ • HTTP Requests │  │
 │  │ • Theme Select  │  │ • Image Storage │  │ • Error Handling│  │
@@ -96,7 +132,7 @@ Since the latest update, md2any uses a **backend-only rendering approach**:
                                     │ HTTP/REST API
                                     ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                      Backend (Python/FastAPI)                  │
+│                      Backend (Python/FastAPI)                   │
 ├─────────────────────────────────────────────────────────────────┤
 │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
 │  │   API Server    │  │  Markdown Engine│  │  Theme Engine   │  │
@@ -137,12 +173,14 @@ Rendered HTML → Platform-specific Processing → Style Optimization → Clipbo
 
 ### Frontend Components
 
-#### JavaScript Application (`app.js`)
+#### JavaScript Application (modular: `core.js`, `features.js`, `shared.js`)
 - **Editor Interface**: Real-time Markdown editing
 - **Theme Selection**: UI for choosing themes and platforms
 - **Image Management**: Integration with IndexedDB for image storage
 - **API Client**: HTTP client for backend communication
 - **Copy Functionality**: Clipboard API integration
+- **Syntax Highlighting**: CodeMirror integration
+- **Accessibility**: ARIA labels and keyboard navigation
 
 #### Image Store (`ImageStore` class)
 - **Storage**: IndexedDB for persistent image storage
@@ -155,6 +193,7 @@ Rendered HTML → Platform-specific Processing → Style Optimization → Clipbo
 - **Status Indicators**: Backend connection status
 - **User Controls**: Theme selection, copy buttons, settings
 - **Error Handling**: User-friendly error messages
+- **Accessibility**: ARIA labels and keyboard navigation
 
 ### Backend Components
 
@@ -185,7 +224,8 @@ Rendered HTML → Platform-specific Processing → Style Optimization → Clipbo
 ## 🔧 Technical Specifications
 
 ### Frontend Technology Stack
-- **Framework**: 原生 JavaScript (无框架依赖，轻量高效)
+- **Frameworks**: Native JavaScript modules (core.js, features.js, shared.js)
+- **Editor**: CodeMirror for syntax highlighting
 - **Storage**: IndexedDB for image persistence
 - **Image Processing**: Canvas API for compression
 - **HTTP Client**: Fetch API with error handling
@@ -194,8 +234,9 @@ Rendered HTML → Platform-specific Processing → Style Optimization → Clipbo
 
 ### Backend Technology Stack
 - **Framework**: FastAPI (Python)
-- **Markdown**: markdown-it with extensions
+- **Markdown**: Python markdown library with extensions
 - **Syntax Highlighting**: Pygments
+- **AI Integration**: DeepSeek API for content generation
 - **Package Management**: uv (modern Python package manager)
 - **Server**: Uvicorn ASGI server
 - **Configuration**: pyproject.toml

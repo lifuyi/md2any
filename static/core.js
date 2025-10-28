@@ -40,104 +40,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateStatus('就绪');
         renderMarkdown();
         
-        // Initialize collaborative editing
-    initializeCollaborativeEditing();
-    
-    SharedUtils.log('Core', 'Application initialized successfully');
+        SharedUtils.log('Core', 'Application initialized successfully');
     } catch (error) {
         SharedUtils.logError('Core', 'Application initialization failed', error);
         updateStatus('应用初始化失败', true);
     }
 });
 
-/**
- * Initialize collaborative editing features
- */
-function initializeCollaborativeEditing() {
-    // Set up local storage event listener to sync content across tabs
-    window.addEventListener('storage', function(e) {
-        if (e.key === 'markdownContent' && e.newValue !== e.oldValue) {
-            // Content changed in another tab - update our editor
-            if (window.codeMirrorInstance) {
-                window.codeMirrorInstance.setValue(e.newValue || '');
-            } else {
-                const editor = document.getElementById('editor');
-                if (editor) {
-                    editor.value = e.newValue || '';
-                }
-            }
-            
-            // Update preview
-            renderMarkdown();
-            
-            // Update status
-            updateStatus('内容已从其他标签页同步');
-        } else if (e.key === 'currentTheme' && e.newValue !== e.oldValue) {
-            // Theme changed in another tab - update theme
-            const themeSelector = document.getElementById('theme-selector');
-            if (themeSelector && e.newValue) {
-                themeSelector.value = e.newValue;
-                currentTheme = e.newValue;
-                renderMarkdown();
-            }
-        }
-    });
-    
-    // Add content sync function
-    if (window.codeMirrorInstance) {
-        // For CodeMirror
-        window.codeMirrorInstance.on('change', function() {
-            const content = window.codeMirrorInstance.getValue();
-            localStorage.setItem('markdownContent', content);
-        });
-    } else {
-        const editor = document.getElementById('editor');
-        if (editor) {
-            editor.addEventListener('input', function() {
-                localStorage.setItem('markdownContent', editor.value);
-            });
-        }
-    }
-    
-    // Load saved content if available
-    const savedContent = localStorage.getItem('markdownContent');
-    if (savedContent) {
-        if (window.codeMirrorInstance) {
-            window.codeMirrorInstance.setValue(savedContent);
-        } else {
-            const editor = document.getElementById('editor');
-            if (editor) {
-                editor.value = savedContent;
-            }
-        }
-        renderMarkdown();
-    }
-    
-    // Add collaborative editing indicator
-    addCollaborativeIndicator();
-    
-    SharedUtils.log('Core', 'Collaborative editing initialized');
-}
 
-/**
- * Add collaborative editing indicator
- */
-function addCollaborativeIndicator() {
-    const headerRight = document.querySelector('.header-right');
-    if (!headerRight) return;
-    
-    const collabIndicator = document.createElement('div');
-    collabIndicator.id = 'collab-indicator';
-    collabIndicator.innerHTML = `
-        <div style="display: flex; align-items: center; padding: 4px 8px; background: #e8f5e8; border-radius: 4px; border: 1px solid #66bb6a;">
-            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #4CAF50; margin-right: 5px;"></span>
-            <span style="font-size: 12px; color: #2e7d32;">协作模式</span>
-        </div>
-    `;
-    collabIndicator.title = '内容将在标签页间同步';
-    
-    headerRight.insertBefore(collabIndicator, headerRight.firstChild);
-}
 
 // =============================================================================
 // THEME MANAGEMENT

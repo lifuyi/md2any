@@ -1301,43 +1301,7 @@
         });
     </script>
     
-    <!-- Service Worker Registration -->
-    <script>
-        // Register service worker for offline support
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/static/service-worker.js')
-                    .then(function(registration) {
-                        console.log('[Service Worker] Registered:', registration.scope);
-                        
-                        // Check for updates
-                        registration.addEventListener('updatefound', function() {
-                            console.log('[Service Worker] Update found');
-                            const newWorker = registration.installing;
-                            newWorker.addEventListener('statechange', function() {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    // New update available
-                                    console.log('[Service Worker] New update ready');
-                                    // Optionally notify user about update
-                                    const updateNotice = document.createElement('div');
-                                    updateNotice.innerHTML = `
-                                        <div style="position: fixed; bottom: 20px; right: 20px; background: #4CAF50; color: white; padding: 10px 15px; border-radius: 4px; z-index: 10000; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
-                                            <span>应用有新版本可用</span>
-                                            <button onclick="location.reload()" style="margin-left: 10px; background: white; color: #4CAF50; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">刷新</button>
-                                            <button onclick="this.parentElement.remove()" style="margin-left: 5px; background: transparent; color: white; border: none; cursor: pointer;">×</button>
-                                        </div>
-                                    `;
-                                    document.body.appendChild(updateNotice);
-                                }
-                            });
-                        });
-                    })
-                    .catch(function(error) {
-                        console.log('[Service Worker] Registration failed:', error);
-                    });
-            });
-        }
-    </script>
+    
     
     <script>
         // UI utility functions (dropdowns are now handled in core.js)

@@ -10,6 +10,9 @@ A FastAPI-based backend server for rendering Markdown to HTML with theme support
 - 📱 **Platform Optimization**: Specialized rendering for WeChat, XiaoHongShu, Zhihu
 - 🔄 **Automatic Fallback**: Frontend fallback when backend is unavailable
 - 📝 **Live Preview**: Theme preview with sample content
+- 📤 **Multiple Export Formats**: Support for HTML, PNG, PDF, DOCX exports
+- 🖼️ **Enhanced Image Handling**: Improved compression with quality presets
+- ♿ **Accessibility Features**: Better ARIA labels and keyboard navigation
 
 ## Prerequisites
 
@@ -95,6 +98,40 @@ Get available themes.
 }
 ```
 
+#### `POST /custom-styles`
+Save custom theme styles.
+
+**Request Body:**
+```json
+{
+  "style_name": "My Custom Style",
+  "styles": {
+    "h1": "color: #ff0000;",
+    "p": "font-size: 16px;"
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "自定义样式保存成功",
+  "style_name": "My Custom Style"
+}
+```
+
+#### `GET /custom-styles`
+List all custom styles.
+
+**Response:**
+```json
+{
+  "custom_styles": ["My Custom Style", "Another Style"],
+  "count": 2
+}
+```
+
 #### `GET /preview/{theme_name}`
 Preview a theme with sample content.
 
@@ -134,6 +171,14 @@ A new toggle button is added to the UI:
   - "后端" (green) - Backend rendering active
   - "前端" (gray) - Frontend rendering active
 - **Click to Toggle**: Switch between backend and frontend rendering
+
+### Enhanced Features
+
+The updated frontend includes several new features:
+- **Syntax Highlighting Editor**: CodeMirror integration for better Markdown editing
+- **Multiple Export Formats**: PDF and DOCX export options
+- **Improved Image Compression**: Configurable quality presets
+- **Accessibility Improvements**: Better keyboard navigation and ARIA labels
 
 ## Configuration
 
