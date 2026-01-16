@@ -8,7 +8,9 @@
 
 ## 🌟 在线体验
 
-👉 **[立即体验](https://lifuyi.github.io/md2any/)**
+👉 **[立即体验](https://md2any-production.up.railway.app/)** (Railway 部署)
+
+📚 **[本地运行](#-技术栈)** - 查看下方技术栈部分了解如何本地运行
 
 ## ✨ 功能特点
 
@@ -143,6 +145,20 @@ IndexedDB 持久化存储
 - **金融时报** - 专业的财经风格
 - **纽约时报** - 经典的新闻风格
 - **技术风格** - 程序员最爱
+
+## 🚀 部署
+
+本项目支持通过 Railway 快速部署。详见 [DEPLOYMENT.md](DEPLOYMENT.md)
+
+### 快速部署到 Railway
+
+1. Fork 本仓库
+2. 连接到 Railway：[https://railway.app](https://railway.app)
+3. 创建新项目，选择 GitHub 仓库
+4. 添加环境变量 `DEEPSEEK_API_KEY`
+5. 自动部署完成
+
+更详细的部署步骤请查看 [DEPLOYMENT.md](DEPLOYMENT.md)
 
 ## 🤝 贡献指南
 

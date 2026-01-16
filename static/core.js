@@ -808,27 +808,56 @@ function initializeMermaid() {
  * Initialize MathJax
  */
 function initializeMathJax() {
-    if (typeof window.MathJax !== 'undefined' && window.MathJax.typesetPromise) {
-        setTimeout(() => {
-            try {
-                const preview = document.getElementById('preview');
-                if (preview && preview.innerHTML) {
-                    // Clear existing MathJax elements to prevent duplication
-                    const mathJaxElements = preview.querySelectorAll('.MathJax, .MathJax_Preview, mjx-container');
-                    mathJaxElements.forEach(el => el.remove());
-                    
-                    // Re-render all math expressions
-                    window.MathJax.typesetPromise([preview]).then(() => {
-                        SharedUtils.log('Core', 'MathJax SVG rendering completed successfully');
-                    }).catch((error) => {
-                        SharedUtils.logError('Core', 'MathJax SVG rendering failed', error);
-                    });
-                }
-            } catch (error) {
-                SharedUtils.logError('Core', 'MathJax SVG rendering failed', error);
-            }
-        }, 100);
+    if (typeof window.MathJax === 'undefined') {
+        SharedUtils.log('Core', 'MathJax not loaded yet');
+        return;
     }
+    
+    if (!window.MathJax.typesetPromise) {
+        SharedUtils.logError('Core', 'MathJax.typesetPromise not available');
+        return;
+    }
+    
+    setTimeout(() => {
+        try {
+            const preview = document.getElementById('preview');
+            if (!preview || !preview.innerHTML) {
+                return;
+            }
+            
+            // Check if there's any math content to render
+            const hasMath = preview.innerHTML.includes('$') || 
+                           preview.innerHTML.includes('\\(') || 
+                           preview.innerHTML.includes('\\[');
+            
+            if (!hasMath) {
+                SharedUtils.log('Core', 'No math content found in preview');
+                return;
+            }
+            
+            SharedUtils.log('Core', 'Starting MathJax rendering');
+            
+            // Clear old MathJax SVG output only (mjx-container elements)
+            // IMPORTANT: Do NOT remove .MathJax_Preview or other internal MathJax elements
+            // as this breaks the rendering pipeline
+            const oldSvgs = preview.querySelectorAll('mjx-container');
+            oldSvgs.forEach(el => el.remove());
+            
+            // Re-render all math expressions
+            window.MathJax.typesetPromise([preview])
+                .then(() => {
+                    SharedUtils.log('Core', 'MathJax rendering completed successfully');
+                    // Verify rendering worked
+                    const renderedMath = preview.querySelectorAll('mjx-container');
+                    SharedUtils.log('Core', `${renderedMath.length} math expressions rendered`);
+                })
+                .catch((error) => {
+                    SharedUtils.logError('Core', 'MathJax rendering failed', error);
+                });
+        } catch (error) {
+            SharedUtils.logError('Core', 'MathJax initialization error', error);
+        }
+    }, 100);
 }
 
 // =============================================================================

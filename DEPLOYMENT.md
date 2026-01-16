@@ -1,6 +1,6 @@
-# Deployment Guide - Vercel
+# Deployment Guide - Railway
 
-This guide explains how to securely deploy the md2any application to Vercel with environment variables.
+This guide explains how to deploy the md2any application to Railway with environment variables.
 
 ## Security Changes
 
@@ -14,7 +14,7 @@ The DeepSeek API key has been moved from hardcoded values to environment variabl
 ## Prerequisites
 
 1. **DeepSeek API Key**: Get your API key from [https://platform.deepseek.com/api_keys](https://platform.deepseek.com/api_keys)
-2. **Vercel Account**: Create an account at [https://vercel.com](https://vercel.com)
+2. **Railway Account**: Create an account at [https://railway.app](https://railway.app)
 3. **Git Repository**: Push your code to GitHub, GitLab, or Bitbucket
 
 ## Local Development Setup
@@ -37,85 +37,58 @@ The DeepSeek API key has been moved from hardcoded values to environment variabl
    uvicorn api:app --reload
    ```
 
-## Deploying to Vercel
+## Deploying to Railway
 
-### Option 1: Using Vercel Dashboard
+### Option 1: Using Railway Dashboard
 
-1. Go to [https://vercel.com/dashboard](https://vercel.com/dashboard)
-2. Click "Add New..." → "Project"
-3. Select your Git repository
-4. Configure the project:
-   - **Framework**: Other
-   - **Root Directory**: `./`
-   - **Build Command**: Leave blank (or `pip install -r requirements.txt` if needed)
-   - **Output Directory**: Leave blank
-   - **Install Command**: `uv install` or `pip install -r requirements.txt`
+1. Go to [https://railway.app/dashboard](https://railway.app/dashboard)
+2. Click **New Project** → **Deploy from GitHub**
+3. Select your repository
+4. Railway will automatically detect the Python application
+5. Add environment variables:
+   - Go to **Variables** tab
+   - Add `DEEPSEEK_API_KEY=sk-your_key_here`
+6. Railway will deploy automatically
 
-5. **Add Environment Variables**:
-   - Click on "Environment Variables"
-   - Add a new variable:
-     - **Name**: `DEEPSEEK_API_KEY`
-     - **Value**: Your actual DeepSeek API key
-   - Click "Add"
+### Option 2: Using Railway CLI
 
-6. Click "Deploy"
-
-### Option 2: Using Vercel CLI
-
-1. **Install Vercel CLI**:
+1. **Install Railway CLI**:
    ```bash
-   npm i -g vercel
+   npm install -g @railway/cli
    ```
 
-2. **Login to Vercel**:
+2. **Login to Railway**:
    ```bash
-   vercel login
+   railway login
    ```
 
 3. **Deploy**:
    ```bash
-   vercel --env DEEPSEEK_API_KEY=your_key_here
+   railway up
    ```
 
-4. **Or deploy and set env vars interactively**:
+4. **Set environment variables**:
    ```bash
-   vercel
+   railway variables set DEEPSEEK_API_KEY=sk-your_key_here
    ```
-   Then follow the prompts to add environment variables.
 
-### Option 3: Create `vercel.json`
+5. **Get your deployment URL**:
+   ```bash
+   railway logs
+   ```
+   Look for the URL in the output (typically: `https://your-project-name.railway.app`)
 
-Create a `vercel.json` file in your project root:
-
-```json
-{
-  "buildCommand": "pip install -r requirements.txt",
-  "devCommand": "uvicorn api:app --reload --host 0.0.0.0",
-  "installCommand": "pip install -r requirements.txt || true",
-  "env": {
-    "DEEPSEEK_API_KEY": "@deepseek-api-key"
-  }
-}
-```
-
-Then set the secret:
-```bash
-vercel env add DEEPSEEK_API_KEY
-```
-
-## Vercel Secrets Management
+## Railway Environment Variables Setup
 
 For production deployments:
 
-1. **Set as Secret** (recommended for sensitive data):
-   ```bash
-   vercel env add DEEPSEEK_API_KEY
-   vercel env pull  # Pull to local .env.local
-   ```
+1. **Set environment variables in Railway Dashboard**:
+   - Go to Project Settings → Variables
+   - Add `DEEPSEEK_API_KEY` with your actual API key
 
-2. **Verify in Dashboard**:
-   - Go to Project Settings → Environment Variables
-   - Confirm `DEEPSEEK_API_KEY` is marked as a secret
+2. **Verify deployment**:
+   - Check Railway Dashboard for deployment status
+   - Confirm no errors in logs
 
 ## Creating a `requirements.txt`
 
@@ -142,35 +115,35 @@ pip freeze > requirements.txt
 
 Your deployed API will be accessible at:
 ```
-https://your-project-name.vercel.app
+https://your-project-name.railway.app
 ```
 
 Example endpoints:
-- `GET https://your-project-name.vercel.app/` - Home page
-- `POST https://your-project-name.vercel.app/render` - Render markdown
-- `POST https://your-project-name.vercel.app/ai` - AI assistance
-- `GET https://your-project-name.vercel.app/health` - Health check
+- `GET https://your-project-name.railway.app/` - Home page
+- `POST https://your-project-name.railway.app/render` - Render markdown
+- `POST https://your-project-name.railway.app/ai` - AI assistance
+- `GET https://your-project-name.railway.app/health` - Health check
 
 ## Troubleshooting
 
 ### "DEEPSEEK_API_KEY environment variable not set"
 
-**Solution**: Ensure the environment variable is set in Vercel:
-1. Go to Project Settings → Environment Variables
+**Solution**: Ensure the environment variable is set in Railway:
+1. Go to Project → Variables
 2. Add or verify `DEEPSEEK_API_KEY` is present
-3. Redeploy the project
+3. Redeploy the project via Railway Dashboard
 
 ### Deployment Fails
 
 **Check logs**:
-1. Go to Deployment tab in Vercel dashboard
+1. Go to Railway Dashboard → Deployments
 2. Click on the failed deployment
-3. Check the "Build Logs" for errors
+3. Check the logs for errors
 
 **Common issues**:
 - Missing dependencies in `requirements.txt`
-- Python version mismatch (Vercel uses Python 3.9+ by default)
-- Port binding issues (use environment variable `PORT`)
+- Python version compatibility issues
+- Port binding issues (Railway assigns PORT automatically)
 
 ### TimeoutError on AI Endpoints
 
@@ -179,10 +152,10 @@ Example endpoints:
 ## Security Best Practices
 
 ✅ **DO**:
-- Store API keys in Vercel environment variables
+- Store API keys in Railway environment variables
 - Use `.env.local` locally with `.env` in `.gitignore`
 - Rotate API keys periodically
-- Use Vercel's secret management for sensitive data
+- Use Railway's environment variable management for sensitive data
 
 ❌ **DON'T**:
 - Commit `.env` files to git
@@ -193,8 +166,8 @@ Example endpoints:
 ## Monitoring
 
 After deployment:
-1. Monitor logs: Vercel Dashboard → Deployments → Logs
-2. Check function duration: Vercel Dashboard → Analytics
+1. Monitor logs: Railway Dashboard → Deployments → View logs
+2. Check deployment status: Railway Dashboard → Active Deployments
 3. Set up error tracking via Sentry or similar services
 
 ## Updating the Deployment
@@ -202,12 +175,26 @@ After deployment:
 To update your deployed application:
 
 1. Push changes to your Git repository
-2. Vercel will automatically redeploy on push (if Auto-Deploy is enabled)
-3. Or manually redeploy via Vercel Dashboard → Deployments → Redeploy
+2. Railway will automatically redeploy on push (if GitHub integration is enabled)
+3. Or manually trigger a redeploy via Railway Dashboard
+
+## Frontend Configuration
+
+Update the frontend API URL in `static/shared.js`:
+
+```javascript
+const CONFIG = {
+    API_BASE_URL: typeof window.API_BASE_URL_OVERRIDE !== 'undefined' ? 
+        window.API_BASE_URL_OVERRIDE : 
+        'https://your-project-name.railway.app',
+    // ... other config
+};
+```
 
 ---
 
 For more information, see:
-- [Vercel Documentation](https://vercel.com/docs)
-- [Vercel Environment Variables](https://vercel.com/docs/concepts/projects/environment-variables)
+- [Railway Documentation](https://docs.railway.app)
+- [Railway CLI Reference](https://docs.railway.app/cli/commands)
 - [DeepSeek API Documentation](https://platform.deepseek.com/docs)
+- [Railway Python Guide](https://docs.railway.app/guides/python)
