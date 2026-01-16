@@ -1500,13 +1500,19 @@ async function generateMarkdown() {
         }
         
         // Insert generated content into editor
-        editor.value = data.response;
-        
-        // Scroll editor to top to show the generated content
-        editor.scrollTop = 0;
-        
-        // Focus on editor to make sure it's visible
-        editor.focus();
+        if (window.codeMirrorInstance) {
+            // Update CodeMirror instance
+            window.codeMirrorInstance.setValue(data.response);
+            
+            // Scroll to top
+            window.codeMirrorInstance.setCursor(0, 0);
+            window.codeMirrorInstance.focus();
+        } else {
+            // Fallback to textarea
+            editor.value = data.response;
+            editor.scrollTop = 0;
+            editor.focus();
+        }
         
         // Clear input
         input.value = '';
