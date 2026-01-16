@@ -17,9 +17,7 @@ const CONFIG = {
     // API Configuration
     API_BASE_URL: typeof window.API_BASE_URL_OVERRIDE !== 'undefined' ? 
         window.API_BASE_URL_OVERRIDE : 
-        (window.location.hostname && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' ?
-            `${window.location.protocol}//${window.location.hostname}` : 
-            'http://localhost:5005'),
+        'https://md2any-production.up.railway.app',
     
     // UI Configuration
     DEBOUNCE_DELAY: 500,
