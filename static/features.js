@@ -1502,11 +1502,6 @@ async function generateMarkdown() {
         // Insert generated content into editor
         editor.value = data.response;
         
-        // Close drawer if it exists
-        if (window.closeLeftDrawer) {
-            window.closeLeftDrawer();
-        }
-        
         // Clear input
         input.value = '';
         
@@ -1524,6 +1519,13 @@ async function generateMarkdown() {
         }
         
         updateStatus('Markdown已生成');
+        
+        // Close drawer after content is rendered so user can see the generated markdown
+        if (window.closeLeftDrawer) {
+            // Delay closing to let user see the content briefly
+            await new Promise(resolve => setTimeout(resolve, 500));
+            window.closeLeftDrawer();
+        }
         
     } catch (error) {
         SharedUtils.logError('Features', '生成Markdown失败', error);
