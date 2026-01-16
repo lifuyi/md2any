@@ -38,7 +38,10 @@ dev-dependencies = [
 ]
 
 [project.scripts]
-md2any-api = "api:main"
+md2any-api = "api:app"
+
+[project.entry-points."fastapi.apps"]
+md2any = "api:app"
 
 [tool.hatch.build.targets.wheel]
 packages = ["api.py"]
