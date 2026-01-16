@@ -1483,6 +1483,85 @@ async function aiFormatMarkdown() {
     
     const originalContent = editor.value;
     
+    // Create and show loading overlay to disable UI
+    const overlay = document.createElement('div');
+    overlay.id = 'ai-format-overlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        backdrop-filter: blur(2px);
+    `;
+    
+    const loadingBox = document.createElement('div');
+    loadingBox.style.cssText = `
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        min-width: 300px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    `;
+    
+    const spinner = document.createElement('div');
+    spinner.style.cssText = `
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+    `;
+    
+    const text = document.createElement('p');
+    text.textContent = '正在AI优化格式...';
+    text.style.cssText = `
+        margin: 0;
+        font-size: 16px;
+        color: #333;
+        font-weight: 500;
+    `;
+    
+    loadingBox.appendChild(spinner);
+    loadingBox.appendChild(text);
+    overlay.appendChild(loadingBox);
+    document.body.appendChild(overlay);
+    
+    // Add spin animation if not already in stylesheet
+    if (!document.getElementById('ai-format-spin-animation')) {
+        const style = document.createElement('style');
+        style.id = 'ai-format-spin-animation';
+        style.textContent = `
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // Disable all interactive elements
+    const interactiveElements = document.querySelectorAll('button, input, textarea, select, [contenteditable="true"]');
+    const disabledElements = [];
+    interactiveElements.forEach(el => {
+        if (el !== editor) {  // Don't disable the editor itself
+            if (el.tagName === 'BUTTON' || el.tagName === 'INPUT' || el.tagName === 'SELECT') {
+                el.disabled = true;
+                el.style.opacity = '0.6';
+                disabledElements.push(el);
+            }
+        }
+    });
+    
     try {
         updateStatus('正在AI优化格式...');
         
@@ -1530,6 +1609,18 @@ ${originalContent}
         SharedUtils.logError('Features', 'AI格式优化失败', error);
         alert('AI格式优化失败: ' + error.message);
         updateStatus('AI优化失败', true);
+    } finally {
+        // Remove overlay and re-enable UI
+        const overlayElement = document.getElementById('ai-format-overlay');
+        if (overlayElement) {
+            overlayElement.remove();
+        }
+        
+        // Re-enable all disabled elements
+        disabledElements.forEach(el => {
+            el.disabled = false;
+            el.style.opacity = '1';
+        });
     }
 }
 
