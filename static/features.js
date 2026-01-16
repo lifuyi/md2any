@@ -1595,9 +1595,18 @@ ${originalContent}
         if (data.success) {
             editor.value = data.response;
             
-            // Trigger re-render
+            // Trigger re-render and wait for it to complete
             if (window.renderMarkdown) {
-                window.renderMarkdown();
+                // renderMarkdown is async, so we need to handle it properly
+                const renderPromise = window.renderMarkdown();
+                
+                // Wait a bit for rendering to complete (with timeout to prevent hanging)
+                if (renderPromise && typeof renderPromise.then === 'function') {
+                    await renderPromise;
+                } else {
+                    // If renderMarkdown doesn't return a promise, wait a bit for DOM updates
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
             }
             
             updateStatus('AI格式优化完成');
