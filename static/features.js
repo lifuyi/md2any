@@ -324,7 +324,18 @@ async function handleImageUpload(file) {
         
         // Insert into editor
         const editor = document.getElementById('editor');
-        if (editor) {
+        
+        if (window.codeMirrorInstance) {
+            const cm = window.codeMirrorInstance;
+            const doc = cm.getDoc();
+            const cursor = doc.getCursor();
+            doc.replaceRange(markdownImage, cursor);
+            
+            // Trigger preview update
+            if (window.renderMarkdown) {
+                window.renderMarkdown();
+            }
+        } else if (editor) {
             const cursorPos = editor.selectionStart;
             const textBefore = editor.value.substring(0, cursorPos);
             const textAfter = editor.value.substring(cursorPos);
@@ -1500,13 +1511,15 @@ async function generateMarkdown() {
         }
         
         // Insert generated content into editor
-        editor.value = data.response;
-        
-        // Scroll editor to top to show the generated content
-        editor.scrollTop = 0;
-        
-        // Focus on editor to make sure it's visible
-        editor.focus();
+        if (window.codeMirrorInstance) {
+            window.codeMirrorInstance.setValue(data.response);
+            window.codeMirrorInstance.scrollTo(0, 0);
+            window.codeMirrorInstance.focus();
+        } else {
+            editor.value = data.response;
+            editor.scrollTop = 0;
+            editor.focus();
+        }
         
         // Clear input
         input.value = '';
@@ -1558,12 +1571,15 @@ async function generateMarkdown() {
 async function aiFormatMarkdown() {
     const editor = document.getElementById('editor');
     
-    if (!editor || !editor.value.trim()) {
+    // Get content from CodeMirror if available, otherwise from textarea
+    const content = window.codeMirrorInstance ? window.codeMirrorInstance.getValue() : (editor ? editor.value : '');
+    
+    if (!content.trim()) {
         alert('请先输入Markdown内容');
         return;
     }
     
-    const originalContent = editor.value;
+    const originalContent = content;
     
     // Create and show loading overlay to disable UI
     const overlay = document.createElement('div');
@@ -1675,7 +1691,11 @@ ${originalContent}
         const data = await response.json();
         
         if (data.success) {
-            editor.value = data.response;
+            if (window.codeMirrorInstance) {
+                window.codeMirrorInstance.setValue(data.response);
+            } else {
+                editor.value = data.response;
+            }
             
             // Trigger re-render and wait for it to complete
             if (window.renderMarkdown) {
