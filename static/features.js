@@ -1502,6 +1502,12 @@ async function generateMarkdown() {
         // Insert generated content into editor
         editor.value = data.response;
         
+        // Scroll editor to top to show the generated content
+        editor.scrollTop = 0;
+        
+        // Focus on editor to make sure it's visible
+        editor.focus();
+        
         // Clear input
         input.value = '';
         
