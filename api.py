@@ -103,10 +103,27 @@ class WeChatDirectDraftRequest(BaseModel):
 
 
 # Initialize DeepSeek client
-deepseek_client = OpenAI(
-    api_key="sk-3d45b1b21d094700a8a528a8905bbb9f",
-    base_url="https://api.deepseek.com"
-)
+def get_deepseek_client():
+    """Initialize DeepSeek client with API key from environment"""
+    api_key = os.getenv("DEEPSEEK_API_KEY")
+    if not api_key:
+        raise ValueError(
+            "DEEPSEEK_API_KEY environment variable not set. "
+            "Please set it before running the application."
+        )
+    return OpenAI(
+        api_key=api_key,
+        base_url="https://api.deepseek.com"
+    )
+
+deepseek_client = None
+
+def ensure_deepseek_client():
+    """Ensure DeepSeek client is initialized"""
+    global deepseek_client
+    if deepseek_client is None:
+        deepseek_client = get_deepseek_client()
+    return deepseek_client
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -636,7 +653,8 @@ async def ai_assist(request: AIRequest):
         messages.append({"role": "user", "content": request.prompt})
         
         # Call DeepSeek API
-        response = deepseek_client.chat.completions.create(
+        client = ensure_deepseek_client()
+        response = client.chat.completions.create(
             model="deepseek-chat",
             messages=messages,
             stream=False
@@ -682,7 +700,8 @@ async def text_to_markdown(request: TextToMarkdownRequest):
         ]
         
         # Call DeepSeek API
-        response = deepseek_client.chat.completions.create(
+        client = ensure_deepseek_client()
+        response = client.chat.completions.create(
             model="deepseek-chat",
             messages=messages,
             stream=False
