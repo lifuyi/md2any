@@ -1771,8 +1771,8 @@ function showAIResultModal(htmlContent) {
     const modal = document.createElement('div');
     modal.id = 'ai-result-modal';
     modal.style.cssText = `
-        background: white;
-        border-radius: 16px;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fb 100%);
+        border-radius: 20px;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25), 0 0 1px rgba(0, 0, 0, 0.1);
         max-width: 90%;
         max-height: 90vh;
@@ -1789,19 +1789,20 @@ function showAIResultModal(htmlContent) {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 24px 30px;
-        border-bottom: none;
+        padding: 28px 32px;
+        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        border-radius: 20px 20px 0 0;
     `;
     
     const title = document.createElement('h2');
-    title.textContent = 'AI生成结果预览';
+    title.textContent = '✨ AI排版结果预览';
     title.style.cssText = `
         margin: 0;
         color: white;
-        font-size: 18px;
-        font-weight: 600;
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
     `;
     header.appendChild(title);
     
@@ -1819,18 +1820,23 @@ function showAIResultModal(htmlContent) {
         background: white;
         color: #667eea;
         border: none;
-        padding: 8px 16px;
-        border-radius: 6px;
+        padding: 10px 20px;
+        border-radius: 8px;
         font-size: 14px;
-        font-weight: 600;
+        font-weight: 700;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
     `;
     copyBtn.onmouseover = () => {
-        copyBtn.style.background = '#f0f0f0';
+        copyBtn.style.background = '#f8f9ff';
+        copyBtn.style.boxShadow = '0 6px 16px rgba(102, 126, 234, 0.3)';
+        copyBtn.style.transform = 'translateY(-2px)';
     };
     copyBtn.onmouseout = () => {
         copyBtn.style.background = 'white';
+        copyBtn.style.boxShadow = '0 2px 8px rgba(102, 126, 234, 0.2)';
+        copyBtn.style.transform = 'translateY(0)';
     };
     copyBtn.onclick = async () => {
         // Copy the HTML content to clipboard
@@ -1997,7 +2003,17 @@ function showAIResultModal(htmlContent) {
     `;
     document.head.appendChild(scrollbarStyle);
     
-    contentArea.innerHTML = htmlContent;
+    // Create preview container for WeChat HTML
+    const previewContainer = document.createElement('div');
+    previewContainer.style.cssText = `
+        width: 100%;
+        min-height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    `;
+    previewContainer.innerHTML = htmlContent;
+    contentArea.appendChild(previewContainer);
     modal.appendChild(contentArea);
     
     // Create footer
