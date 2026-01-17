@@ -1477,7 +1477,7 @@ async function generateMarkdown() {
     }
     
     try {
-        updateStatus('正在生成Markdown...');
+        updateStatus('AI正在疯狂生成Markdown中...工作任务繁重，耗时较长，敬请等待');
         
         const aiRequest = {
             prompt: `请基于"${userInput}"这个主题生成一篇完整的Markdown格式文章。要求：

@@ -1017,7 +1017,7 @@
                         </div>
                     </div>
                      <div class="dropdown">
-                        <button class="btn dropdown-toggle" onclick="toggleDropdown(this)" style="background-color: #4CAF50; color: white; padding: 6px 10px; font-size: 12px; height: 32px; display: flex; align-items: center;">
+                        <button class="btn dropdown-toggle" onclick="toggleDropdown(this)" style="background-color: #4CAF50; color: white; padding: 6px 10px; font-size: 12px; height: 32px; display: flex; align-items: center;" disabled>
                             <i class="fab fa-weixin"></i> 发送到微信 <i class="fas fa-caret-down"></i>
                         </button>
                         <div class="dropdown-content">
@@ -1229,8 +1229,8 @@
         </div>
         <div class="drawer-content">
             <div class="input-group">
-                <label for="ai-input">描述您想要的内容：</label>
-                <textarea id="ai-input" placeholder="例如：写一篇关于人工智能的文章，包含标题、段落和列表&#10;&#10;💡 提示：AI将基于您的描述生成完整的Markdown内容，包括合适的标题结构、段落组织和格式编排。" rows="4"></textarea>
+                <label for="ai-input">输入内容：</label>
+                <textarea id="ai-input" placeholder="你只需要输入要排版的纯文字内容，ai将协助你进行排版" rows="4"></textarea>
             </div>
             <div class="button-group">
                 <button id="ai-submit" class="btn btn-primary" onclick="generateMarkdown()">
@@ -1264,8 +1264,8 @@
     
     <!-- Core functionality - New Modular Architecture -->
     <script src="/static/shared.js?v=59adec1"></script>
-    <script src="/static/core.js?v=59adec1"></script>
-    <script src="/static/features.js?v=59adec1"></script>
+    <script src="/static/core.js?v=1737153600"></script>
+    <script src="/static/features.js?v=1737153600"></script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
