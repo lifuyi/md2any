@@ -155,7 +155,7 @@ IndexedDB 持久化存储
 1. Fork 本仓库
 2. 连接到 Railway：[https://railway.app](https://railway.app)
 3. 创建新项目，选择 GitHub 仓库
-4. 添加环境变量 `DEEPSEEK_API_KEY`
+4. 添加环境变量 `GLM_API_KEY`
 5. 自动部署完成
 
 更详细的部署步骤请查看 [DEPLOYMENT.md](DEPLOYMENT.md)

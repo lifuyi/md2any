@@ -4,16 +4,16 @@ This guide explains how to deploy the md2any application to Railway with environ
 
 ## Security Changes
 
-The DeepSeek API key has been moved from hardcoded values to environment variables. This ensures your sensitive credentials are not exposed in the source code.
+The GLM API key has been moved from hardcoded values to environment variables. This ensures your sensitive credentials are not exposed in the source code.
 
 ### Key Changes Made:
-- Removed hardcoded `DEEPSEEK_API_KEY` from `api.py`
-- Implemented lazy initialization of DeepSeek client via `ensure_deepseek_client()`
-- API key now read from `DEEPSEEK_API_KEY` environment variable
+- Removed hardcoded `GLM_API_KEY` from `api.py`
+- Implemented lazy initialization of GLM client via `ensure_glm_client()`
+- API key now read from `GLM_API_KEY` environment variable
 
 ## Prerequisites
 
-1. **DeepSeek API Key**: Get your API key from [https://platform.deepseek.com/api_keys](https://platform.deepseek.com/api_keys)
+1. **GLM API Key**: Get your API key from [https://open.bigmodel.cn/usercenter/api-keys](https://open.bigmodel.cn/usercenter/api-keys)
 2. **Railway Account**: Create an account at [https://railway.app](https://railway.app)
 3. **Git Repository**: Push your code to GitHub, GitLab, or Bitbucket
 
@@ -24,10 +24,10 @@ The DeepSeek API key has been moved from hardcoded values to environment variabl
    cp .env.example .env.local
    ```
 
-2. **Add your DeepSeek API key**:
+2. **Add your GLM API key**:
    ```bash
    # Edit .env.local and replace the placeholder
-   DEEPSEEK_API_KEY=sk-your_actual_key_here
+   GLM_API_KEY=your_actual_key_here
    ```
 
 3. **Run the application**:
@@ -47,7 +47,7 @@ The DeepSeek API key has been moved from hardcoded values to environment variabl
 4. Railway will automatically detect the Python application
 5. Add environment variables:
    - Go to **Variables** tab
-   - Add `DEEPSEEK_API_KEY=sk-your_key_here`
+   - Add `GLM_API_KEY=your_key_here`
 6. Railway will deploy automatically
 
 ### Option 2: Using Railway CLI
@@ -69,7 +69,7 @@ The DeepSeek API key has been moved from hardcoded values to environment variabl
 
 4. **Set environment variables**:
    ```bash
-   railway variables set DEEPSEEK_API_KEY=sk-your_key_here
+   railway variables set GLM_API_KEY=your_key_here
    ```
 
 5. **Get your deployment URL**:
@@ -84,7 +84,7 @@ For production deployments:
 
 1. **Set environment variables in Railway Dashboard**:
    - Go to Project Settings → Variables
-   - Add `DEEPSEEK_API_KEY` with your actual API key
+   - Add `GLM_API_KEY` with your actual API key
 
 2. **Verify deployment**:
    - Check Railway Dashboard for deployment status
@@ -126,11 +126,11 @@ Example endpoints:
 
 ## Troubleshooting
 
-### "DEEPSEEK_API_KEY environment variable not set"
+### "GLM_API_KEY environment variable not set"
 
 **Solution**: Ensure the environment variable is set in Railway:
 1. Go to Project → Variables
-2. Add or verify `DEEPSEEK_API_KEY` is present
+2. Add or verify `GLM_API_KEY` is present
 3. Redeploy the project via Railway Dashboard
 
 ### Deployment Fails
@@ -147,7 +147,7 @@ Example endpoints:
 
 ### TimeoutError on AI Endpoints
 
-**Solution**: The DeepSeek API might be slow. Increase timeout in your requests or use async patterns.
+**Solution**: The GLM API might be slow. Increase timeout in your requests or use async patterns.
 
 ## Security Best Practices
 
@@ -196,5 +196,5 @@ const CONFIG = {
 For more information, see:
 - [Railway Documentation](https://docs.railway.app)
 - [Railway CLI Reference](https://docs.railway.app/cli/commands)
-- [DeepSeek API Documentation](https://platform.deepseek.com/docs)
+- [GLM API Documentation](https://open.bigmodel.cn/dev/api)
 - [Railway Python Guide](https://docs.railway.app/guides/python)
