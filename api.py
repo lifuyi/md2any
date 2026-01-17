@@ -655,7 +655,7 @@ async def ai_assist(request: AIRequest):
         # Call GLM API
         client = ensure_glm_client()
         response = client.chat.completions.create(
-            model="glm-4.5",
+            model="GLM-4.5-Flash",
             messages=messages,
             max_tokens=4096,
             temperature=0.6
