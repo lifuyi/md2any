@@ -654,6 +654,8 @@ async def ai_assist(request: AIRequest):
         
         # Call GLM API
         client = ensure_glm_client()
+        logger.info(f"Calling GLM API with {len(messages)} messages")
+        
         response = client.chat.completions.create(
             model="GLM-4.5-Flash",
             messages=messages,
@@ -661,7 +663,15 @@ async def ai_assist(request: AIRequest):
             temperature=0.6
         )
         
+        logger.info(f"GLM API response received: {response}")
+        
         ai_response = response.choices[0].message.content
+        
+        logger.info(f"AI response content length: {len(ai_response) if ai_response else 0}")
+        
+        if not ai_response:
+            logger.error("AI response is empty!")
+            raise ValueError("AI returned empty response")
         
         return AIResponse(
             response=ai_response,

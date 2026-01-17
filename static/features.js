@@ -1704,6 +1704,12 @@ ${originalContent}
         }
         
         const data = await response.json();
+        console.log('[AI] Full API response:', data);
+        console.log('[AI] Response success:', data.success);
+        console.log('[AI] Response message:', data.message);
+        console.log('[AI] Response response type:', typeof data.response);
+        console.log('[AI] Response response length:', data.response ? data.response.length : 0);
+        console.log('[AI] Response response preview:', data.response ? data.response.substring(0, 200) : 'EMPTY');
         
         if (data.success) {
             // Show the result in a modal overlay with copy button
@@ -1774,9 +1780,9 @@ function showAIResultModal(htmlContent) {
         background: linear-gradient(135deg, #ffffff 0%, #f8f9fb 100%);
         border-radius: 20px;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25), 0 0 1px rgba(0, 0, 0, 0.1);
-        max-width: 90%;
-        max-height: 90vh;
-        width: 900px;
+        max-width: 95%;
+        max-height: 95vh;
+        width: 1000px;
         display: flex;
         flex-direction: column;
         overflow: hidden;
@@ -1976,29 +1982,32 @@ function showAIResultModal(htmlContent) {
         flex: 1;
         overflow-y: auto;
         overflow-x: hidden;
-        padding: 30px;
+        padding: 40px;
         background: #ffffff;
         font-size: 16px;
         line-height: 1.6;
         color: #333;
         -webkit-overflow-scrolling: touch;
+        min-height: 0;
     `;
     
     // Add scrollbar styling
     const scrollbarStyle = document.createElement('style');
     scrollbarStyle.textContent = `
         #ai-result-modal div[style*="overflow-y: auto"]::-webkit-scrollbar {
-            width: 8px;
+            width: 12px;
         }
         #ai-result-modal div[style*="overflow-y: auto"]::-webkit-scrollbar-track {
             background: #f1f1f1;
+            border-radius: 6px;
         }
         #ai-result-modal div[style*="overflow-y: auto"]::-webkit-scrollbar-thumb {
-            background: #667eea;
-            border-radius: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 6px;
+            border: 2px solid #f1f1f1;
         }
         #ai-result-modal div[style*="overflow-y: auto"]::-webkit-scrollbar-thumb:hover {
-            background: #764ba2;
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
         }
     `;
     document.head.appendChild(scrollbarStyle);
@@ -2012,7 +2021,17 @@ function showAIResultModal(htmlContent) {
         flex-direction: column;
         align-items: center;
     `;
-    previewContainer.innerHTML = htmlContent;
+    
+    // Debug: Check if htmlContent exists and has content
+    console.log('AI Result Modal - HTML Content:', htmlContent ? htmlContent.substring(0, 100) + '...' : 'EMPTY');
+    console.log('AI Result Modal - Content Length:', htmlContent ? htmlContent.length : 0);
+    
+    if (!htmlContent || htmlContent.trim() === '') {
+        previewContainer.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">没有可显示的内容</p>';
+    } else {
+        previewContainer.innerHTML = htmlContent;
+    }
+    
     contentArea.appendChild(previewContainer);
     modal.appendChild(contentArea);
     
