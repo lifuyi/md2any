@@ -659,7 +659,7 @@ async def ai_assist(request: AIRequest):
         
         # Add context if provided
         if request.context:
-            messages.append({"role": "system", "content": f"Context: {request.context}"})
+            messages.append({"role": "system", "content": f"Context: {request.context} IMPORTANT: Only convert the provided text - DO NOT add, extend, or modify the content."})
         
         # Add user prompt
         messages.append({"role": "user", "content": request.prompt})
@@ -740,10 +740,10 @@ async def text_to_markdown(request: TextToMarkdownRequest):
     try:
         # Prepare the conversion prompt based on style
         style_instructions = {
-            "standard": "Convert the following text to clean, well-formatted markdown with appropriate headings, lists, and emphasis.",
-            "academic": "Convert the following text to academic markdown with proper citations, formal headings, and structured formatting.",
-            "blog": "Convert the following text to blog-style markdown with engaging headings, bullet points, and reader-friendly formatting.",
-            "technical": "Convert the following text to technical documentation markdown with code blocks, proper syntax highlighting indicators, and structured sections."
+            "standard": "Convert the following text to clean, well-formatted markdown with appropriate headings, lists, and emphasis. Only convert the provided text - DO NOT add, extend, or modify the content.",
+            "academic": "Convert the following text to academic markdown with proper citations, formal headings, and structured formatting. Only convert the provided text - DO NOT add, extend, or modify the content.",
+            "blog": "Convert the following text to blog-style markdown with engaging headings, bullet points, and reader-friendly formatting. Only convert the provided text - DO NOT add, extend, or modify the content.",
+            "technical": "Convert the following text to technical documentation markdown with code blocks, proper syntax highlighting indicators, and structured sections. Only convert the provided text - DO NOT add, extend, or modify the content."
         }
         
         instruction = style_instructions.get(request.style, style_instructions["standard"])
