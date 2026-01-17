@@ -1450,7 +1450,7 @@ async function generateMarkdown() {
     `;
     
     const text = document.createElement('p');
-    text.textContent = 'AI正在疯狂生成Markdown中...工作任务繁重，耗时较长，敬请等待';
+    text.textContent = 'AI疯狂排版中...';
     text.style.cssText = `
         margin: 0;
         font-size: 16px;
@@ -1477,7 +1477,7 @@ async function generateMarkdown() {
     }
     
     try {
-        updateStatus('AI正在疯狂生成Markdown中...工作任务繁重，耗时较长，敬请等待');
+        updateStatus('AI疯狂排版中...');
         
         const aiRequest = {
             prompt: `请基于"${userInput}"这个主题生成一篇完整的Markdown格式文章。要求：
@@ -1626,7 +1626,7 @@ async function convertToWeChatHTML() {
     `;
     
     const text = document.createElement('p');
-    text.textContent = 'AI正在疯狂生成Markdown中...工作任务繁重，耗时较长，敬请等待';
+    text.textContent = 'AI疯狂排版中...';
     text.style.cssText = `
         margin: 0;
         font-size: 16px;
@@ -1708,9 +1708,12 @@ ${originalContent}
         if (data.success) {
             // Show the result in a modal overlay with copy button
             // Do NOT modify editor or preview pane - keep them unchanged
-            showAIResultModal(data.response);
-            
-            updateStatus('AI格式优化完成（在模态框中查看并复制结果）');
+            try {
+                showAIResultModal(data.response);
+                updateStatus('AI格式优化完成（在模态框中查看并复制结果）');
+            } catch (modalError) {
+                throw new Error('模态框显示失败: ' + modalError.message);
+            }
         } else {
             throw new Error(data.message || 'AI优化失败');
         }
@@ -1755,12 +1758,13 @@ function showAIResultModal(htmlContent) {
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.6);
+        background: rgba(0, 0, 0, 0.5);
         display: flex;
         align-items: center;
         justify-content: center;
         z-index: 11000;
-        backdrop-filter: blur(4px);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
     `;
     
     // Create modal container
@@ -1768,10 +1772,10 @@ function showAIResultModal(htmlContent) {
     modal.id = 'ai-result-modal';
     modal.style.cssText = `
         background: white;
-        border-radius: 12px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25), 0 0 1px rgba(0, 0, 0, 0.1);
         max-width: 90%;
-        max-height: 85vh;
+        max-height: 90vh;
         width: 900px;
         display: flex;
         flex-direction: column;
@@ -1785,9 +1789,10 @@ function showAIResultModal(htmlContent) {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 20px;
-        border-bottom: 1px solid #e0e0e0;
+        padding: 24px 30px;
+        border-bottom: none;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
     `;
     
     const title = document.createElement('h2');
@@ -1959,24 +1964,52 @@ function showAIResultModal(htmlContent) {
     header.appendChild(headerButtons);
     modal.appendChild(header);
     
-    // Create content area
+    // Create content area with better scrolling
     const contentArea = document.createElement('div');
     contentArea.style.cssText = `
         flex: 1;
         overflow-y: auto;
-        padding: 20px;
-        background: white;
+        overflow-x: hidden;
+        padding: 30px;
+        background: #ffffff;
+        font-size: 16px;
+        line-height: 1.6;
+        color: #333;
+        -webkit-overflow-scrolling: touch;
     `;
+    
+    // Add scrollbar styling
+    const scrollbarStyle = document.createElement('style');
+    scrollbarStyle.textContent = `
+        #ai-result-modal div[style*="overflow-y: auto"]::-webkit-scrollbar {
+            width: 8px;
+        }
+        #ai-result-modal div[style*="overflow-y: auto"]::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        #ai-result-modal div[style*="overflow-y: auto"]::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 4px;
+        }
+        #ai-result-modal div[style*="overflow-y: auto"]::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
+        }
+    `;
+    document.head.appendChild(scrollbarStyle);
+    
     contentArea.innerHTML = htmlContent;
     modal.appendChild(contentArea);
     
     // Create footer
     const footer = document.createElement('div');
     footer.style.cssText = `
-        padding: 15px 20px;
-        border-top: 1px solid #e0e0e0;
-        background: #f9f9f9;
+        padding: 20px 30px;
+        border-top: 1px solid #e8e8f0;
+        background: #f8f9fc;
         text-align: right;
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
     `;
     
     const closeFooterBtn = document.createElement('button');
@@ -2231,6 +2264,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize image functionality
     initImagePaste();
     
+    // Setup AI format button event listener
+    const aiFormatBtn = document.getElementById('ai-format-btn');
+    if (aiFormatBtn) {
+        aiFormatBtn.addEventListener('click', async function(e) {
+            e.preventDefault();
+            await _convertToWeChatHTML();
+        });
+    }
+    
     SharedUtils.log('Features', '✅ Features module loaded successfully');
 });
 
@@ -2271,6 +2313,29 @@ Object.assign(window, {
     ImageStore,
     ImageCompressor
 });
+
+// Store original functions before exposing to window
+const _convertToWeChatHTML = convertToWeChatHTML;
+const _generateMarkdown = generateMarkdown;
+const _copyToClipboard = copyToClipboard;
+const _downloadHTML = downloadHTML;
+const _downloadPNG = downloadPNG;
+const _downloadMD = downloadMD;
+const _downloadTXT = downloadTXT;
+const _clearAIFormatting = clearAIFormatting;
+
+// Expose key functions to global scope for onclick handlers
+window.convertToWeChatHTML = async function() {
+    console.log('[TEST] convertToWeChatHTML called from onclick');
+    return _convertToWeChatHTML();
+};
+window.clearAIFormatting = _clearAIFormatting;
+window.generateMarkdown = _generateMarkdown;
+window.copyToClipboard = _copyToClipboard;
+window.downloadHTML = _downloadHTML;
+window.downloadPNG = _downloadPNG;
+window.downloadMD = _downloadMD;
+window.downloadTXT = _downloadTXT;
 
 // Export features module
 window.FeaturesModule = {
