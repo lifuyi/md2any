@@ -1706,30 +1706,11 @@ ${originalContent}
         const data = await response.json();
         
         if (data.success) {
-            // Directly set the HTML to preview area without updating editor
-            const preview = document.getElementById('preview');
-            if (preview) {
-                preview.innerHTML = data.response;
-                
-                // Process MathJax if present
-                if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
-                    try {
-                        await window.MathJax.typesetPromise([preview]);
-                    } catch (e) {
-                        SharedUtils.logError('Features', 'MathJax typesetting failed', e);
-                    }
-                }
-                
-                // Show clear button and hide AI format button
-                const clearBtn = document.getElementById('ai-clear-btn');
-                const aiBtn = document.getElementById('ai-format-btn');
-                if (clearBtn) clearBtn.style.display = 'inline-block';
-                if (aiBtn) aiBtn.style.display = 'none';
-                
-                updateStatus('AI格式优化完成（点击“清除AI结果”返回正常模式）');
-            } else {
-                throw new Error('Preview area not found');
-            }
+            // Show the result in a modal overlay with copy button
+            // Do NOT modify editor or preview pane - keep them unchanged
+            showAIResultModal(data.response);
+            
+            updateStatus('AI格式优化完成（在模态框中查看并复制结果）');
         } else {
             throw new Error(data.message || 'AI优化失败');
         }
@@ -1759,6 +1740,296 @@ ${originalContent}
         // Note: window.isAIFormatting remains true to prevent overwriting AI result
         // User must manually clear it to re-enable normal rendering
     }
+}
+
+/**
+ * Show AI result in a modal overlay with copy button
+ */
+function showAIResultModal(htmlContent) {
+    // Create modal backdrop
+    const modalBackdrop = document.createElement('div');
+    modalBackdrop.id = 'ai-result-modal-backdrop';
+    modalBackdrop.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 11000;
+        backdrop-filter: blur(4px);
+    `;
+    
+    // Create modal container
+    const modal = document.createElement('div');
+    modal.id = 'ai-result-modal';
+    modal.style.cssText = `
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        max-width: 90%;
+        max-height: 85vh;
+        width: 900px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        animation: slideUp 0.3s ease-out;
+    `;
+    
+    // Create header with title and close button
+    const header = document.createElement('div');
+    header.style.cssText = `
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid #e0e0e0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    `;
+    
+    const title = document.createElement('h2');
+    title.textContent = 'AI生成结果预览';
+    title.style.cssText = `
+        margin: 0;
+        color: white;
+        font-size: 18px;
+        font-weight: 600;
+    `;
+    header.appendChild(title);
+    
+    // Create header buttons container
+    const headerButtons = document.createElement('div');
+    headerButtons.style.cssText = `
+        display: flex;
+        gap: 10px;
+    `;
+    
+    // Copy button
+    const copyBtn = document.createElement('button');
+    copyBtn.textContent = '📋 复制到剪贴板';
+    copyBtn.style.cssText = `
+        background: white;
+        color: #667eea;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    `;
+    copyBtn.onmouseover = () => {
+        copyBtn.style.background = '#f0f0f0';
+    };
+    copyBtn.onmouseout = () => {
+        copyBtn.style.background = 'white';
+    };
+    copyBtn.onclick = async () => {
+        // Copy the HTML content to clipboard
+        try {
+            copyBtn.textContent = '⏳ 处理中...';
+            copyBtn.disabled = true;
+            
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlContent, 'text/html');
+            
+            // Convert grid layouts to table format for WeChat compatibility
+            convertGridToTable(doc);
+            
+            // Process images: Convert to Base64
+            const images = doc.querySelectorAll('img');
+            if (images.length > 0) {
+                const imagePromises = Array.from(images).map(async (img) => {
+                    try {
+                        const base64 = await convertImageToBase64(img);
+                        img.setAttribute('src', base64);
+                    } catch (error) {
+                        console.error('图片转换失败:', img.getAttribute('src'), error);
+                    }
+                });
+                await Promise.all(imagePromises);
+            }
+            
+            // Get processed content
+            const processedHTML = doc.body.innerHTML;
+            const plainText = doc.body.textContent || '';
+            
+            // Try Modern Clipboard API first
+            if (navigator.clipboard && window.ClipboardItem) {
+                try {
+                    const htmlBlob = new Blob([processedHTML], { type: 'text/html' });
+                    const textBlob = new Blob([plainText], { type: 'text/plain' });
+                    
+                    await navigator.clipboard.write([
+                        new ClipboardItem({
+                            'text/html': htmlBlob,
+                            'text/plain': textBlob
+                        })
+                    ]);
+                    
+                    copyBtn.textContent = '✅ 已复制';
+                    setTimeout(() => {
+                        copyBtn.textContent = '📋 复制到剪贴板';
+                        copyBtn.disabled = false;
+                    }, 2000);
+                    return;
+                } catch (error) {
+                    console.log('Modern Clipboard API failed:', error);
+                }
+            }
+            
+            // Fallback: ContentEditable method
+            const container = document.createElement('div');
+            container.style.cssText = `
+                position: fixed;
+                left: -9999px;
+                top: 0;
+                width: 800px;
+                opacity: 0;
+                pointer-events: none;
+                background: white;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            `;
+            
+            container.innerHTML = processedHTML;
+            container.contentEditable = true;
+            
+            document.body.appendChild(container);
+            container.focus();
+            
+            const range = document.createRange();
+            range.selectNodeContents(container);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            
+            const success = document.execCommand('copy');
+            
+            selection.removeAllRanges();
+            document.body.removeChild(container);
+            
+            if (success) {
+                copyBtn.textContent = '✅ 已复制';
+                setTimeout(() => {
+                    copyBtn.textContent = '📋 复制到剪贴板';
+                    copyBtn.disabled = false;
+                }, 2000);
+                return;
+            }
+            
+            throw new Error('复制失败');
+        } catch (error) {
+            alert('复制失败: ' + error.message);
+            copyBtn.textContent = '📋 复制到剪贴板';
+            copyBtn.disabled = false;
+        }
+    };
+    headerButtons.appendChild(copyBtn);
+    
+    // Close button
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = '✕';
+    closeBtn.style.cssText = `
+        background: transparent;
+        color: white;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 0;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s ease;
+    `;
+    closeBtn.onmouseover = () => {
+        closeBtn.style.transform = 'scale(1.2)';
+    };
+    closeBtn.onmouseout = () => {
+        closeBtn.style.transform = 'scale(1)';
+    };
+    closeBtn.onclick = () => {
+        modalBackdrop.remove();
+    };
+    headerButtons.appendChild(closeBtn);
+    header.appendChild(headerButtons);
+    modal.appendChild(header);
+    
+    // Create content area
+    const contentArea = document.createElement('div');
+    contentArea.style.cssText = `
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        background: white;
+    `;
+    contentArea.innerHTML = htmlContent;
+    modal.appendChild(contentArea);
+    
+    // Create footer
+    const footer = document.createElement('div');
+    footer.style.cssText = `
+        padding: 15px 20px;
+        border-top: 1px solid #e0e0e0;
+        background: #f9f9f9;
+        text-align: right;
+    `;
+    
+    const closeFooterBtn = document.createElement('button');
+    closeFooterBtn.textContent = '关闭';
+    closeFooterBtn.style.cssText = `
+        background: #667eea;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    `;
+    closeFooterBtn.onmouseover = () => {
+        closeFooterBtn.style.background = '#764ba2';
+    };
+    closeFooterBtn.onmouseout = () => {
+        closeFooterBtn.style.background = '#667eea';
+    };
+    closeFooterBtn.onclick = () => {
+        modalBackdrop.remove();
+    };
+    footer.appendChild(closeFooterBtn);
+    modal.appendChild(footer);
+    
+    // Add animation keyframes
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Assemble and show
+    modalBackdrop.appendChild(modal);
+    document.body.appendChild(modalBackdrop);
+    
+    // Close modal on backdrop click
+    modalBackdrop.onclick = (e) => {
+        if (e.target === modalBackdrop) {
+            modalBackdrop.remove();
+        }
+    };
 }
 
 /**
@@ -1983,6 +2254,7 @@ Object.assign(window, {
     // AI functions
     generateMarkdown,
     convertToWeChatHTML,
+    showAIResultModal,
     
     // Drawer functions
     openLeftDrawer,
@@ -2011,6 +2283,7 @@ window.FeaturesModule = {
     configureWeChat,
     generateMarkdown,
     convertToWeChatHTML,
+    showAIResultModal,
     openLeftDrawer,
     closeLeftDrawer,
     fetchAndApplyStyle,
