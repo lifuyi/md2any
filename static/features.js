@@ -1571,7 +1571,7 @@ async function generateMarkdown() {
 /**
  * AI-powered markdown formatting
  */
-async function aiFormatMarkdown() {
+async function convertToWeChatHTML() {
     const editor = document.getElementById('editor');
     
     // Get content from CodeMirror if available, otherwise from textarea
@@ -1667,18 +1667,22 @@ async function aiFormatMarkdown() {
         updateStatus('正在AI优化格式...');
         
         const aiRequest = {
-            prompt: `请优化以下Markdown内容的格式和结构，使其更加规范和易读：
+            prompt: `请根据微信公众号HTML格式约束，将以下Markdown内容转换为符合微信渲染规范的HTML格式：
 
 ${originalContent}
 
-要求：
-1. 保持原有内容含义不变
-2. 优化标题层级结构
-3. 改善段落分隔和缩进
-4. 规范代码块格式
-5. 优化列表结构
-6. 确保语法正确`,
-            context: "用户需要优化Markdown格式，保持内容不变但提升可读性。"
+必须遵守以下约束：
+1. 使用 <section> 标签作为主容器，设置 width: 677px; margin: 0 auto;
+2. 背景色使用 linear-gradient 语法，禁止使用 background-color
+3. SVG必须内嵌，设置 viewBox，宽高使用百分比
+4. 所有样式必须内联，不能使用外部CSS
+5. 标题使用 <h1>, <h2>, <h3>，正文使用 <p>
+6. 颜色值使用十六进制、RGB或RGBA格式
+7. 尺寸单位使用 px 或 %，禁止使用 em, rem, vh, vw
+8. 布局使用 flex 或 block，避免使用 CSS Grid
+9. 确保在微信内置浏览器中正常显示
+10. 支持微信公众号编辑器导入`,
+            context: "用户需要将Markdown内容转换为微信公众号HTML格式，必须严格遵守微信渲染约束。"
         };
         
         const response = await fetch(`${SharedUtils.CONFIG.API_BASE_URL}/ai`, {
@@ -1720,9 +1724,9 @@ ${originalContent}
         }
         
     } catch (error) {
-        SharedUtils.logError('Features', 'AI格式优化失败', error);
-        alert('AI格式优化失败: ' + error.message);
-        updateStatus('AI优化失败', true);
+        SharedUtils.logError('Features', '转换失败', error);
+        alert('转换失败: ' + error.message);
+        updateStatus('转换失败', true);
     } finally {
         // Remove overlay and re-enable UI
         const overlayElement = document.getElementById('ai-format-overlay');
@@ -1929,7 +1933,7 @@ Object.assign(window, {
     
     // AI functions
     generateMarkdown,
-    aiFormatMarkdown,
+    convertToWeChatHTML,
     
     // Drawer functions
     openLeftDrawer,
@@ -1957,7 +1961,7 @@ window.FeaturesModule = {
     sendToWeChatDraft,
     configureWeChat,
     generateMarkdown,
-    aiFormatMarkdown,
+    convertToWeChatHTML,
     openLeftDrawer,
     closeLeftDrawer,
     fetchAndApplyStyle,
