@@ -1818,8 +1818,16 @@ ${originalContent}`,
             el.style.opacity = '1';
         });
         
-        // Note: window.isAIFormatting remains true to prevent overwriting AI result
-        // User must manually clear it to re-enable normal rendering
+        // Re-enable real-time preview after AI processing
+        window.isAIFormatting = false;
+        SharedUtils.log('Features', 'AI formatting completed - re-enabling real-time preview');
+        
+        // Trigger a preview update with current editor content
+        try {
+            await renderMarkdown();
+        } catch (renderError) {
+            console.warn('Failed to trigger preview update after AI processing:', renderError);
+        }
     }
 }
 
