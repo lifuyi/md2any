@@ -1518,6 +1518,8 @@ async function generateMarkdown() {
             window.codeMirrorInstance.setValue(data.response);
             window.codeMirrorInstance.scrollTo(0, 0);
             window.codeMirrorInstance.focus();
+            // Also update the hidden textarea for sync
+            editor.value = data.response;
         } else {
             editor.value = data.response;
             editor.scrollTop = 0;
