@@ -1677,23 +1677,12 @@ async function convertToWeChatHTML() {
         const aiRequest = {
             prompt: `请根据微信公众号HTML格式约束，将以下Markdown内容转换为符合微信渲染规范的HTML格式：
 
-${originalContent}
-
-必须遵守以下约束：
-1. 使用 <section> 标签作为主容器，设置 width: 677px; margin: 0 auto;
-2. 背景色使用 linear-gradient 语法，禁止使用 background-color
-3. SVG必须内嵌，设置 viewBox，宽高使用百分比
-4. 所有样式必须内联，不能使用外部CSS
-5. 标题使用 <h1>, <h2>, <h3>，正文使用 <p>
-6. 颜色值使用十六进制、RGB或RGBA格式
-7. 尺寸单位使用 px 或 %，禁止使用 em, rem, vh, vw
-8. 布局使用 flex 或 block，避免使用 CSS Grid
-9. 确保在微信内置浏览器中正常显示
-10. 支持微信公众号编辑器导入`,
-            context: "用户需要将Markdown内容转换为微信公众号HTML格式，必须严格遵守微信渲染约束。"
+${originalContent}`,
+            context: "用户需要将Markdown内容转换为微信公众号HTML格式"
         };
         
-        const response = await fetch(`${SharedUtils.CONFIG.API_BASE_URL}/ai`, {
+        // Use streaming endpoint for faster response
+        const response = await fetch(`${SharedUtils.CONFIG.API_BASE_URL}/ai/stream`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(aiRequest)
@@ -1703,25 +1692,108 @@ ${originalContent}
             throw new Error(`AI优化失败: ${response.status}`);
         }
         
-        const data = await response.json();
-        console.log('[AI] Full API response:', data);
-        console.log('[AI] Response success:', data.success);
-        console.log('[AI] Response message:', data.message);
-        console.log('[AI] Response response type:', typeof data.response);
-        console.log('[AI] Response response length:', data.response ? data.response.length : 0);
-        console.log('[AI] Response response preview:', data.response ? data.response.substring(0, 200) : 'EMPTY');
+        // Process streaming response
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let aiResponse = '';
+        let buffer = '';
         
-        if (data.success) {
+        // Create a temporary modal with loading state
+        let tempModal = null;
+        let tempContent = null;
+        
+        try {
+            // Create temporary loading modal
+            tempModal = document.createElement('div');
+            tempModal.id = 'ai-stream-modal';
+            tempModal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 11000;
+            `;
+            const modalBox = document.createElement('div');
+            modalBox.style.cssText = `
+                background: white;
+                border-radius: 12px;
+                padding: 30px;
+                max-width: 95%;
+                max-height: 90vh;
+                width: 800px;
+                overflow: auto;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            `;
+            tempContent = document.createElement('div');
+            tempContent.id = 'ai-stream-content';
+            tempContent.style.cssText = `
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 14px;
+                line-height: 1.6;
+            `;
+            const loadingIndicator = document.createElement('div');
+            loadingIndicator.id = 'ai-loading-indicator';
+            loadingIndicator.textContent = 'AI正在生成...';
+            loadingIndicator.style.cssText = `
+                color: #666;
+                margin-bottom: 15px;
+                font-size: 14px;
+            `;
+            modalBox.appendChild(loadingIndicator);
+            modalBox.appendChild(tempContent);
+            tempModal.appendChild(modalBox);
+            document.body.appendChild(tempModal);
+            
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n\n');
+                buffer = lines.pop() || '';
+                
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        const data = line.slice(6);
+                        if (data === '[DONE]') {
+                            break;
+                        }
+                        try {
+                            aiResponse += data;
+                            // Update the temporary modal with current content
+                            if (tempContent) {
+                                tempContent.innerHTML = aiResponse;
+                            }
+                        } catch (e) {
+                            // Skip parse errors for incomplete chunks
+                        }
+                    }
+                }
+            }
+        } finally {
+            // Remove temp modal
+            const temp = document.getElementById('ai-stream-modal');
+            if (temp) temp.remove();
+        }
+        
+        console.log('[AI] Streaming response complete, length:', aiResponse.length);
+        
+        if (aiResponse && aiResponse.trim()) {
             // Show the result in a modal overlay with copy button
-            // Do NOT modify editor or preview pane - keep them unchanged
             try {
-                showAIResultModal(data.response);
+                showAIResultModal(aiResponse);
                 updateStatus('AI格式优化完成（在模态框中查看并复制结果）');
             } catch (modalError) {
                 throw new Error('模态框显示失败: ' + modalError.message);
             }
         } else {
-            throw new Error(data.message || 'AI优化失败');
+            throw new Error('AI返回内容为空');
         }
         
     } catch (error) {

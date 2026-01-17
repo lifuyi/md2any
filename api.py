@@ -15,7 +15,7 @@ from pathlib import Path
 import markdown
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from pygments.lexers import get_lexer_by_name
@@ -23,6 +23,18 @@ from pygments.formatters import HtmlFormatter
 from pygments.util import ClassNotFound
 from bs4 import BeautifulSoup
 from openai import OpenAI
+
+
+# Simplified WeChat HTML system prompt for faster AI processing
+WECHAT_SYSTEM_PROMPT = """微信公众号HTML格式要求：
+1. 使用 <section> 作为主容器，宽度 677px，居中
+2. 背景色用 linear-gradient，不用 background-color
+3. SVG内嵌 <svg> 标签，设置 viewBox，宽高100%
+4. 所有样式必须内联（style属性）
+5. 标题 <h1/2/3>，正文 <p>，强调 <strong> 或 <em>
+6. 单位用 px，禁止 em/rem/vh/vw
+7. 颜色用 #十六进制 或 rgb()
+8. 动画用 @keyframes 或 <animate> 标签"""
 
 
 class MarkdownRequest(BaseModel):
@@ -642,7 +654,7 @@ async def ai_assist(request: AIRequest):
     try:
         # Prepare messages for GLM API
         messages = [
-            {"role": "system", "content": "# 微信公众号HTML格式约束提示词\n## 强制格式要求\n### 1. 基础HTML结构\n```\n- 必须使用 <section> 标签作为主容器\n- 禁止使用 <div> 作为主容器（微信会过滤背景色）\n- 必须设置固定宽度: width: 677px\n- 必须设置 margin: 0 auto（居中对齐）\n```\n### 2. 背景色语法（关键）\n```\n- 必须使用: background: linear-gradient(方向, 颜色1, 颜色2)\n- 禁止使用: background-color 属性\n- 禁止使用: background: #颜色值\n- 示例: background: linear-gradient(135deg, #1a1a2e, #16213e)\n```\n### 3. SVG嵌入规范\n```\n- 直接内嵌 <svg> 标签，不使用外部文件\n- 必须设置 viewBox 属性\n- 宽高使用百分比: width=\"100%\" height=\"auto\"\n- 所有样式必须内联，不能使用 <style> 标签\n```\n### 4. 动画约束\n```\nCSS动画：\n- 使用 @keyframes 定义\n- 动画属性必须内联在 style 属性中\n- 避免复杂的 transform 动画\nSVG动画：\n- 使用 <animateTransform> 标签\n- 使用 <animate> 标签\n- 避免使用 CSS 控制的 SVG 动画\n```\n### 5. 文本格式规范\n```\n- 标题使用 <h1>, <h2>, <h3> 标签\n- 正文使用 <p> 标签\n- 强调使用 <strong> 或 <em>\n- 字体大小使用 px 单位\n- 行高使用数值，如 line-height: 1.6\n```\n### 6. 颜色值格式\n```\n- 使用十六进制: #ffffff\n- 使用 RGB: rgb(255, 255, 255)\n- 使用 RGBA: rgba(255, 255, 255, 0.8)\n- 禁止使用颜色名称: red, blue 等\n```\n### 7. 尺寸单位约束\n```\n- 宽度: px, %\n- 高度: px, auto\n- 内边距: px\n- 外边距: px\n- 字体大小: px\n- 禁止使用: em, rem, vh, vw\n```\n### 8. 布局约束\n```\n- 使用 display: flex 或 display: block\n- 避免使用 CSS Grid\n- 使用 position: relative/absolute\n- 避免使用 position: fixed/sticky\n```\n### 9. 必要的元数据\n```\n- 每个 <section> 必须有唯一的 style 属性\n- 内容必须包含在 <section> 内部\n- 所有样式必须内联，不能引用外部CSS\n```\n### 10. 兼容性要求\n```\n- 适配移动端显示\n- 在微信内置浏览器中正常显示\n- 支持微信公众号编辑器导入\n- 保证在不同设备上的一致性\n```\n## 标准模板格式\n```html\n<section style=\"width: 677px; margin: 0 auto; background: linear-gradient(135deg, #颜色1, #颜色2); padding: 40px; box-sizing: border-box;\">\n  <!-- 内容区域 -->\n  <h1 style=\"color: #ffffff; font-size: 28px; text-align: center; margin-bottom: 30px;\">标题</h1>\n\n  <!-- SVG 区域 -->\n  <div style=\"text-align: center; margin: 30px 0;\">\n    <svg width=\"100%\" height=\"auto\" viewBox=\"0 0 400 300\">\n      <!-- SVG 内容 -->\n    </svg>\n  </div>\n\n  <!-- 文本内容 -->\n  <p style=\"color: #ffffff; font-size: 16px; line-height: 1.6; text-align: center;\">内容描述</p>\n</section>\n```\n## 验证检查清单\n- [ ] 使用了 `<section>` 作为主容器\n- [ ] 背景使用了 `linear-gradient` 语法\n- [ ] 所有样式都是内联的\n- [ ] SVG 设置了正确的 viewBox\n- [ ] 宽度设置为 677px\n- [ ] 没有使用外部CSS或JS引用\n- [ ] 所有动画都是内嵌的\n- [ ] 颜色值使用正确格式\n- [ ] 尺寸单位符合要求"}
+            {"role": "system", "content": "# 微信公众号HTML格式约束提示词\n## 强制格式要求\n### 1. 基础HTML结构\n```\n- 必须使用 <section> 标签作为主容器\n- 禁止使用 <div> 作为主容器（微信会过滤背景色）\n- 必须设置固定宽度: width: 677px\n- 必须设置 margin: 0 auto（居中对齐）\n```\n### 2. 背景色语法（关键）\n```\n- 必须使用: background: linear-gradient(方向, 颜色1, 颜色2)\n- 禁止使用: background-color 属性\n- 禁止使用: background: #颜色值\n- 示例: background: linear-gradient(135deg, #1a1a2e, #16213e)\n```\n### 3. SVG嵌入规范\n```\n- 直接内嵌 <svg> 标签，不使用外部文件\n- 必须设置 viewBox 属性\n- 宽高使用百分比: width=\"100%\" height=\"auto\"\n- 所有样式必须内联，不能使用 <style> 标签\n```\n### 4. 动画约束\n```\nCSS动画：\n- 使用 @keyframes 定义\n- 动画属性必须内联在 style 属性中\n- 避免复杂的 transform 动画\nSVG动画：\n- 使用 <animateTransform> 标签\n- 使用 <animate> 标签\n- 避免使用 CSS 控制的 SVG 动画\n```\n### 5. 文本格式规范\n```\n- 标题使用 <h1>, <h2>, <h3> 标签\n- 正文使用 <p> 标签\n- 强调使用 <strong> 或 <em>\n- 字体大小使用 px 单位\n- 行高使用数值，如 line-height: 1.6\n```\n### 6. 颜色值格式\n```\n- 使用十六进制: #ffffff\n- 使用 RGB: rgb(255, 255, 255)\n- 使用 RGBA: rgba(255, 255, 255, 0.8)\n- 禁止使用颜色名称: red, blue 等\n```\n### 7. 尺寸单位约束\n```\n- 宽度: px, %\n- 高度: px, auto\n- 内边距: px\n- 外边距: px\n- 字体大小: px\n- 禁止使用: em, rem, vh, vw\n```\n### 8. 布局约束\n```\n- 使用 display: flex 或 display: block\n- 避免使用 CSS Grid\n- 使用 position: relative/absolute\n- 避免使用 position: fixed/sticky\n```\n### 9. 必要的元数据\n```\n- 每个 <section> 必须有唯一的 style 属性\n- 内容必须包含在 <section> 内部\n- 所有样式必须内联，不能引用外部CSS\n```\n### 10. 兼容性要求\n```\n- 适配移动端显示\n- 在微信内置浏览器中正常显示\n- 支持微信公众号编辑器导入\n- 保证在不同设备上的一致性\n```\n## 标准模板格式\n```html\n<section style=\"width: 677px; margin: 0 auto; background: linear-gradient(135deg, #颜色1, #颜色2); padding: 40px; box-sizing: border-box;\">\n  <!-- 内容区域 -->\n  <h1 style=\"color: #ffffff; font-size: 28px; text-align: center; margin-bottom: 30px;\">标题</h1>\n\n  <!-- SVG 区域 -->\n  <div style=\"text-align: center; margin: 30px 0;\">\n    <svg width=\"100%\" height=\"auto\" viewBox=\"0 0 400 300\">\n      <!-- SVG 内容 -->\n    </svg>\n  </div>\n\n  <!-- 文本内容 -->\n  <p style=\"color: #ffffff; font-size: 16px; line-height: 1.6; text-align: center;\">内容描述</p>\n</section>\n```\n## 验证检查清单\n- [ ] 使用了 `<section>` 作为主容器\n- [ ] 背景使用了 `linear-gradient` 语法\n- [ ] 所有样式都是内联的\n- [ ] SVG 设置了正确的 viewBox\n- [ ] 宽度设置为 677px\n- [ ] 没有使用外部CSS或JS引用\n- [ ] 所有动画都是内嵌的\n- [ ] 颜色值使用正确格式\n- [ ] 尺寸单位符合要求\n 内容不能缺失。"}
         ]
         
         # Add context if provided
@@ -659,7 +671,7 @@ async def ai_assist(request: AIRequest):
         response = client.chat.completions.create(
             model="GLM-4.5-Flash",
             messages=messages,
-            max_tokens=4096,
+            max_tokens=8192,
             temperature=0.6
         )
         
@@ -684,6 +696,42 @@ async def ai_assist(request: AIRequest):
             status_code=500,
             detail=f"AI service error: {str(e)}"
         )
+
+
+@app.post("/ai/stream")
+async def ai_assist_stream(request: AIRequest):
+    """Streaming AI assistance endpoint using GLM - faster response"""
+    async def generate_stream():
+        try:
+            messages = [
+                {"role": "system", "content": WECHAT_SYSTEM_PROMPT},
+            ]
+            
+            if request.context:
+                messages.append({"role": "system", "content": f"Context: {request.context}"})
+            
+            messages.append({"role": "user", "content": request.prompt})
+            
+            client = ensure_glm_client()
+            
+            stream = client.chat.completions.create(
+                model="GLM-4.5-Flash",
+                messages=messages,
+                max_tokens=8192,
+                temperature=0.6,
+                stream=True
+            )
+            
+            for chunk in stream:
+                if chunk.choices[0].delta.content:
+                    yield f"data: {chunk.choices[0].delta.content}\n\n"
+            
+            yield "data: [DONE]\n\n"
+            
+        except Exception as e:
+            yield f"data: ERROR: {str(e)}\n\n"
+    
+    return StreamingResponse(generate_stream(), media_type="text/event-stream")
 
 
 @app.post("/text-to-markdown", response_model=TextToMarkdownResponse)
@@ -713,9 +761,9 @@ async def text_to_markdown(request: TextToMarkdownRequest):
         # Call GLM API
         client = ensure_glm_client()
         response = client.chat.completions.create(
-            model="glm-4.5",
+            model="GLM-4.5-Flash",
             messages=messages,
-            max_tokens=4096,
+            max_tokens=8192,
             temperature=0.6
         )
         
