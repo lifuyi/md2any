@@ -658,12 +658,7 @@ async def ai_assist(request: AIRequest):
             model="glm-4.5",
             messages=messages,
             max_tokens=4096,
-            temperature=0.6,
-            extra_body={
-                "thinking": {
-                    "type": "enabled"
-                }
-            }
+            temperature=0.6
         )
         
         ai_response = response.choices[0].message.content
@@ -711,12 +706,7 @@ async def text_to_markdown(request: TextToMarkdownRequest):
             model="glm-4.5",
             messages=messages,
             max_tokens=4096,
-            temperature=0.6,
-            extra_body={
-                "thinking": {
-                    "type": "enabled"
-                }
-            }
+            temperature=0.6
         )
         
         markdown_content = response.choices[0].message.content.strip()
