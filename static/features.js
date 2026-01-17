@@ -1942,6 +1942,22 @@ function showAIResultModal(htmlContent) {
                 await Promise.all(imagePromises);
             }
             
+            // Fix SVG height attribute: replace "auto" with a valid length
+            const svgs = doc.querySelectorAll('svg');
+            svgs.forEach(svg => {
+                if (svg.getAttribute('height') === 'auto') {
+                    const width = svg.getAttribute('width') || '100%';
+                    if (width.includes('%')) {
+                        svg.setAttribute('height', '100%');
+                    } else if (width.includes('px')) {
+                        const pxValue = parseInt(width);
+                        svg.setAttribute('height', `${pxValue}px`);
+                    } else {
+                        svg.setAttribute('height', '100px');
+                    }
+                }
+            });
+            
             // Get processed content
             const processedHTML = doc.body.innerHTML;
             const plainText = doc.body.textContent || '';
