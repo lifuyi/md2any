@@ -1480,19 +1480,8 @@ async function generateMarkdown() {
         updateStatus('AI疯狂排版中...');
         
         const aiRequest = {
-            prompt: `请基于"${userInput}"这个主题生成一篇完整的Markdown格式文章。要求：
-1. 严格围绕"${userInput}"这个主题展开，不要添加任何与主题无关的内容
-2. 所有内容必须与"${userInput}"直接相关，不得偏离主题
-3. 使用合适的Markdown语法，包括标题、段落、列表、加粗等
-4. 内容结构清晰，逻辑连贯，有明确的层次结构
-5. 根据"${userInput}"的主题选择合适的内容深度和专业程度
-6. 包含引言、主体内容和总结，但所有部分都必须紧扣主题
-7. 使用中文撰写，语言流畅自然、专业准确
-8. 直接输出Markdown内容，不要包含任何解释、说明或其他非Markdown内容
-9. 如果主题比较具体，请深入挖掘相关内容；如果主题比较宽泛，请选择最相关的角度展开
-
-重要：生成的所有内容必须严格基于"${userInput}"，严禁添加任何与"${userInput}"无关的信息、例子或扩展内容。`,
-            context: "用户需要生成与指定主题严格相关的Markdown内容，要求内容专业、结构完整且高度相关，不得有任何偏离主题的内容。"
+            prompt: userInput,
+            context: "generate-markdown"
         };
         
         const response = await fetch(`${SharedUtils.CONFIG.API_BASE_URL}/ai`, {
@@ -1675,10 +1664,8 @@ async function convertToWeChatHTML() {
         updateStatus('正在AI优化格式...');
         
         const aiRequest = {
-            prompt: `请根据微信公众号HTML格式约束，将以下Markdown内容转换为符合微信渲染规范的HTML格式：
-
-${originalContent}`,
-            context: "用户需要将Markdown内容转换为微信公众号HTML格式"
+            prompt: originalContent,
+            context: "wechat-html-format"
         };
         
         // Use streaming endpoint for faster response

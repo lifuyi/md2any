@@ -36,6 +36,23 @@ WECHAT_SYSTEM_PROMPT = """微信公众号HTML格式要求：
 7. 颜色用 #十六进制 或 rgb()
 8. 动画用 @keyframes 或 <animate> 标签"""
 
+# Generate markdown system prompt
+GENERATE_MARKDOWN_PROMPT = """请基于提供的主题生成一篇完整的Markdown格式文章。要求：
+1. 严格围绕主题展开，不要添加任何与主题无关的内容
+2. 所有内容必须与主题直接相关，不得偏离主题
+3. 使用合适的Markdown语法，包括标题、段落、列表、加粗等
+4. 内容结构清晰，逻辑连贯，有明确的层次结构
+5. 根据主题选择合适的内容深度和专业程度
+6. 包含引言、主体内容和总结，但所有部分都必须紧扣主题
+7. 使用中文撰写，语言流畅自然、专业准确
+8. 直接输出Markdown内容，不要包含任何解释、说明或其他非Markdown内容
+9. 如果主题比较具体，请深入挖掘相关内容；如果主题比较宽泛，请选择最相关的角度展开
+
+重要：生成的所有内容必须严格基于主题，严禁添加任何与主题无关的信息、例子或扩展内容。"""
+
+# Text to markdown system prompt
+TEXT_TO_MARKDOWN_PROMPT = """Convert the following text to clean, well-formatted markdown with appropriate headings, lists, and emphasis. Only convert the provided text - DO NOT add, extend, or modify the content."""
+
 
 class MarkdownRequest(BaseModel):
     """Request model for markdown rendering"""
@@ -657,10 +674,6 @@ async def ai_assist(request: AIRequest):
             {"role": "system", "content": "# 微信公众号HTML格式约束提示词\n## 强制格式要求\n### 1. 基础HTML结构\n```\n- 必须使用 <section> 标签作为主容器\n- 禁止使用 <div> 作为主容器（微信会过滤背景色）\n- 必须设置固定宽度: width: 677px\n- 必须设置 margin: 0 auto（居中对齐）\n```\n### 2. 背景色语法（关键）\n```\n- 必须使用: background: linear-gradient(方向, 颜色1, 颜色2)\n- 禁止使用: background-color 属性\n- 禁止使用: background: #颜色值\n- 示例: background: linear-gradient(135deg, #1a1a2e, #16213e)\n```\n### 3. SVG嵌入规范\n```\n- 直接内嵌 <svg> 标签，不使用外部文件\n- 必须设置 viewBox 属性\n- 宽高使用百分比: width=\"100%\" height=\"auto\"\n- 所有样式必须内联，不能使用 <style> 标签\n```\n### 4. 动画约束\n```\nCSS动画：\n- 使用 @keyframes 定义\n- 动画属性必须内联在 style 属性中\n- 避免复杂的 transform 动画\nSVG动画：\n- 使用 <animateTransform> 标签\n- 使用 <animate> 标签\n- 避免使用 CSS 控制的 SVG 动画\n```\n### 5. 文本格式规范\n```\n- 标题使用 <h1>, <h2>, <h3> 标签\n- 正文使用 <p> 标签\n- 强调使用 <strong> 或 <em>\n- 字体大小使用 px 单位\n- 行高使用数值，如 line-height: 1.6\n```\n### 6. 颜色值格式\n```\n- 使用十六进制: #ffffff\n- 使用 RGB: rgb(255, 255, 255)\n- 使用 RGBA: rgba(255, 255, 255, 0.8)\n- 禁止使用颜色名称: red, blue 等\n```\n### 7. 尺寸单位约束\n```\n- 宽度: px, %\n- 高度: px, auto\n- 内边距: px\n- 外边距: px\n- 字体大小: px\n- 禁止使用: em, rem, vh, vw\n```\n### 8. 布局约束\n```\n- 使用 display: flex 或 display: block\n- 避免使用 CSS Grid\n- 使用 position: relative/absolute\n- 避免使用 position: fixed/sticky\n```\n### 9. 必要的元数据\n```\n- 每个 <section> 必须有唯一的 style 属性\n- 内容必须包含在 <section> 内部\n- 所有样式必须内联，不能引用外部CSS\n```\n### 10. 兼容性要求\n```\n- 适配移动端显示\n- 在微信内置浏览器中正常显示\n- 支持微信公众号编辑器导入\n- 保证在不同设备上的一致性\n```\n## 标准模板格式\n```html\n<section style=\"width: 677px; margin: 0 auto; background: linear-gradient(135deg, #颜色1, #颜色2); padding: 40px; box-sizing: border-box;\">\n  <!-- 内容区域 -->\n  <h1 style=\"color: #ffffff; font-size: 28px; text-align: center; margin-bottom: 30px;\">标题</h1>\n\n  <!-- SVG 区域 -->\n  <div style=\"text-align: center; margin: 30px 0;\">\n    <svg width=\"100%\" height=\"auto\" viewBox=\"0 0 400 300\">\n      <!-- SVG 内容 -->\n    </svg>\n  </div>\n\n  <!-- 文本内容 -->\n  <p style=\"color: #ffffff; font-size: 16px; line-height: 1.6; text-align: center;\">内容描述</p>\n</section>\n```\n## 验证检查清单\n- [ ] 使用了 `<section>` 作为主容器\n- [ ] 背景使用了 `linear-gradient` 语法\n- [ ] 所有样式都是内联的\n- [ ] SVG 设置了正确的 viewBox\n- [ ] 宽度设置为 677px\n- [ ] 没有使用外部CSS或JS引用\n- [ ] 所有动画都是内嵌的\n- [ ] 颜色值使用正确格式\n- [ ] 尺寸单位符合要求\n 内容不能缺失。"}
         ]
         
-        # Add context if provided
-        if request.context:
-            messages.append({"role": "system", "content": f"Context: {request.context} IMPORTANT: Only convert the provided text - DO NOT add, extend, or modify the content."})
-        
         # Add user prompt
         messages.append({"role": "user", "content": request.prompt})
         
@@ -703,12 +716,21 @@ async def ai_assist_stream(request: AIRequest):
     """Streaming AI assistance endpoint using GLM - faster response"""
     async def generate_stream():
         try:
-            messages = [
-                {"role": "system", "content": WECHAT_SYSTEM_PROMPT},
-            ]
+            # Set system prompt based on context
+            system_prompt = WECHAT_SYSTEM_PROMPT
             
-            if request.context:
-                messages.append({"role": "system", "content": f"Context: {request.context}"})
+            if request.context == "generate-markdown":
+                system_prompt = GENERATE_MARKDOWN_PROMPT
+            elif request.context == "text-to-markdown":
+                system_prompt = TEXT_TO_MARKDOWN_PROMPT
+            elif request.context == "wechat-html-format":
+                system_prompt = WECHAT_SYSTEM_PROMPT + " IMPORTANT: Only convert the provided text - DO NOT add, extend, or modify the content."
+            elif request.context:
+                system_prompt = WECHAT_SYSTEM_PROMPT + " IMPORTANT: Only convert the provided text - DO NOT add, extend, or modify the content."
+            
+            messages = [
+                {"role": "system", "content": system_prompt},
+            ]
             
             messages.append({"role": "user", "content": request.prompt})
             
