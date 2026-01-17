@@ -15,6 +15,12 @@
 let THEMES = {};
 let STYLES = {}; // For backward compatibility
 let currentTheme = SharedUtils.CONFIG.DEFAULT_THEME;
+// Use window.isAIFormatting to allow features.js to control this flag
+Object.defineProperty(window, 'isAIFormatting', {
+    writable: true,
+    configurable: true,
+    value: false
+});
 
 // =============================================================================
 // APPLICATION INITIALIZATION
@@ -658,6 +664,12 @@ function loadDefaultFormatValues() {
  * Render markdown using backend API
  */
 async function renderMarkdown() {
+    // Skip rendering if AI formatting is in progress to prevent overwriting AI results
+    if (window.isAIFormatting) {
+        SharedUtils.log('Core', 'Skipping renderMarkdown - AI formatting in progress');
+        return;
+    }
+    
     const editor = document.getElementById('editor');
     const preview = document.getElementById('preview');
     

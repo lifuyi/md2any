@@ -1450,7 +1450,7 @@ async function generateMarkdown() {
     `;
     
     const text = document.createElement('p');
-    text.textContent = '正在生成Markdown...';
+    text.textContent = 'AI正在疯狂生成Markdown中...工作任务繁重，耗时较长，敬请等待';
     text.style.cssText = `
         margin: 0;
         font-size: 16px;
@@ -1624,7 +1624,7 @@ async function convertToWeChatHTML() {
     `;
     
     const text = document.createElement('p');
-    text.textContent = '正在AI优化格式...';
+    text.textContent = 'AI正在疯狂生成Markdown中...工作任务繁重，耗时较长，敬请等待';
     text.style.cssText = `
         margin: 0;
         font-size: 16px;
@@ -1664,6 +1664,12 @@ async function convertToWeChatHTML() {
     });
     
     try {
+        // Set flag to prevent real-time preview from overwriting AI results
+        if (typeof window.isAIFormatting !== 'undefined') {
+            window.isAIFormatting = true;
+            SharedUtils.log('Features', 'AI formatting started - disabling real-time preview');
+        }
+        
         updateStatus('正在AI优化格式...');
         
         const aiRequest = {
@@ -1698,27 +1704,30 @@ ${originalContent}
         const data = await response.json();
         
         if (data.success) {
-            if (window.codeMirrorInstance) {
-                window.codeMirrorInstance.setValue(data.response);
-            } else {
-                editor.value = data.response;
-            }
-            
-            // Trigger re-render and wait for it to complete
-            if (window.renderMarkdown) {
-                // renderMarkdown is async, so we need to handle it properly
-                const renderPromise = window.renderMarkdown();
+            // Directly set the HTML to preview area without updating editor
+            const preview = document.getElementById('preview');
+            if (preview) {
+                preview.innerHTML = data.response;
                 
-                // Wait a bit for rendering to complete (with timeout to prevent hanging)
-                if (renderPromise && typeof renderPromise.then === 'function') {
-                    await renderPromise;
-                } else {
-                    // If renderMarkdown doesn't return a promise, wait a bit for DOM updates
-                    await new Promise(resolve => setTimeout(resolve, 1000));
+                // Process MathJax if present
+                if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+                    try {
+                        await window.MathJax.typesetPromise([preview]);
+                    } catch (e) {
+                        SharedUtils.logError('Features', 'MathJax typesetting failed', e);
+                    }
                 }
+                
+                // Show clear button and hide AI format button
+                const clearBtn = document.getElementById('ai-clear-btn');
+                const aiBtn = document.getElementById('ai-format-btn');
+                if (clearBtn) clearBtn.style.display = 'inline-block';
+                if (aiBtn) aiBtn.style.display = 'none';
+                
+                updateStatus('AI格式优化完成（点击“清除AI结果”返回正常模式）');
+            } else {
+                throw new Error('Preview area not found');
             }
-            
-            updateStatus('AI格式优化完成');
         } else {
             throw new Error(data.message || 'AI优化失败');
         }
@@ -1727,8 +1736,13 @@ ${originalContent}
         SharedUtils.logError('Features', '转换失败', error);
         alert('转换失败: ' + error.message);
         updateStatus('转换失败', true);
+        
+        // Clear flag on error to allow normal rendering
+        if (typeof window.isAIFormatting !== 'undefined') {
+            window.isAIFormatting = false;
+        }
     } finally {
-        // Remove overlay and re-enable UI
+        // Remove overlay and re-enable UI (but keep isAIFormatting = true to preserve AI result)
         const overlayElement = document.getElementById('ai-format-overlay');
         if (overlayElement) {
             overlayElement.remove();
@@ -1739,7 +1753,40 @@ ${originalContent}
             el.disabled = false;
             el.style.opacity = '1';
         });
+        
+        // Note: window.isAIFormatting remains true to prevent overwriting AI result
+        // User must manually clear it to re-enable normal rendering
     }
+}
+
+/**
+ * Clear AI formatting and return to normal rendering
+ */
+function clearAIFormatting() {
+    // Reset the AI formatting flag
+    if (typeof window.isAIFormatting !== 'undefined') {
+        window.isAIFormatting = false;
+        SharedUtils.log('Features', 'AI formatting cleared - re-enabling real-time preview');
+    }
+    
+    // Hide the clear button
+    const clearBtn = document.getElementById('ai-clear-btn');
+    if (clearBtn) {
+        clearBtn.style.display = 'none';
+    }
+    
+    // Show the AI format button
+    const aiBtn = document.getElementById('ai-format-btn');
+    if (aiBtn) {
+        aiBtn.style.display = 'inline-block';
+    }
+    
+    // Re-render the preview with current editor content
+    if (window.renderMarkdown) {
+        window.renderMarkdown();
+    }
+    
+    updateStatus('已清除AI排版，返回正常预览模式');
 }
 
 // =============================================================================
