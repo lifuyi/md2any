@@ -200,6 +200,73 @@ async function generateMarkdown() {
 }
 
 /**
+ * Format markdown using AI (/ai endpoint)
+ */
+async function aiFormatMarkdown() {
+    const editor = document.getElementById('editor');
+    const aiBtn = document.getElementById('ai-format-btn');
+    const clearBtn = document.getElementById('ai-clear-btn');
+    
+    if (!editor) {
+        updateStatus('❌ 编辑器未找到', true);
+        return;
+    }
+    
+    const markdownContent = window._getEditorContent ? window._getEditorContent() : editor.value;
+    
+    if (!markdownContent.trim()) {
+        alert('请先输入Markdown内容');
+        return;
+    }
+    
+    try {
+        // Disable button and show loading
+        aiBtn.disabled = true;
+        aiBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> AI排版中...';
+        updateStatus('正在使用AI进行排版...');
+        
+        // Set AI formatting flag to prevent normal rendering
+        window.isAIFormatting = true;
+        
+        // Call /ai endpoint
+        const response = await fetch(`${SharedUtils.CONFIG.API_BASE_URL}/ai`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: markdownContent })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && data.response) {
+            // Show result in modal overlay
+            showAIResultModal(data.response);
+            
+            // Show clear button
+            if (clearBtn) {
+                clearBtn.style.display = 'inline-block';
+            }
+            
+            updateStatus('✅ AI排版完成');
+        } else {
+            throw new Error(data.message || 'AI排版失败');
+        }
+        
+    } catch (error) {
+        updateStatus('❌ AI排版失败', true);
+        alert('AI排版失败: ' + error.message);
+    } finally {
+        // Re-enable button
+        aiBtn.disabled = false;
+        aiBtn.innerHTML = '<i class="fas fa-robot"></i> AI排版';
+        window.isAIFormatting = false;
+    }
+}
+
+/**
  * Convert content to WeChat-compatible HTML
  */
 async function convertToWeChatHTML() {

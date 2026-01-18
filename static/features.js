@@ -75,6 +75,8 @@ window._convertToWeChatHTML = convertToWeChatHTML;
 window._generateMarkdown = generateMarkdown;
 window._showAIResultModal = showAIResultModal;
 window._clearAIFormatting = clearAIFormatting;
+window._aiFormatMarkdown = aiFormatMarkdown;
+window.aiFormatMarkdown = aiFormatMarkdown;  // Direct export for HTML onclick
 
 // Style Manager Functions
 window._openLeftDrawer = openLeftDrawer;
@@ -127,6 +129,7 @@ const FeaturesModule = {
     generateMarkdown,
     showAIResultModal,
     clearAIFormatting,
+    aiFormatMarkdown,
     
     // Style Manager Functions
     openLeftDrawer,
