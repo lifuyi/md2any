@@ -1668,8 +1668,8 @@ async function convertToWeChatHTML() {
             context: "wechat-html-format"
         };
         
-        // Use streaming endpoint for faster response
-        const response = await fetch(`${SharedUtils.CONFIG.API_BASE_URL}/ai/stream`, {
+        // Use AI endpoint
+        const response = await fetch(`${SharedUtils.CONFIG.API_BASE_URL}/ai`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(aiRequest)
@@ -1679,97 +1679,11 @@ async function convertToWeChatHTML() {
             throw new Error(`AI优化失败: ${response.status}`);
         }
         
-        // Process streaming response
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let aiResponse = '';
-        let buffer = '';
+        // Get regular response
+        const result = await response.json();
+        const aiResponse = result.response || '';
         
-        // Create a temporary modal with loading state
-        let tempModal = null;
-        let tempContent = null;
-        
-        try {
-            // Create temporary loading modal
-            tempModal = document.createElement('div');
-            tempModal.id = 'ai-stream-modal';
-            tempModal.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0, 0, 0, 0.5);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 11000;
-            `;
-            const modalBox = document.createElement('div');
-            modalBox.style.cssText = `
-                background: white;
-                border-radius: 12px;
-                padding: 30px;
-                max-width: 95%;
-                max-height: 90vh;
-                width: 800px;
-                overflow: auto;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            `;
-            tempContent = document.createElement('div');
-            tempContent.id = 'ai-stream-content';
-            tempContent.style.cssText = `
-                white-space: pre-wrap;
-                word-break: break-word;
-                font-size: 14px;
-                line-height: 1.6;
-            `;
-            const loadingIndicator = document.createElement('div');
-            loadingIndicator.id = 'ai-loading-indicator';
-            loadingIndicator.textContent = 'AI正在生成...';
-            loadingIndicator.style.cssText = `
-                color: #666;
-                margin-bottom: 15px;
-                font-size: 14px;
-            `;
-            modalBox.appendChild(loadingIndicator);
-            modalBox.appendChild(tempContent);
-            tempModal.appendChild(modalBox);
-            document.body.appendChild(tempModal);
-            
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-                
-                buffer += decoder.decode(value, { stream: true });
-                const lines = buffer.split('\n\n');
-                buffer = lines.pop() || '';
-                
-                for (const line of lines) {
-                    if (line.startsWith('data: ')) {
-                        const data = line.slice(6);
-                        if (data === '[DONE]') {
-                            break;
-                        }
-                        try {
-                            aiResponse += data;
-                            // Update the temporary modal with current content
-                            if (tempContent) {
-                                tempContent.innerHTML = aiResponse;
-                            }
-                        } catch (e) {
-                            // Skip parse errors for incomplete chunks
-                        }
-                    }
-                }
-            }
-        } finally {
-            // Remove temp modal
-            const temp = document.getElementById('ai-stream-modal');
-            if (temp) temp.remove();
-        }
-        
-        console.log('[AI] Streaming response complete, length:', aiResponse.length);
+        console.log('[AI] Response complete, length:', aiResponse.length);
         
         if (aiResponse && aiResponse.trim()) {
             // Show the result in a modal overlay with copy button

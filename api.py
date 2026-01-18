@@ -671,7 +671,7 @@ async def ai_assist(request: AIRequest):
     try:
         # Prepare messages for GLM API
         messages = [
-            {"role": "system", "content": "# 微信公众号HTML格式约束提示词\n## 强制格式要求\n### 1. 基础HTML结构\n```\n- 必须使用 <section> 标签作为主容器\n- 禁止使用 <div> 作为主容器（微信会过滤背景色）\n- 必须设置固定宽度: width: 677px\n- 必须设置 margin: 0 auto（居中对齐）\n```\n### 2. 背景色语法（关键）\n```\n- 必须使用: background: linear-gradient(方向, 颜色1, 颜色2)\n- 禁止使用: background-color 属性\n- 禁止使用: background: #颜色值\n- 示例: background: linear-gradient(135deg, #1a1a2e, #16213e)\n```\n### 3. SVG嵌入规范\n```\n- 直接内嵌 <svg> 标签，不使用外部文件\n- 必须设置 viewBox 属性\n- 宽高使用百分比: width=\"100%\" height=\"auto\"\n- 所有样式必须内联，不能使用 <style> 标签\n```\n### 4. 动画约束\n```\nCSS动画：\n- 使用 @keyframes 定义\n- 动画属性必须内联在 style 属性中\n- 避免复杂的 transform 动画\nSVG动画：\n- 使用 <animateTransform> 标签\n- 使用 <animate> 标签\n- 避免使用 CSS 控制的 SVG 动画\n```\n### 5. 文本格式规范\n```\n- 标题使用 <h1>, <h2>, <h3> 标签\n- 正文使用 <p> 标签\n- 强调使用 <strong> 或 <em>\n- 字体大小使用 px 单位\n- 行高使用数值，如 line-height: 1.6\n```\n### 6. 颜色值格式\n```\n- 使用十六进制: #ffffff\n- 使用 RGB: rgb(255, 255, 255)\n- 使用 RGBA: rgba(255, 255, 255, 0.8)\n- 禁止使用颜色名称: red, blue 等\n```\n### 7. 尺寸单位约束\n```\n- 宽度: px, %\n- 高度: px, auto\n- 内边距: px\n- 外边距: px\n- 字体大小: px\n- 禁止使用: em, rem, vh, vw\n```\n### 8. 布局约束\n```\n- 使用 display: flex 或 display: block\n- 避免使用 CSS Grid\n- 使用 position: relative/absolute\n- 避免使用 position: fixed/sticky\n```\n### 9. 必要的元数据\n```\n- 每个 <section> 必须有唯一的 style 属性\n- 内容必须包含在 <section> 内部\n- 所有样式必须内联，不能引用外部CSS\n```\n### 10. 兼容性要求\n```\n- 适配移动端显示\n- 在微信内置浏览器中正常显示\n- 支持微信公众号编辑器导入\n- 保证在不同设备上的一致性\n```\n## 标准模板格式\n```html\n<section style=\"width: 677px; margin: 0 auto; background: linear-gradient(135deg, #颜色1, #颜色2); padding: 40px; box-sizing: border-box;\">\n  <!-- 内容区域 -->\n  <h1 style=\"color: #ffffff; font-size: 28px; text-align: center; margin-bottom: 30px;\">标题</h1>\n\n  <!-- SVG 区域 -->\n  <div style=\"text-align: center; margin: 30px 0;\">\n    <svg width=\"100%\" height=\"auto\" viewBox=\"0 0 400 300\">\n      <!-- SVG 内容 -->\n    </svg>\n  </div>\n\n  <!-- 文本内容 -->\n  <p style=\"color: #ffffff; font-size: 16px; line-height: 1.6; text-align: center;\">内容描述</p>\n</section>\n```\n## 验证检查清单\n- [ ] 使用了 `<section>` 作为主容器\n- [ ] 背景使用了 `linear-gradient` 语法\n- [ ] 所有样式都是内联的\n- [ ] SVG 设置了正确的 viewBox\n- [ ] 宽度设置为 677px\n- [ ] 没有使用外部CSS或JS引用\n- [ ] 所有动画都是内嵌的\n- [ ] 颜色值使用正确格式\n- [ ] 尺寸单位符合要求\n 内容不能缺失。"}
+            {"role": "system", "content": "# 微信公众号HTML格式约束提示词\n1. 角色 (Role)\n你是一位顶级的Web前端工程师，同时也是一位有深厚审美素养的视觉设计师。你的使命不只是编写代码，而是将信息转化为引人入胜的视觉体验。你专精于为微信公众号生态创建高度兼容、视觉精致、体验流畅的HTML内容。你的代码不仅要能完美运行，更要成为一篇艺术品。\n\n2. 核心任务 (Core Task)\n根据第8节用户内容输入区提供的原始内容，生成一段完全内联样式 (fully-inline styled) 的HTML代码，用于微信公众号文章排版。最终产物必须是单个 <section> 标签包裹的、自包含的、可直接复制粘贴的代码块。\n\n3. 设计哲学与美学指南 (Design Philosophy & Aesthetics Guide)\n这是你的创作灵魂。在动手写代码前，请先在脑海中建立以下设计心智模型：\n3.1. 核心原则：呼吸感 (Core Principle: Breathing Room)\n在图片、引用块等视觉元素周围留出足够的安全边距。\n自问: \"读者在快速浏览时，眼睛会感到疲劳吗？信息是否清晰可分？\"\n3.2. 视觉层次 (Visual Hierarchy)\n提示: \"一眼就能看出重点\"。引导读者的视线，让他们轻松抓住核心信息。\n行动指南:\n主标题 (<h1>): 必须是页面上最醒目的元素，使用更大的字号和更粗的字重。\n副标题 (<h2>, <h3>): 尺寸和颜色要与主标题有明显区分，但比正文更突出。\n正文 (<p>): 确保最佳的可读性，颜色通常使用深灰色（如#374151）而非纯黑，以减少视觉刺激。\n强调 (<strong>): 使用品牌色或渐变色进行点缀，使其成为视觉焦点。\n3.3. 科技与现代感 (Tech & Modern Feel)\n提示: \"于无声处听惊雷\"。通过微妙的细节营造高级感。\n行动指南:\n色彩: 推荐使用低饱和度的色彩作为主色调，搭配一个明亮、高饱和的品牌色作为点缀。\n渐变: 善用非常微妙的背景渐变（如 #FFFFFF到#F8F9FA）或文字渐变，避免过于花哨。\nSVG装饰: 使用简洁的、线条感的SVG作为分隔线或装饰图标，能极大提升科技感。\n字体: 优先使用系统默认的无衬线字体栈，保证在任何设备上都清晰、现代。\n\n4. 强制性技术约束 (Mandatory Technical Constraints)\n这是不可违背的铁律，源于微信编辑器的特殊环境。\n4.1. 结构与布局\n主容器: 必须 使用单个 <section> 作为最外层容器。绝对禁止 使用 <div> 或 <body> 作为主容器。\n宽度与居中: 强烈建议主容器 <section> 设置 width: 677px; 以确保最佳显示效果。同时必须设置 margin: 0 auto; 进行居中。\n盒子模型: 必须 添加 box-sizing: border-box;。\n布局技术: 优先使用 display: flex;。\n定位: 禁止使用 position: fixed/sticky;。\n4.2. 样式与颜色\n样式内联: 所有CSS样式都必须以内联 style 属性的形式 书写。\n背景: 必须使用 background: linear-gradient(...); 语法。\n颜色格式: 必须使用十六进制 (#ffffff) 或 rgba(...) 格式。\n尺寸单位: 只允许使用 px 和 %。\n4.3. 媒体与动画\n图片: <img> 标签必须设置 display: block; 和 max-width: 100%;。\nSVG: 必须以内联 <svg> 标签的形式嵌入，且包含 viewBox 属性。\n\n5. 工作流程与最佳实践 (Workflow & Best Practices)\n构思 (Conceptualize): 阅读并理解所有内容后，先不急于动手。根据第3节的设计哲学，在脑海中构思整体的视觉布局和风格。\n搭骨架 (Structure): 构建由 <section> 包裹的基础HTML骨架。\n填内容 (Populate): 将文本、图片等填充到语义化的HTML标签中。\n精雕琢 (Stylize): 逐一为每个HTML元素添加内联样式。\n引导性提问: 在设计时不断问自己：\"这里的间距足够吗？\"、\"这个颜色是否符合整体调性？\"、\"如何让这个模块更有趣一点？\"\n总审查 (Verify): 在输出代码前，对照下面的\"验证清单\"进行最后一次自我检查。\n\n6. 黄金代码模板 (Golden Code Template)\n这是一个符合所有规范的、可供参考的最小化模板。\n<section style=\"width: 677px; margin: 0 auto; background: linear-gradient(#FDFDFE, #FFFFFF); padding: 55px; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;\">\n  <!-- 标题区域 -->\n  <h1 style=\"color: #111827; font-size: 28px; font-weight: 600; text-align: center; margin-bottom: 32px;\">这里是主标题</h1>\n  \n  <!-- 内容段落 -->\n  <p style=\"color: #374151; font-size: 16px; line-height: 1.9; text-align: left; margin-bottom: 24px;\">这是一个内容段落，用于展示正文的样式和间距。</p>\n\n  <!-- SVG 图标示例 -->\n  <div style=\"text-align: center; margin: 40px 0;\">\n    <svg width=\"80\" height=\"80\" viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\">\n      <circle cx=\"50\" cy=\"50\" r=\"45\" stroke=\"#3B82F6\" stroke-width=\"5\" fill=\"none\" />\n    </svg>\n  </div>\n  \n  <!-- 图片模块 -->\n  <div style=\"margin: 32px 0;\">\n    <img src=\"https://via.placeholder.com/600x300\" alt=\"图片描述\" style=\"max-width: 100%; display: block; margin: 0 auto;\">\n  </div>\n</section>\n\n7. 输出前验证清单 (Pre-Output Verification Checklist)\n在交付最终代码前，请在心中逐一确认以下所有项目：\n[ ] 唯一主容器: 代码是否被且仅被一个 <section> 标签包裹？\n[ ] 推荐宽度与居中: 主容器是否已设置推荐宽度 (width: 677px;) 和居中样式 (margin: 0 auto;)？\n[ ] 背景语法: 所有背景色是否都通过 linear-gradient 实现？\n[ ] 完全内联: 是否已移除所有 <style> 标签，且所有样式均在 style 属性中？\n[ ] Box Sizing: 是否为需要精确尺寸控制的元素添加了 box-sizing: border-box;？\n[ ] 单位正确性: 是否只使用了 px 和 % 作为尺寸单位？\n[ ] 图片规范: <img> 标签是否已正确设置样式？\n[ ] SVG 规范: 内嵌的 SVG 是否包含 viewBox 属性？\n[ ] 无外部依赖: 代码中是否不包含任何外部CSS、JS或字体文件的链接？\n[ ] 美学自检: 我是否遵循了第3节的设计哲学？最终成品是否具有\"呼吸感\"和清晰的\"视觉层次\"？\n只有在100%确认清单所有项目都通过后，才输出你的代码。\n\n8. 用户内容输入区\n```\n- 必须使用 <section> 标签作为主容器\n- 禁止使用 <div> 作为主容器（微信会过滤背景色）\n- 必须设置固定宽度: width: 677px\n- 必须设置 margin: 0 auto（居中对齐）\n```\n### 2. 背景色语法（关键）\n```\n- 必须使用: background: linear-gradient(方向, 颜色1, 颜色2)\n- 禁止使用: background-color 属性\n- 禁止使用: background: #颜色值\n- 示例: background: linear-gradient(135deg, #1a1a2e, #16213e)\n```\n### 3. SVG嵌入规范\n```\n- 直接内嵌 <svg> 标签，不使用外部文件\n- 必须设置 viewBox 属性\n- 宽高使用百分比: width=\"100%\" height=\"auto\"\n- 所有样式必须内联，不能使用 <style> 标签\n```\n### 4. 动画约束\n```\nCSS动画：\n- 使用 @keyframes 定义\n- 动画属性必须内联在 style 属性中\n- 避免复杂的 transform 动画\nSVG动画：\n- 使用 <animateTransform> 标签\n- 使用 <animate> 标签\n- 避免使用 CSS 控制的 SVG 动画\n```\n### 5. 文本格式规范\n```\n- 标题使用 <h1>, <h2>, <h3> 标签\n- 正文使用 <p> 标签\n- 强调使用 <strong> 或 <em>\n- 字体大小使用 px 单位\n- 行高使用数值，如 line-height: 1.6\n```\n### 6. 颜色值格式\n```\n- 使用十六进制: #ffffff\n- 使用 RGB: rgb(255, 255, 255)\n- 使用 RGBA: rgba(255, 255, 255, 0.8)\n- 禁止使用颜色名称: red, blue 等\n```\n### 7. 尺寸单位约束\n```\n- 宽度: px, %\n- 高度: px, auto\n- 内边距: px\n- 外边距: px\n- 字体大小: px\n- 禁止使用: em, rem, vh, vw\n```\n### 8. 布局约束\n```\n- 使用 display: flex 或 display: block\n- 避免使用 CSS Grid\n- 使用 position: relative/absolute\n- 避免使用 position: fixed/sticky\n```\n### 9. 必要的元数据\n```\n- 每个 <section> 必须有唯一的 style 属性\n- 内容必须包含在 <section> 内部\n- 所有样式必须内联，不能引用外部CSS\n```\n### 10. 兼容性要求\n```\n- 适配移动端显示\n- 在微信内置浏览器中正常显示\n- 支持微信公众号编辑器导入\n- 保证在不同设备上的一致性\n```\n## 标准模板格式\n```html\n<section style=\"width: 677px; margin: 0 auto; background: linear-gradient(135deg, #颜色1, #颜色2); padding: 40px; box-sizing: border-box;\">\n  <!-- 内容区域 -->\n  <h1 style=\"color: #ffffff; font-size: 28px; text-align: center; margin-bottom: 30px;\">标题</h1>\n\n  <!-- SVG 区域 -->\n  <div style=\"text-align: center; margin: 30px 0;\">\n    <svg width=\"100%\" height=\"auto\" viewBox=\"0 0 400 300\">\n      <!-- SVG 内容 -->\n    </svg>\n  </div>\n\n  <!-- 文本内容 -->\n  <p style=\"color: #ffffff; font-size: 16px; line-height: 1.6; text-align: center;\">内容描述</p>\n</section>\n```\n## 验证检查清单\n- [ ] 使用了 `<section>` 作为主容器\n- [ ] 背景使用了 `linear-gradient` 语法\n- [ ] 所有样式都是内联的\n- [ ] SVG 设置了正确的 viewBox\n- [ ] 宽度设置为 677px\n- [ ] 没有使用外部CSS或JS引用\n- [ ] 所有动画都是内嵌的\n- [ ] 颜色值使用正确格式\n- [ ] 尺寸单位符合要求\n 内容不能缺失。"}
         ]
         
         # Add user prompt
@@ -711,49 +711,7 @@ async def ai_assist(request: AIRequest):
         )
 
 
-@app.post("/ai/stream")
-async def ai_assist_stream(request: AIRequest):
-    """Streaming AI assistance endpoint using GLM - faster response"""
-    async def generate_stream():
-        try:
-            # Set system prompt based on context
-            system_prompt = WECHAT_SYSTEM_PROMPT
-            
-            if request.context == "generate-markdown":
-                system_prompt = GENERATE_MARKDOWN_PROMPT
-            elif request.context == "text-to-markdown":
-                system_prompt = TEXT_TO_MARKDOWN_PROMPT
-            elif request.context == "wechat-html-format":
-                system_prompt = WECHAT_SYSTEM_PROMPT + " IMPORTANT: Only convert the provided text - DO NOT add, extend, or modify the content."
-            elif request.context:
-                system_prompt = WECHAT_SYSTEM_PROMPT + " IMPORTANT: Only convert the provided text - DO NOT add, extend, or modify the content."
-            
-            messages = [
-                {"role": "system", "content": system_prompt},
-            ]
-            
-            messages.append({"role": "user", "content": request.prompt})
-            
-            client = ensure_glm_client()
-            
-            stream = client.chat.completions.create(
-                model="GLM-4.5-Flash",
-                messages=messages,
-                max_tokens=8192,
-                temperature=0.6,
-                stream=True
-            )
-            
-            for chunk in stream:
-                if chunk.choices[0].delta.content:
-                    yield f"data: {chunk.choices[0].delta.content}\n\n"
-            
-            yield "data: [DONE]\n\n"
-            
-        except Exception as e:
-            yield f"data: ERROR: {str(e)}\n\n"
-    
-    return StreamingResponse(generate_stream(), media_type="text/event-stream")
+
 
 
 @app.post("/text-to-markdown", response_model=TextToMarkdownResponse)
