@@ -232,7 +232,10 @@ async function aiFormatMarkdown() {
         const response = await fetch(`${SharedUtils.CONFIG.API_BASE_URL}/ai`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt: markdownContent })
+            body: JSON.stringify({ 
+                prompt: markdownContent,
+                context: "Convert markdown to WeChat HTML format"
+            })
         });
         
         if (!response.ok) {
