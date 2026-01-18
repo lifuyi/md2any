@@ -1266,8 +1266,23 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
     
     <!-- Core functionality - New Modular Architecture -->
-    <script src="/static/shared.js?v=59adec1"></script>
+    <!-- Shared Utilities (must load first) -->
+    <script src="/static/modules/utils/shared.js?v=59adec1"></script>
+    <!-- Core Modules (loaded before core.js entry point) -->
+    <script src="/static/modules/core/themeManager.js?v=1737153600"></script>
+    <script src="/static/modules/core/editorManager.js?v=1737153600"></script>
+    <script src="/static/modules/core/formatCustomization.js?v=1737153600"></script>
+    <script src="/static/modules/core/renderEngine.js?v=1737153600"></script>
+    <script src="/static/modules/core/uiController.js?v=1737153600"></script>
+    <!-- Core Entry Point -->
     <script src="/static/core.js?v=1737153600"></script>
+    <!-- Features Modules -->
+    <script src="/static/modules/features/imageHandling.js?v=1737153600"></script>
+    <script src="/static/modules/features/download.js?v=1737153600"></script>
+    <script src="/static/modules/features/clipboard.js?v=1737153600"></script>
+    <script src="/static/modules/features/wechatIntegration.js?v=1737153600"></script>
+    <script src="/static/modules/features/styleManager.js?v=1737153600"></script>
+    <!-- Features Entry Point -->
     <script src="/static/features.js?v=1737153600"></script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -1292,7 +1307,7 @@
         };
     </script>
     <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
-    <script src="/static/mathjax_converter.js"></script>
+    <script src="/static/modules/utils/mathjax_converter.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <script>
         // Mermaid configuration with better error handling
