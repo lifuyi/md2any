@@ -298,9 +298,8 @@ Object.assign(window, {
     isValidUrl,
     safeJsonParse,
     downloadFile,
-    isSecureContext,
-    hasClipboardAPI,
-    markdownToPlainText
-});
-
-console.log('✅ Shared utilities loaded');
+        isSecureContext,
+        hasClipboardAPI,
+        markdownToPlainText
+    });
+    

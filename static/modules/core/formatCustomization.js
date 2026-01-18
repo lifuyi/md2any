@@ -293,7 +293,6 @@ async function loadCustomFormats() {
         if (!response.ok) return;
         
         const data = await response.json();
-        SharedUtils.log('FormatCustomization', '已加载的自定义样式:', data.custom_styles);
         
     } catch (error) {
         SharedUtils.logError('FormatCustomization', '加载自定义样式失败', error);
@@ -329,4 +328,3 @@ function loadDefaultFormatValues() {
     alert('阿里橙样式已加载！您可以基于此样式进行修改。');
 }
 
-console.log('✅ Format Customization module loaded');

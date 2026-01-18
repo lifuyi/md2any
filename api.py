@@ -708,10 +708,77 @@ async def ai_assist(request: AIRequest):
         raise HTTPException(
             status_code=500,
             detail=f"AI service error: {str(e)}"
+                )
+        
+        
+class GenerateMarkdownRequest(BaseModel):
+    """Request model for AI markdown generation"""
+    prompt: str
+
+
+class GenerateMarkdownResponse(BaseModel):
+    """Response model for AI markdown generation"""
+    markdown: str
+    success: bool = True
+    message: str = "Markdown generated successfully"
+
+
+@app.post("/ai/generate-markdown", response_model=GenerateMarkdownResponse)
+async def generate_markdown(request: GenerateMarkdownRequest):
+    """Generate markdown content using AI based on a prompt"""
+    try:
+        # Prepare messages for GLM API
+        messages = [
+            {
+                "role": "system",
+                "content": GENERATE_MARKDOWN_PROMPT
+            },
+            {
+                "role": "user",
+                "content": f"主题：{request.prompt}\n\n请生成一篇关于此主题的完整Markdown文章。"
+            }
+        ]
+        
+        # Call GLM API
+        client = ensure_glm_client()
+        logger.info(f"Generating markdown for prompt: {request.prompt[:50]}...")
+        
+        response = client.chat.completions.create(
+            model="GLM-4.5-Flash",
+            messages=messages,
+            max_tokens=8192,
+            temperature=0.7
         )
-
-
-
+        
+        markdown_content = response.choices[0].message.content
+        
+        if not markdown_content:
+            logger.error("AI returned empty markdown content")
+            raise ValueError("AI returned empty response")
+        
+        # Clean up the response - remove any markdown code block wrappers if present
+        markdown_content = markdown_content.strip()
+        if markdown_content.startswith("```markdown"):
+            markdown_content = markdown_content.replace("```markdown", "", 1).strip()
+        if markdown_content.startswith("```"):
+            markdown_content = markdown_content.replace("```", "", 1).strip()
+        if markdown_content.endswith("```"):
+            markdown_content = markdown_content.rstrip().rsplit("```", 1)[0].strip()
+        
+        logger.info(f"Successfully generated {len(markdown_content)} characters of markdown")
+        
+        return GenerateMarkdownResponse(
+            markdown=markdown_content,
+            success=True,
+            message="Markdown generated successfully"
+        )
+    
+    except Exception as e:
+        logger.error(f"Error generating markdown: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to generate markdown: {str(e)}"
+        )
 
 
 @app.post("/text-to-markdown", response_model=TextToMarkdownResponse)

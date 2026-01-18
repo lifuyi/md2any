@@ -53,8 +53,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (typeof renderMarkdown === 'function') {
             renderMarkdown();
         }
-        
-        SharedUtils.log('Core', 'Application initialized successfully');
     } catch (error) {
         SharedUtils.logError('Core', 'Application initialization failed', error);
         updateStatus('应用初始化失败', true);
@@ -80,12 +78,8 @@ function initializeAppUI() {
         initializeFormatCustomization();
     }
     
-    // Initialize CodeMirror editor
-    if (typeof initializeCodeMirror === 'function') {
-        initializeCodeMirror();
-    }
-    
-    SharedUtils.log('Core', 'UI components initialized');
+    // Initialize CodeMirror editor (always)
+    initializeCodeMirror();
 }
 
 /**
@@ -122,8 +116,6 @@ function setupEventListeners() {
     if (typeof setupKeyboardShortcuts === 'function') {
         setupKeyboardShortcuts();
     }
-    
-    SharedUtils.log('Core', 'Event listeners setup complete');
 }
 
 // =============================================================================
@@ -233,5 +225,3 @@ const CoreModule = {
 
 // Export to window
 window.CoreModule = CoreModule;
-
-console.log('✅ Core module fully loaded');

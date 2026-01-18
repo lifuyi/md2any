@@ -13,13 +13,22 @@
 // =============================================================================
 
 /**
- * Initialize CodeMirror editor
+ * Initialize CodeMirror editor (the only editor)
  */
 function initializeCodeMirror() {
+    console.log('DEBUG: initializeCodeMirror called');
     const editorElement = document.getElementById('editor');
-    if (!editorElement) return;
+    if (!editorElement) {
+        console.log('DEBUG: editorElement not found, returning');
+        return;
+    }
     
-    // Hide the textarea and create a container for CodeMirror
+    console.log('DEBUG: editorElement found, initializing CodeMirror');
+    console.log('DEBUG: editorElement parent:', editorElement.parentNode);
+    console.log('DEBUG: editorElement parent display:', window.getComputedStyle(editorElement.parentNode).display);
+    console.log('DEBUG: editorElement parent height:', window.getComputedStyle(editorElement.parentNode).height);
+    
+    // Hide the textarea (kept for form compatibility but not used)
     editorElement.style.display = 'none';
     
     // Create a container for CodeMirror
@@ -27,13 +36,16 @@ function initializeCodeMirror() {
     container.id = 'codemirror-container';
     container.style.height = '100%';
     container.style.width = '100%';
+    container.style.display = 'block';
     
     // Insert container before the textarea
     editorElement.parentNode.insertBefore(container, editorElement);
+    console.log('DEBUG: Container inserted, container:', container);
+    console.log('DEBUG: Container parent:', container.parentNode);
     
-    // Initialize CodeMirror
+    // Initialize CodeMirror with empty value initially
     const cm = CodeMirror(container, {
-        value: editorElement.value,
+        value: '',
         mode: 'markdown',
         theme: 'default',
         lineNumbers: true,
@@ -49,12 +61,22 @@ function initializeCodeMirror() {
         }
     });
     
+    console.log('DEBUG: CodeMirror instance created:', cm);
+    console.log('DEBUG: CodeMirror display element:', cm.getWrapperElement());
+    
     // Set the height
     cm.setSize('100%', '100%');
     
+    // Check if CodeMirror is visible
+    const wrapper = cm.getWrapperElement();
+    console.log('DEBUG: CodeMirror wrapper display:', window.getComputedStyle(wrapper).display);
+    console.log('DEBUG: CodeMirror wrapper height:', window.getComputedStyle(wrapper).height);
+    console.log('DEBUG: CodeMirror wrapper parent:', wrapper.parentNode);
+    console.log('DEBUG: CodeMirror wrapper parent display:', window.getComputedStyle(wrapper.parentNode).display);
+    
     // Add event listeners
     cm.on('change', function(cmInstance) {
-        // Update the hidden textarea
+        // Update the hidden textarea for form compatibility
         editorElement.value = cmInstance.getValue();
         
         // Update character count
@@ -70,8 +92,9 @@ function initializeCodeMirror() {
     
     // Store reference to CodeMirror instance
     window.codeMirrorInstance = cm;
+    console.log('DEBUG: window.codeMirrorInstance set to:', window.codeMirrorInstance);
     
-    SharedUtils.log('EditorManager', 'CodeMirror editor initialized');
+    SharedUtils.log('EditorManager', 'CodeMirror editor initialized as primary editor');
 }
 
 // =============================================================================
@@ -94,15 +117,11 @@ function getEditorContent() {
 }
 
 /**
- * Set editor content
+ * Set editor content (CodeMirror only)
  */
 function setEditorContent(content) {
-    const editor = document.getElementById('editor');
-    
     if (window.codeMirrorInstance) {
         window.codeMirrorInstance.setValue(content);
-    } else if (editor) {
-        editor.value = content;
     }
     
     updateCharCount();
@@ -151,24 +170,14 @@ function updateCharCount() {
 // =============================================================================
 
 /**
- * Clear editor content
+ * Clear editor content (CodeMirror only)
  */
 function clearEditor() {
-    // Check if CodeMirror is initialized
     if (window.codeMirrorInstance) {
         window.codeMirrorInstance.setValue('');
         updateCharCount();
         if (typeof renderMarkdown === 'function') {
             renderMarkdown();
-        }
-    } else {
-        const editor = document.getElementById('editor');
-        if (editor) {
-            editor.value = '';
-            updateCharCount();
-            if (typeof renderMarkdown === 'function') {
-                renderMarkdown();
-            }
         }
     }
 }
@@ -181,7 +190,7 @@ function clearEditor() {
  * Check if split rendering is enabled
  */
 function isSplitRenderingEnabled() {
-    const splitCheckbox = document.getElementById('split-checkbox');
+    const splitCheckbox = document.getElementById('split-view-checkbox');
     return splitCheckbox && splitCheckbox.checked;
 }
 
@@ -189,7 +198,7 @@ function isSplitRenderingEnabled() {
  * Setup split rendering listener
  */
 function setupSplitRenderingListener() {
-    const splitCheckbox = document.getElementById('split-checkbox');
+    const splitCheckbox = document.getElementById('split-view-checkbox');
     if (splitCheckbox) {
         splitCheckbox.addEventListener('change', () => {
             if (typeof renderMarkdown === 'function') {

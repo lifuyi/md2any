@@ -493,7 +493,7 @@ async function downloadDOCX() {
 // =============================================================================
 
 async function renderMarkdownForExport(markdown, theme) {
-    const splitCheckbox = document.getElementById('split-checkbox');
+    const splitCheckbox = document.getElementById('split-view-checkbox');
     const shouldSplit = splitCheckbox && splitCheckbox.checked;
     
     if (shouldSplit && markdown.includes('---')) {
@@ -543,8 +543,9 @@ async function renderMarkdownForExport(markdown, theme) {
         }
         
         const data = await response.json();
-        return data.html;
-    }
-}
-
-console.log('✅ Download module loaded');
+                return data.html;
+            }
+        }
+        
+        console.log('✅ Download module loaded');
+        

@@ -170,16 +170,24 @@ async function generateMarkdown() {
         const data = await response.json();
         
         if (data.success && data.markdown) {
-            if (editor) {
+            // Use setEditorContent to properly handle both textarea and CodeMirror
+            if (typeof window._setEditorContent === 'function') {
+                window._setEditorContent(data.markdown);
+            } else if (editor) {
                 editor.value = data.markdown;
-                
-                if (window.renderMarkdown) {
-                    window.renderMarkdown();
-                }
+            }
+            
+            if (window.renderMarkdown) {
+                window.renderMarkdown();
             }
             
             input.value = '';
             updateStatus('✅ Markdown生成成功');
+            
+            // Close the left drawer after successful generation
+            if (typeof window._closeLeftDrawer === 'function') {
+                window._closeLeftDrawer();
+            }
         } else {
             throw new Error(data.message || 'Generation failed');
         }

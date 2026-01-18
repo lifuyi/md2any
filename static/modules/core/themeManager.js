@@ -145,8 +145,6 @@ async function checkBackendStatus() {
             backendStatusBtn.className = 'btn btn-secondary backend-online';
             if (statusText) statusText.textContent = '后端在线';
             if (statusIndicator) statusIndicator.className = 'backend-status-indicator status-online';
-            
-            SharedUtils.log('ThemeManager', '✅ 后端API已连接:', data);
         } else {
             throw new Error('Backend not responding');
         }
@@ -183,4 +181,3 @@ function setupThemeChangeListener() {
     }
 }
 
-console.log('✅ Theme Manager module loaded');

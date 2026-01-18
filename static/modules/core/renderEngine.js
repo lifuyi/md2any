@@ -218,9 +218,10 @@ function initializeMathJax() {
                     SharedUtils.logError('RenderEngine', 'MathJax rendering failed', error);
                 });
         } catch (error) {
-            SharedUtils.logError('RenderEngine', 'MathJax initialization error', error);
-        }
-    }, 100);
-}
-
-console.log('✅ Render Engine module loaded');
+                        SharedUtils.logError('RenderEngine', 'MathJax initialization error', error);
+                    }
+                }, 100);
+            }
+            
+            console.log('✅ Render Engine module loaded');
+            
