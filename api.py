@@ -829,6 +829,67 @@ async def text_to_markdown(request: TextToMarkdownRequest):
         )
 
 
+class FormatMarkdownRequest(BaseModel):
+    """Request model for markdown to HTML formatting"""
+    markdown: str
+
+
+class FormatMarkdownResponse(BaseModel):
+    """Response model for markdown to HTML formatting"""
+    html: str
+    success: bool = True
+    message: str = "Markdown formatted successfully"
+
+
+@app.post("/ai/format-markdown", response_model=FormatMarkdownResponse)
+async def format_markdown(request: FormatMarkdownRequest):
+    """Convert markdown to formatted HTML using AI"""
+    try:
+        # Prepare messages for GLM API with concise system prompt
+        messages = [
+            {
+                "role": "system",
+                "content": "Convert markdown to WeChat HTML format. Use inline styles, section container, width 677px, margin auto, box-sizing border-box, flex layout. All styles inline. Background linear-gradient. Colors in hex or rgba. Units in px or %. Images: display block, max-width 100%. SVG with viewBox."
+            },
+            {
+                "role": "user",
+                "content": f"Convert this markdown to WeChat HTML format:\n\n{request.markdown}"
+            }
+        ]
+        
+        # Call GLM API
+        client = ensure_glm_client()
+        logger.info(f"Formatting markdown to HTML, length: {len(request.markdown)}")
+        
+        response = client.chat.completions.create(
+            model="GLM-4.5-Flash",
+            messages=messages,
+            max_tokens=8192,
+            temperature=0.6
+        )
+        
+        html_content = response.choices[0].message.content
+        
+        if not html_content:
+            logger.error("AI returned empty HTML content")
+            raise ValueError("AI returned empty response")
+        
+        logger.info(f"Successfully formatted {len(html_content)} characters of HTML")
+        
+        return FormatMarkdownResponse(
+            html=html_content,
+            success=True,
+            message="Markdown formatted successfully"
+        )
+    
+    except Exception as e:
+        logger.error(f"Error formatting markdown: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to format markdown: {str(e)}"
+        )
+
+
 @app.post("/wechat/access_token")
 async def get_wechat_access_token(request: WeChatTokenRequest):
     """Get WeChat access token"""

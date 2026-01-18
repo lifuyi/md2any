@@ -228,14 +228,11 @@ async function aiFormatMarkdown() {
         // Set AI formatting flag to prevent normal rendering
         window.isAIFormatting = true;
         
-        // Call /ai endpoint
-        const response = await fetch(`${SharedUtils.CONFIG.API_BASE_URL}/ai`, {
+        // Call /ai/format-markdown endpoint (new endpoint with concise prompt)
+        const response = await fetch(`${SharedUtils.CONFIG.API_BASE_URL}/ai/format-markdown`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                prompt: markdownContent,
-                context: "Convert markdown to WeChat HTML format"
-            })
+            body: JSON.stringify({ markdown: markdownContent })
         });
         
         if (!response.ok) {
@@ -244,9 +241,9 @@ async function aiFormatMarkdown() {
         
         const data = await response.json();
         
-        if (data.success && data.response) {
+        if (data.success && data.html) {
             // Show result in modal overlay
-            showAIResultModal(data.response);
+            showAIResultModal(data.html);
             
             // Show clear button
             if (clearBtn) {
