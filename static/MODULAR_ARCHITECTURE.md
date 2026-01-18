@@ -213,7 +213,6 @@ All legacy functions are still accessible. Both approaches work.
 - `convertToWeChatHTML()` - WeChat HTML conversion
 - `generateMarkdown()` - AI markdown generation
 - `showAIResultModal()` - Show AI results
-- `clearAIFormatting()` - Clear AI formatting
 
 ### Style Manager
 - `openLeftDrawer()` / `closeLeftDrawer()` - Control drawer

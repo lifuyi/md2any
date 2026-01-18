@@ -80,7 +80,6 @@ window._convertToWeChatHTML = convertToWeChatHTML;
 // AI Functions
 window._generateMarkdown = generateMarkdown;
 window._showAIResultModal = showAIResultModal;
-window._clearAIFormatting = clearAIFormatting;
 // Note: aiFormatMarkdown is exported in initializeFeatures after DOM is ready
 
 // Style Manager Functions
@@ -133,7 +132,6 @@ const FeaturesModule = {
     // AI Functions
     generateMarkdown,
     showAIResultModal,
-    clearAIFormatting,
     aiFormatMarkdown,
     
     // Style Manager Functions

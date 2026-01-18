@@ -159,7 +159,6 @@ The feature modules extend the core functionality with advanced capabilities. Th
   - `convertToWeChatHTML()`
   - `generateMarkdown()`
   - `showAIResultModal(htmlContent)`
-  - `clearAIFormatting()`
   - `getContainerStyleFromPreview()`
 - **Dependencies**: shared.js, clipboard.js, download.js
 

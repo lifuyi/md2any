@@ -682,15 +682,21 @@ async def ai_assist(request: AIRequest):
         logger.info(f"Calling GLM API with {len(messages)} messages")
         
         response = client.chat.completions.create(
-            model="GLM-4-Flash",
+            model="glm-4.5-flash",
             messages=messages,
-            max_tokens=8192,
             temperature=0.6
         )
         
         logger.info(f"GLM API response received: {response}")
         
-        ai_response = response.choices[0].message.content
+        # For reasoning models, content might be empty but reasoning_content exists
+        message = response.choices[0].message
+        ai_response = message.content
+        
+        # Fallback to reasoning_content if content is empty
+        if not ai_response and hasattr(message, 'reasoning_content'):
+            logger.warning("Content empty, using reasoning_content")
+            ai_response = message.reasoning_content
         
         logger.info(f"AI response content length: {len(ai_response) if ai_response else 0}")
         
@@ -744,13 +750,18 @@ async def generate_markdown(request: GenerateMarkdownRequest):
         logger.info(f"Generating markdown for prompt: {request.prompt[:50]}...")
         
         response = client.chat.completions.create(
-            model="GLM-4-Flash",
+            model="glm-4.5-flash",
             messages=messages,
-            max_tokens=8192,
             temperature=0.7
         )
         
-        markdown_content = response.choices[0].message.content
+        message = response.choices[0].message
+        markdown_content = message.content
+        
+        # Fallback to reasoning_content if content is empty
+        if not markdown_content and hasattr(message, 'reasoning_content'):
+            logger.warning("Content empty, using reasoning_content")
+            markdown_content = message.reasoning_content
         
         if not markdown_content:
             logger.error("AI returned empty markdown content")
@@ -808,13 +819,18 @@ async def text_to_markdown(request: TextToMarkdownRequest):
         # Call GLM API
         client = ensure_glm_client()
         response = client.chat.completions.create(
-            model="GLM-4-Flash",
+            model="glm-4.5-flash",
             messages=messages,
-            max_tokens=8192,
             temperature=0.6
         )
         
-        markdown_content = response.choices[0].message.content.strip()
+        message = response.choices[0].message
+        markdown_content = message.content.strip()
+        
+        # Fallback to reasoning_content if content is empty
+        if not markdown_content and hasattr(message, 'reasoning_content'):
+            logger.warning("Content empty, using reasoning_content")
+            markdown_content = message.reasoning_content.strip()
         
         return TextToMarkdownResponse(
             markdown=markdown_content,
@@ -862,13 +878,18 @@ async def format_markdown(request: FormatMarkdownRequest):
         logger.info(f"Formatting markdown to HTML, length: {len(request.markdown)}")
         
         response = client.chat.completions.create(
-            model="GLM-4-Flash",
+            model="glm-4.5-flash",
             messages=messages,
-            max_tokens=8192,
             temperature=0.6
         )
         
-        html_content = response.choices[0].message.content
+        message = response.choices[0].message
+        html_content = message.content
+        
+        # Fallback to reasoning_content if content is empty
+        if not html_content and hasattr(message, 'reasoning_content'):
+            logger.warning("Content empty, using reasoning_content")
+            html_content = message.reasoning_content
         
         if not html_content:
             logger.error("AI returned empty HTML content")

@@ -353,6 +353,101 @@
             animation: spin 1s linear infinite;
         }
 
+        /* AI Loading Overlay */
+        .ai-loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .ai-loading-overlay.active {
+            display: flex;
+        }
+
+        .ai-loading-card {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .ai-loading-icon {
+            font-size: 48px;
+            color: #D86E4F;
+            margin-bottom: 20px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .ai-loading-title {
+            font-size: 20px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .ai-loading-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 24px;
+        }
+
+        .ai-loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #D86E4F;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        .ai-loading-dots {
+            display: inline-block;
+            margin-left: 8px;
+        }
+
+        .ai-loading-dots::after {
+            content: '';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% {
+                content: '';
+            }
+            40% {
+                content: '.';
+            }
+            60% {
+                content: '..';
+            }
+            80%, 100% {
+                content: '...';
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
+        }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -970,9 +1065,6 @@
             <button class="btn btn-primary" id="ai-format-btn" style="background-color: #4CAF50; color: white;" onclick="aiFormatMarkdown()">
                 <i class="fas fa-robot"></i> AI排版
             </button>
-            <button class="btn btn-secondary" id="ai-clear-btn" onclick="clearAIFormatting()" style="background-color: #f44336; color: white; display: none;">
-                <i class="fas fa-times"></i> 清除AI结果
-            </button>
             
         </div>
     </header>
@@ -1252,6 +1344,18 @@
 
     <div class="loading" id="loading">
         <div class="spinner"></div>
+    </div>
+
+    <!-- AI Loading Overlay -->
+    <div class="ai-loading-overlay" id="ai-loading-overlay">
+        <div class="ai-loading-card">
+            <div class="ai-loading-icon">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="ai-loading-title">AI 正在排版中</div>
+            <div class="ai-loading-subtitle">请稍候，正在为您优化内容格式<span class="ai-loading-dots"></span></div>
+            <div class="ai-loading-spinner"></div>
+        </div>
     </div>
     
     <!-- Libraries for markdown processing -->

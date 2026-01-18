@@ -205,7 +205,7 @@ async function generateMarkdown() {
 async function aiFormatMarkdown() {
     const editor = document.getElementById('editor');
     const aiBtn = document.getElementById('ai-format-btn');
-    const clearBtn = document.getElementById('ai-clear-btn');
+    const aiLoadingOverlay = document.getElementById('ai-loading-overlay');
     
     if (!editor) {
         updateStatus('❌ 编辑器未找到', true);
@@ -224,6 +224,11 @@ async function aiFormatMarkdown() {
         aiBtn.disabled = true;
         aiBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> AI排版中...';
         updateStatus('正在使用AI进行排版...');
+        
+        // Show AI loading overlay
+        if (aiLoadingOverlay) {
+            aiLoadingOverlay.classList.add('active');
+        }
         
         // Set AI formatting flag to prevent normal rendering
         window.isAIFormatting = true;
@@ -245,11 +250,6 @@ async function aiFormatMarkdown() {
             // Show result in modal overlay
             showAIResultModal(data.html);
             
-            // Show clear button
-            if (clearBtn) {
-                clearBtn.style.display = 'inline-block';
-            }
-            
             updateStatus('✅ AI排版完成');
         } else {
             throw new Error(data.message || 'AI排版失败');
@@ -263,6 +263,11 @@ async function aiFormatMarkdown() {
         aiBtn.disabled = false;
         aiBtn.innerHTML = '<i class="fas fa-robot"></i> AI排版';
         window.isAIFormatting = false;
+        
+        // Hide AI loading overlay
+        if (aiLoadingOverlay) {
+            aiLoadingOverlay.classList.remove('active');
+        }
     }
 }
 
@@ -391,7 +396,7 @@ function showAIResultModal(htmlContent) {
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.7);
+        background: rgba(0, 0, 0, 0.5);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -402,12 +407,12 @@ function showAIResultModal(htmlContent) {
     modal.id = 'ai-result-modal';
     modal.style.cssText = `
         background: white;
-        border-radius: 16px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
         max-width: 90%;
         max-height: 85vh;
         overflow-y: auto;
-        animation: slideUp 0.3s ease-out;
+        border: 1px solid #e0e0e0;
     `;
 
     const header = document.createElement('div');
@@ -415,45 +420,50 @@ function showAIResultModal(htmlContent) {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 28px 32px;
-        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 20px 20px 0 0;
+        padding: 16px 20px;
+        border-bottom: 1px solid #eee;
+        background: #f8f9fa;
+        border-radius: 8px 8px 0 0;
     `;
 
     const title = document.createElement('h2');
-    title.textContent = '✨ AI排版结果预览';
+    title.textContent = 'AI排版结果';
     title.style.cssText = `
         margin: 0;
-        color: white;
-        font-size: 20px;
-        font-weight: 700;
-        letter-spacing: 0.5px;
+        color: #333;
+        font-size: 16px;
+        font-weight: 500;
     `;
     header.appendChild(title);
 
     const headerButtons = document.createElement('div');
     headerButtons.style.cssText = `
         display: flex;
-        gap: 10px;
+        gap: 8px;
     `;
 
     const copyBtn = document.createElement('button');
-    copyBtn.textContent = '📋 复制';
+    copyBtn.textContent = '复制';
     copyBtn.style.cssText = `
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        padding: 8px 16px;
-        border-radius: 6px;
+        background: #e9ecef;
+        color: #495057;
+        border: 1px solid #ced4da;
+        padding: 6px 12px;
+        border-radius: 4px;
         cursor: pointer;
-        font-size: 14px;
+        font-size: 13px;
         transition: all 0.2s;
     `;
     copyBtn.addEventListener('click', () => {
         navigator.clipboard.writeText(htmlContent).then(() => {
-            copyBtn.textContent = '✓ 已复制';
-            setTimeout(() => copyBtn.textContent = '📋 复制', 2000);
+            copyBtn.textContent = '已复制';
+            copyBtn.style.background = '#d4edda';
+            copyBtn.style.color = '#155724';
+            setTimeout(() => {
+                copyBtn.textContent = '复制';
+                copyBtn.style.background = '#e9ecef';
+                copyBtn.style.color = '#495057';
+            }, 2000);
         });
     });
     headerButtons.appendChild(copyBtn);
@@ -461,18 +471,19 @@ function showAIResultModal(htmlContent) {
     const closeBtn = document.createElement('button');
     closeBtn.textContent = '✕';
     closeBtn.style.cssText = `
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
+        background: transparent;
+        color: #6c757d;
         border: none;
-        padding: 8px 12px;
-        border-radius: 6px;
+        padding: 6px 10px;
+        border-radius: 4px;
         cursor: pointer;
-        font-size: 18px;
-        width: 36px;
-        height: 36px;
+        font-size: 16px;
+        width: 28px;
+        height: 28px;
         display: flex;
         align-items: center;
         justify-content: center;
+        transition: all 0.2s;
     `;
     closeBtn.addEventListener('click', () => {
         modalOverlay.remove();
@@ -484,9 +495,9 @@ function showAIResultModal(htmlContent) {
 
     const content = document.createElement('div');
     content.style.cssText = `
-        padding: 32px;
+        padding: 20px;
         color: #333;
-        line-height: 1.8;
+        line-height: 1.6;
     `;
     content.innerHTML = htmlContent;
     modal.appendChild(content);
@@ -494,26 +505,25 @@ function showAIResultModal(htmlContent) {
     const footer = document.createElement('div');
     footer.style.cssText = `
         display: flex;
-        gap: 12px;
-        padding: 20px 32px;
+        gap: 10px;
+        padding: 16px 20px;
         border-top: 1px solid #eee;
-        background: #f9fafb;
-        border-radius: 0 0 16px 16px;
+        background: #f8f9fa;
+        border-radius: 0 0 8px 8px;
     `;
 
     const applyBtn = document.createElement('button');
     applyBtn.textContent = '应用到编辑器';
     applyBtn.style.cssText = `
         flex: 1;
-        padding: 12px 24px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 8px 16px;
+        background: #D86E4F;
         color: white;
         border: none;
-        border-radius: 8px;
+        border-radius: 4px;
         cursor: pointer;
-        font-size: 15px;
-        font-weight: 600;
-        transition: transform 0.2s;
+        font-size: 14px;
+        transition: background 0.2s;
     `;
     applyBtn.addEventListener('click', () => {
         const editor = document.getElementById('editor');
@@ -524,22 +534,21 @@ function showAIResultModal(htmlContent) {
             }
         }
         modalOverlay.remove();
-        updateStatus('✅ 已应用到编辑器');
+        updateStatus('已应用到编辑器');
     });
     footer.appendChild(applyBtn);
 
     const cancelBtn = document.createElement('button');
     cancelBtn.textContent = '关闭';
     cancelBtn.style.cssText = `
-        padding: 12px 24px;
-        background: #f0f0f0;
-        color: #333;
+        padding: 8px 16px;
+        background: #6c757d;
+        color: white;
         border: none;
-        border-radius: 8px;
+        border-radius: 4px;
         cursor: pointer;
-        font-size: 15px;
-        font-weight: 600;
-        transition: all 0.2s;
+        font-size: 14px;
+        transition: background 0.2s;
     `;
     cancelBtn.addEventListener('click', () => {
         modalOverlay.remove();
@@ -558,33 +567,4 @@ function showAIResultModal(htmlContent) {
     });
 }
 
-/**
- * Clear AI formatting
- */
-function clearAIFormatting() {
-    const preview = document.getElementById('preview');
-    if (preview) {
-        preview.innerHTML = '';
-    }
-
-    const aiResultModal = document.getElementById('ai-result-modal-overlay');
-    if (aiResultModal) {
-        aiResultModal.remove();
-    }
-
-    const clearBtn = document.getElementById('clear-ai-formatting-btn');
-    if (clearBtn) {
-        clearBtn.style.display = 'none';
-    }
-
-    const aiBtn = document.getElementById('ai-format-btn');
-    if (aiBtn) {
-        aiBtn.style.display = 'inline-block';
-    }
-
-    if (window.renderMarkdown) {
-        window.renderMarkdown();
-    }
-
-    updateStatus('已清除AI排版，返回正常预览模式');
-}
+    
