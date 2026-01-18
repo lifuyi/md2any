@@ -30,8 +30,6 @@ function initializeFeatures() {
     if (typeof initImagePaste === 'function') {
         initImagePaste();
     }
-    
-    console.log('✅ Features module initialized');
 }
 
 // Initialize when DOM is ready
@@ -140,5 +138,3 @@ const FeaturesModule = {
 
 // Export to window for global access
 window.FeaturesModule = FeaturesModule;
-
-console.log('✅ Features module fully loaded');

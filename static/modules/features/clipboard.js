@@ -123,10 +123,9 @@ async function copyToClipboard() {
         }
 
         const mathContainers = doc.querySelectorAll('mjx-container[jax="SVG"]');
-        if (mathContainers.length > 0) {
-            console.log(`Converting ${mathContainers.length} MathJax SVG elements...`);
-            
-            for (let i = 0; i < mathContainers.length; i++) {
+                
+                if (mathContainers.length > 0) {
+                    for (let i = 0; i < mathContainers.length; i++) {
                 const container = mathContainers[i];
                 const svgElement = container.querySelector('svg');
                 
@@ -205,8 +204,6 @@ async function copyToClipboard() {
         // Try Modern Clipboard API first
         if (navigator.clipboard && window.ClipboardItem) {
             try {
-                console.log('Using Modern Clipboard API...');
-                
                 const htmlBlob = new Blob([processedHTML], { type: 'text/html' });
                 const textBlob = new Blob([plainText], { type: 'text/plain' });
 
@@ -218,16 +215,14 @@ async function copyToClipboard() {
                 ]);
 
                 updateStatus('✅ 已复制到剪贴板（富文本格式）');
-                console.log('Modern Clipboard API succeeded');
                 return;
             } catch (error) {
-                console.log('Modern Clipboard API failed:', error);
+                // Modern Clipboard API failed, will try fallback
             }
         }
 
         // Fallback: ContentEditable method
         try {
-            console.log('Using ContentEditable fallback...');
             
             const container = document.createElement('div');
             container.style.cssText = `
@@ -260,11 +255,10 @@ async function copyToClipboard() {
             
             if (success) {
                 updateStatus('✅ 已复制到剪贴板（富文本格式）');
-                console.log('ContentEditable method succeeded');
                 return;
             }
         } catch (error) {
-            console.log('ContentEditable method failed:', error);
+            // ContentEditable method failed
         }
 
         // Final fallback: Plain text
@@ -277,7 +271,6 @@ async function copyToClipboard() {
         throw new Error('所有复制方法都失败了');
 
     } catch (error) {
-        console.error('Copy failed:', error);
         updateStatus('❌ 复制失败', true);
         
         let message = `复制失败: ${error.message}`;
@@ -285,5 +278,3 @@ async function copyToClipboard() {
         console.error(message, error);
     }
 }
-
-console.log('✅ Clipboard module loaded');

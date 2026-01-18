@@ -204,7 +204,6 @@ function calculateSum(a, b) {
 }
 
 const result = calculateSum(5, 3);
-console.log(result);
 \`\`\`
 
 ## 表格测试
@@ -274,5 +273,3 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
         }
     }
 }
-
-console.log('✅ UI Controller module loaded');

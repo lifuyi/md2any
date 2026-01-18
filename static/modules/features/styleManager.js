@@ -107,7 +107,6 @@ async function fetchAndApplyStyle() {
         }
         
     } catch (error) {
-        SharedUtils.logError('StyleManager', '样式获取失败', error);
         showStyleStatus('❌ 获取失败: ' + error.message, 'error');
     } finally {
         fetchBtn.disabled = false;
@@ -160,5 +159,3 @@ function showStyleStatus(message, type) {
         }
     }
 }
-
-console.log('✅ Style Manager module loaded');

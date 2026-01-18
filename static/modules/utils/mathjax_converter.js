@@ -5,7 +5,6 @@
 // Convert MathJax SVG to image data URL
 async function convertMathJaxSvgToImage(svgElement) {
     try {
-        console.log('Converting MathJax SVG to image...');
         
         // Create a completely isolated clone to avoid any conflicts with MathJax
         const clonedSvg = svgElement.cloneNode(true);
@@ -28,7 +27,6 @@ async function convertMathJaxSvgToImage(svgElement) {
         // Check global MathJax font cache
         const globalFontCache = document.getElementById('MathJax-SVG-global-cache');
         if (globalFontCache) {
-            console.log('Found global MathJax font cache, collecting font definitions...');
             const globalDefs = globalFontCache.querySelector('defs');
             if (globalDefs) {
                 Array.from(globalDefs.children).forEach(child => {
@@ -37,7 +35,6 @@ async function convertMathJaxSvgToImage(svgElement) {
                         allFontDefs.set(id, child);
                     }
                 });
-                console.log(`Collected ${allFontDefs.size} font definitions from global cache`);
             }
         }
         
@@ -54,7 +51,6 @@ async function convertMathJaxSvgToImage(svgElement) {
         
         // Now resolve all <use> elements in the cloned SVG
         const useElements = clonedSvg.querySelectorAll('use');
-        console.log(`Found ${useElements.length} <use> elements to resolve`);
         
         useElements.forEach(useElement => {
             const href = useElement.getAttribute('href') || useElement.getAttribute('xlink:href');
@@ -63,7 +59,6 @@ async function convertMathJaxSvgToImage(svgElement) {
                 const referencedElement = allFontDefs.get(refId);
                 
                 if (referencedElement) {
-                    console.log(`Resolving <use> reference to ${refId}`);
                     
                     // Create a group to replace the <use> element
                     const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -132,13 +127,11 @@ async function convertMathJaxSvgToImage(svgElement) {
                 }
             });
             
-            console.log(`Added ${fallbackDefs.children.length} fallback definitions for unresolved references`);
         } else {
             // Remove any existing defs since we've resolved all references
             const existingDefs = clonedSvg.querySelector('defs');
             if (existingDefs) {
                 existingDefs.remove();
-                console.log('Removed defs - all <use> elements successfully resolved');
             }
         }
         
@@ -152,7 +145,6 @@ async function convertMathJaxSvgToImage(svgElement) {
             if (viewBoxValues.length >= 4) {
                 width = viewBoxValues[2];
                 height = viewBoxValues[3];
-                console.log(`Using viewBox dimensions: ${width}x${height}`);
             }
         }
         
@@ -160,7 +152,6 @@ async function convertMathJaxSvgToImage(svgElement) {
         if (!width || !height) {
             width = parseFloat(clonedSvg.getAttribute('width')) || 0;
             height = parseFloat(clonedSvg.getAttribute('height')) || 0;
-            console.log(`Using attribute dimensions: ${width}x${height}`);
         }
         
         // Fallback to bounding box (but be careful with this)
@@ -168,7 +159,6 @@ async function convertMathJaxSvgToImage(svgElement) {
             const bbox = clonedSvg.getBoundingClientRect();
             width = width || bbox.width || 100;
             height = height || bbox.height || 50;
-            console.log(`Using bbox dimensions: ${width}x${height}`);
         }
         
         // Ensure minimum dimensions
@@ -176,7 +166,6 @@ async function convertMathJaxSvgToImage(svgElement) {
         height = Math.max(height, 20);
         
         // Ensure proper aspect ratio - don't force minimum that could distort
-        console.log(`Final SVG dimensions: ${width}x${height}`);
         
         // Create canvas with proper scaling
         // We want 2x rendering quality but with a 1/4 size reduction for the final output
@@ -216,7 +205,6 @@ async function convertMathJaxSvgToImage(svgElement) {
         }
         
         // Log SVG string for debugging
-        console.log(`SVG string length: ${svgString.length}, contains defs: ${svgString.includes('<defs>')}`);
         
         // Create a blob URL for the SVG
         const svgBlob = new Blob([svgString], { type: 'image/svg+xml' });
@@ -233,8 +221,6 @@ async function convertMathJaxSvgToImage(svgElement) {
                     
                     // Draw the SVG image at the proper size
                     // Since we've scaled the context by renderScale, we draw at the original dimensions
-                    console.log(`Drawing image: natural size ${this.naturalWidth}x${this.naturalHeight} to canvas ${canvas.width}x${canvas.height}`);
-                    console.log(`Drawing at original size: ${width}x${height}`);
                     
                     // Draw at original size - the context scaling will handle the high-resolution rendering
                     ctx.drawImage(this, 0, 0, width, height);
@@ -253,7 +239,6 @@ async function convertMathJaxSvgToImage(svgElement) {
                     const pngDataUrl = outputCanvas.toDataURL('image/png');
                     
                     URL.revokeObjectURL(url);
-                    console.log('✓ MathJax SVG to PNG conversion successful, size:', pngDataUrl.length);
                     
                     // Validate that we have actual image data
                     if (pngDataUrl && pngDataUrl.length > 100) { // Basic validation

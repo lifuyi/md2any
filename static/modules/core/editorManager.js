@@ -16,17 +16,11 @@
  * Initialize CodeMirror editor (the only editor)
  */
 function initializeCodeMirror() {
-    console.log('DEBUG: initializeCodeMirror called');
     const editorElement = document.getElementById('editor');
     if (!editorElement) {
-        console.log('DEBUG: editorElement not found, returning');
         return;
     }
     
-    console.log('DEBUG: editorElement found, initializing CodeMirror');
-    console.log('DEBUG: editorElement parent:', editorElement.parentNode);
-    console.log('DEBUG: editorElement parent display:', window.getComputedStyle(editorElement.parentNode).display);
-    console.log('DEBUG: editorElement parent height:', window.getComputedStyle(editorElement.parentNode).height);
     
     // Hide the textarea (kept for form compatibility but not used)
     editorElement.style.display = 'none';
@@ -40,8 +34,6 @@ function initializeCodeMirror() {
     
     // Insert container before the textarea
     editorElement.parentNode.insertBefore(container, editorElement);
-    console.log('DEBUG: Container inserted, container:', container);
-    console.log('DEBUG: Container parent:', container.parentNode);
     
     // Initialize CodeMirror with empty value initially
     const cm = CodeMirror(container, {
@@ -61,18 +53,12 @@ function initializeCodeMirror() {
         }
     });
     
-    console.log('DEBUG: CodeMirror instance created:', cm);
-    console.log('DEBUG: CodeMirror display element:', cm.getWrapperElement());
     
     // Set the height
     cm.setSize('100%', '100%');
     
     // Check if CodeMirror is visible
     const wrapper = cm.getWrapperElement();
-    console.log('DEBUG: CodeMirror wrapper display:', window.getComputedStyle(wrapper).display);
-    console.log('DEBUG: CodeMirror wrapper height:', window.getComputedStyle(wrapper).height);
-    console.log('DEBUG: CodeMirror wrapper parent:', wrapper.parentNode);
-    console.log('DEBUG: CodeMirror wrapper parent display:', window.getComputedStyle(wrapper.parentNode).display);
     
     // Add event listeners
     cm.on('change', function(cmInstance) {
@@ -92,9 +78,7 @@ function initializeCodeMirror() {
     
     // Store reference to CodeMirror instance
     window.codeMirrorInstance = cm;
-    console.log('DEBUG: window.codeMirrorInstance set to:', window.codeMirrorInstance);
     
-    SharedUtils.log('EditorManager', 'CodeMirror editor initialized as primary editor');
 }
 
 // =============================================================================
@@ -208,4 +192,3 @@ function setupSplitRenderingListener() {
     }
 }
 
-console.log('✅ Editor Manager module loaded');

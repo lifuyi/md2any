@@ -34,8 +34,6 @@ Object.defineProperty(window, 'isAIFormatting', {
  * Main application initialization
  */
 document.addEventListener('DOMContentLoaded', async () => {
-    SharedUtils.log('Core', 'Initializing md2any application...');
-    
     try {
         // 1. Load themes from API
         if (typeof loadThemesFromAPI === 'function') {
@@ -54,7 +52,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             renderMarkdown();
         }
     } catch (error) {
-        SharedUtils.logError('Core', 'Application initialization failed', error);
         updateStatus('应用初始化失败', true);
     }
 });

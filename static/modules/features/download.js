@@ -69,13 +69,11 @@ async function downloadHTML() {
             },
             startup: {
                 ready: () => {
-                    console.log('MathJax is loaded and ready');
                     MathJax.startup.defaultReady();
                     if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
                         setTimeout(() => {
-                            MathJax.typesetPromise().then(() => {
-                                console.log('MathJax re-rendering complete');
-                            });
+                            MathJax.typesetPromise();
+                        });
                         }, 100);
                     }
                 }
@@ -109,7 +107,6 @@ async function downloadHTML() {
         downloadFile(fullHtml, filename, 'text/html');
         
     } catch (error) {
-        SharedUtils.logError('Features', '下载HTML失败', error);
         alert('下载HTML失败: ' + error.message);
     }
 }
@@ -128,12 +125,10 @@ async function downloadPNG() {
     }
 
     if (typeof html2canvas === 'undefined') {
-        SharedUtils.logError('Features', 'html2canvas未定义');
         alert('PNG导出功能不可用，html2canvas库未加载');
         return;
     }
 
-    SharedUtils.log('Features', 'html2canvas已加载，开始生成PNG');
     showLoading();
     updateStatus('正在生成PNG...');
 
@@ -245,8 +240,6 @@ async function downloadPNG() {
         
         document.body.removeChild(iframe);
         
-        SharedUtils.log('Features', 'Canvas生成成功，尺寸:', canvas.width, 'x', canvas.height);
-        
         const dataURL = canvas.toDataURL('image/png', 1.0);
         const filename = generateFilename('markdown', 'png', themeSelector?.value || 'default');
         
@@ -258,10 +251,8 @@ async function downloadPNG() {
         document.body.removeChild(link);
         
         updateStatus('PNG下载完成');
-        SharedUtils.log('Features', 'PNG下载完成');
         
     } catch (error) {
-        SharedUtils.logError('Features', 'PNG生成失败', error);
         updateStatus('PNG生成失败', true);
         alert('PNG生成失败: ' + error.message);
     } finally {
@@ -405,7 +396,6 @@ async function downloadPDF() {
         }, 1500);
         
     } catch (error) {
-        SharedUtils.logError('Features', '生成PDF失败', error);
         updateStatus('生成PDF失败', true);
         hideLoading();
         alert('生成PDF失败: ' + error.message);
@@ -480,7 +470,6 @@ async function downloadDOCX() {
         updateStatus('DOCX已生成');
         
     } catch (error) {
-        SharedUtils.logError('Features', '生成DOCX失败', error);
         updateStatus('生成DOCX失败', true);
         alert('生成DOCX失败: ' + error.message);
     } finally {
@@ -546,6 +535,4 @@ async function renderMarkdownForExport(markdown, theme) {
                 return data.html;
             }
         }
-        
-        console.log('✅ Download module loaded');
         

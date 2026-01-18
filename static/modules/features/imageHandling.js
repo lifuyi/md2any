@@ -27,7 +27,6 @@ class ImageStore {
             const stored = localStorage.getItem(this.storageKey);
             return stored ? JSON.parse(stored) : {};
         } catch (error) {
-            SharedUtils.logError('ImageStore', 'Error loading images', error);
             return {};
         }
     }
@@ -36,7 +35,6 @@ class ImageStore {
         try {
             localStorage.setItem(this.storageKey, JSON.stringify(this.images));
         } catch (error) {
-            SharedUtils.logError('ImageStore', 'Error saving images', error);
         }
     }
     
@@ -180,7 +178,6 @@ function initImagePaste() {
     const pasteArea = document.getElementById('imagePasteArea');
     
     imageStore.init().catch(err => {
-        SharedUtils.logError('Features', 'Error initializing ImageStore', err);
     });
     
     document.addEventListener('paste', async (event) => {
@@ -352,7 +349,6 @@ async function handleImageUpload(file) {
         showImageStatus(`✅ 图片已插入！压缩率 ${compressionRatio}%`, 'success');
         
     } catch (error) {
-        SharedUtils.logError('Features', '图片处理失败', error);
         showImageStatus('❌ 图片处理失败: ' + error.message, 'error');
     }
 }
@@ -373,5 +369,3 @@ function showImageStatus(message, type = 'info') {
         }, SharedUtils.CONFIG.STATUS_TIMEOUT);
     }
 }
-
-console.log('✅ Image Handling module loaded');

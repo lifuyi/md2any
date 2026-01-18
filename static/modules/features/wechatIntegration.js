@@ -91,7 +91,6 @@ async function sendToWeChatDraft() {
                 });
                 updateStatus('✅ 已分享到WeChat');
             } catch (err) {
-                console.log('Share failed:', err);
                 // Fallback to download
                 downloadFile(finalHTML, 'wechat-content.html', 'text/html');
                 updateStatus('✅ HTML已下载，可复制到WeChat');
@@ -103,7 +102,6 @@ async function sendToWeChatDraft() {
         }
 
     } catch (error) {
-        SharedUtils.logError('WeChat', 'WeChat转换失败', error);
         updateStatus('❌ WeChat转换失败', true);
         alert('WeChat转换失败: ' + error.message);
     }
@@ -193,7 +191,6 @@ async function generateMarkdown() {
         }
 
     } catch (error) {
-        SharedUtils.logError('AI', 'Markdown生成失败', error);
         updateStatus('❌ 生成失败', true);
         alert('生成失败: ' + error.message);
     } finally {
@@ -524,5 +521,3 @@ function clearAIFormatting() {
 
     updateStatus('已清除AI排版，返回正常预览模式');
 }
-
-console.log('✅ WeChat Integration module loaded');

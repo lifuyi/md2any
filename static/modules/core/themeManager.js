@@ -53,10 +53,8 @@ async function loadThemesFromAPI() {
         populateThemeSelector();
         
         updateStatus('主题加载完成');
-        SharedUtils.log('ThemeManager', 'Loaded themes:', Object.keys(THEMES));
         
     } catch (error) {
-        SharedUtils.logError('ThemeManager', 'Error loading themes', error);
         updateStatus('主题加载失败', true);
         
         // Fallback to default theme
@@ -149,7 +147,6 @@ async function checkBackendStatus() {
             throw new Error('Backend not responding');
         }
     } catch (error) {
-        SharedUtils.logError('ThemeManager', '❌ 后端API离线', error);
         
         // Show offline status
         if (backendStatusBtn) {

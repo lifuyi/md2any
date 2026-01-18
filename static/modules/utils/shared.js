@@ -208,8 +208,7 @@ function markdownToPlainText(markdown) {
  * @param {...any} args - Additional arguments
  */
 function log(context, message, ...args) {
-    const timestamp = new Date().toISOString().slice(11, 23);
-    console.log(`[${timestamp}] [${context}] ${message}`, ...args);
+    // Console logging disabled
 }
 
 /**
@@ -219,8 +218,7 @@ function log(context, message, ...args) {
  * @param {Error} error - Error object
  */
 function logError(context, message, error) {
-    const timestamp = new Date().toISOString().slice(11, 23);
-    console.error(`[${timestamp}] [${context}] ${message}`, error);
+    // Console error logging disabled
 }
 
 // =============================================================================

@@ -18,7 +18,6 @@
 async function renderMarkdown() {
     // Skip rendering if AI formatting is in progress to prevent overwriting AI results
     if (window.isAIFormatting) {
-        SharedUtils.log('RenderEngine', 'Skipping renderMarkdown - AI formatting in progress');
         return;
     }
     
@@ -61,7 +60,6 @@ async function renderMarkdown() {
         updateStatus(`渲染完成 ${charCount} 字符`);
         
     } catch (error) {
-        SharedUtils.logError('RenderEngine', '渲染失败', error);
         preview.innerHTML = `
             <div class="error">
                 <strong>渲染失败</strong><br>
@@ -133,7 +131,6 @@ async function renderNormalMarkdown(markdown, theme, preview) {
     
     if (!response.ok) {
         const errorText = await response.text();
-        SharedUtils.logError('RenderEngine', 'Render error response:', errorText);
         throw new Error(`渲染失败: ${response.status} - ${errorText}`);
     }
     
@@ -157,11 +154,9 @@ function initializeMermaid() {
                     mermaid.run({
                         nodes: mermaidElements
                     }).catch(error => {
-                        SharedUtils.logError('RenderEngine', 'Mermaid rendering failed', error);
                     });
                 }
             } catch (error) {
-                SharedUtils.logError('RenderEngine', 'Mermaid initialization failed', error);
             }
         }, 100);
     }
@@ -172,12 +167,10 @@ function initializeMermaid() {
  */
 function initializeMathJax() {
     if (typeof window.MathJax === 'undefined') {
-        SharedUtils.log('RenderEngine', 'MathJax not loaded yet');
         return;
     }
     
     if (!window.MathJax.typesetPromise) {
-        SharedUtils.logError('RenderEngine', 'MathJax.typesetPromise not available');
         return;
     }
     
@@ -194,11 +187,8 @@ function initializeMathJax() {
                            preview.innerHTML.includes('\\[');
             
             if (!hasMath) {
-                SharedUtils.log('RenderEngine', 'No math content found in preview');
                 return;
             }
-            
-            SharedUtils.log('RenderEngine', 'Starting MathJax rendering');
             
             // Clear old MathJax SVG output only (mjx-container elements)
             // IMPORTANT: Do NOT remove .MathJax_Preview or other internal MathJax elements
@@ -208,20 +198,12 @@ function initializeMathJax() {
             
             // Re-render all math expressions
             window.MathJax.typesetPromise([preview])
-                .then(() => {
-                    SharedUtils.log('RenderEngine', 'MathJax rendering completed successfully');
-                    // Verify rendering worked
-                    const renderedMath = preview.querySelectorAll('mjx-container');
-                    SharedUtils.log('RenderEngine', `${renderedMath.length} math expressions rendered`);
-                })
                 .catch((error) => {
-                    SharedUtils.logError('RenderEngine', 'MathJax rendering failed', error);
+                    // MathJax rendering failed
                 });
         } catch (error) {
-                        SharedUtils.logError('RenderEngine', 'MathJax initialization error', error);
-                    }
-                }, 100);
-            }
-            
-            console.log('✅ Render Engine module loaded');
-            
+                    // MathJax initialization error
+                }
+            }, 100);
+        }
+        

@@ -63,7 +63,6 @@ function initializeImageCompressionSettings() {
         saveBtn.addEventListener('click', function() {
             if (presetSelect) {
                 localStorage.setItem('imageCompressionPreset', presetSelect.value);
-                SharedUtils.log('FormatCustomization', 'Image compression preset saved:', presetSelect.value);
                 
                 // Show confirmation
                 const status = document.getElementById('status');
@@ -256,7 +255,6 @@ async function saveCustomFormat() {
         }
         
     } catch (error) {
-        SharedUtils.logError('FormatCustomization', '保存自定义样式失败', error);
         alert(`保存失败: ${error.message}`);
     }
 }
@@ -295,7 +293,6 @@ async function loadCustomFormats() {
         const data = await response.json();
         
     } catch (error) {
-        SharedUtils.logError('FormatCustomization', '加载自定义样式失败', error);
     }
 }
 
