@@ -682,7 +682,7 @@ async def ai_assist(request: AIRequest):
         logger.info(f"Calling GLM API with {len(messages)} messages")
         
         response = client.chat.completions.create(
-            model="GLM-4.5-Flash",
+            model="GLM-4-Flash",
             messages=messages,
             max_tokens=8192,
             temperature=0.6
@@ -744,7 +744,7 @@ async def generate_markdown(request: GenerateMarkdownRequest):
         logger.info(f"Generating markdown for prompt: {request.prompt[:50]}...")
         
         response = client.chat.completions.create(
-            model="GLM-4.5-Flash",
+            model="GLM-4-Flash",
             messages=messages,
             max_tokens=8192,
             temperature=0.7
@@ -808,7 +808,7 @@ async def text_to_markdown(request: TextToMarkdownRequest):
         # Call GLM API
         client = ensure_glm_client()
         response = client.chat.completions.create(
-            model="GLM-4.5-Flash",
+            model="GLM-4-Flash",
             messages=messages,
             max_tokens=8192,
             temperature=0.6
@@ -862,7 +862,7 @@ async def format_markdown(request: FormatMarkdownRequest):
         logger.info(f"Formatting markdown to HTML, length: {len(request.markdown)}")
         
         response = client.chat.completions.create(
-            model="GLM-4.5-Flash",
+            model="GLM-4-Flash",
             messages=messages,
             max_tokens=8192,
             temperature=0.6
