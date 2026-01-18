@@ -219,6 +219,9 @@ async function aiFormatMarkdown() {
         return;
     }
     
+    // Track when overlay was shown
+    let overlayShowTime = 0;
+    
     try {
         // Disable button and show loading
         aiBtn.disabled = true;
@@ -227,7 +230,12 @@ async function aiFormatMarkdown() {
         
         // Show AI loading overlay
         if (aiLoadingOverlay) {
+            console.log('Showing AI loading overlay');
             aiLoadingOverlay.classList.add('active');
+            overlayShowTime = Date.now();
+            console.log('Overlay classList:', aiLoadingOverlay.classList);
+        } else {
+            console.error('AI loading overlay element not found!');
         }
         
         // Set AI formatting flag to prevent normal rendering
@@ -256,6 +264,11 @@ async function aiFormatMarkdown() {
         }
         
     } catch (error) {
+        // Hide AI loading overlay on error
+        if (aiLoadingOverlay) {
+            aiLoadingOverlay.classList.remove('active');
+        }
+        
         updateStatus('❌ AI排版失败', true);
         alert('AI排版失败: ' + error.message);
     } finally {
@@ -264,10 +277,8 @@ async function aiFormatMarkdown() {
         aiBtn.innerHTML = '<i class="fas fa-robot"></i> AI排版';
         window.isAIFormatting = false;
         
-        // Hide AI loading overlay
-        if (aiLoadingOverlay) {
-            aiLoadingOverlay.classList.remove('active');
-        }
+        // Note: AI loading overlay is hidden in showAIResultModal function
+        // This ensures it stays visible until the result modal is displayed
     }
 }
 
@@ -388,6 +399,12 @@ async function convertToWeChatHTML() {
  * Show AI result modal
  */
 function showAIResultModal(htmlContent) {
+    // Hide AI loading overlay before showing result modal
+    const aiLoadingOverlay = document.getElementById('ai-loading-overlay');
+    if (aiLoadingOverlay) {
+        aiLoadingOverlay.classList.remove('active');
+    }
+    
     const modalOverlay = document.createElement('div');
     modalOverlay.id = 'ai-result-modal-overlay';
     modalOverlay.style.cssText = `
