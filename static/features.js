@@ -30,6 +30,12 @@ function initializeFeatures() {
     if (typeof initImagePaste === 'function') {
         initImagePaste();
     }
+    
+    // Export aiFormatMarkdown for HTML onclick (must be after wechatIntegration.js loads)
+    if (typeof aiFormatMarkdown === 'function') {
+        window._aiFormatMarkdown = aiFormatMarkdown;
+        window.aiFormatMarkdown = aiFormatMarkdown;  // Direct export for HTML onclick
+    }
 }
 
 // Initialize when DOM is ready
@@ -75,8 +81,7 @@ window._convertToWeChatHTML = convertToWeChatHTML;
 window._generateMarkdown = generateMarkdown;
 window._showAIResultModal = showAIResultModal;
 window._clearAIFormatting = clearAIFormatting;
-window._aiFormatMarkdown = aiFormatMarkdown;
-window.aiFormatMarkdown = aiFormatMarkdown;  // Direct export for HTML onclick
+// Note: aiFormatMarkdown is exported in initializeFeatures after DOM is ready
 
 // Style Manager Functions
 window._openLeftDrawer = openLeftDrawer;
