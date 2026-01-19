@@ -181,7 +181,9 @@ async function generateMarkdown() {
         
         if (data.markdown) {
             // Replace all editor content with converted markdown
-            if (window.codeMirrorInstance) {
+            if (typeof setEditorContent === 'function') {
+                setEditorContent(data.markdown);
+            } else if (window.codeMirrorInstance) {
                 const cm = window.codeMirrorInstance;
                 const doc = cm.getDoc();
                 doc.setValue(data.markdown);

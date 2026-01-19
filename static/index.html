@@ -546,7 +546,6 @@
             flex: 1;
             max-width: 50%;
             min-width: 0;
-            min-height: 500px;
             height: 100%;
         }
 
@@ -609,6 +608,7 @@
             flex: 1;
             border: none;
             padding: 20px;
+            padding-bottom: 40px; /* Extra space to prevent bottom text cutoff */
             font-family: 'Consolas', 'Monaco', monospace;
             font-size: 14px;
             line-height: 1.6;
@@ -630,6 +630,7 @@
         
         .CodeMirror-scroll {
             padding: 20px;
+            padding-bottom: 40px; /* Extra space to prevent bottom text cutoff */
         }
         
         .CodeMirror-linenumber {
@@ -1137,19 +1138,6 @@
             
         </div>
     </header>
-
-    <!-- AI Loading Overlay -->
-    <div id="ai-loading-overlay" class="ai-loading-overlay">
-        <div class="ai-loading-card">
-            <div class="ai-loading-icon">🤖</div>
-            <div class="ai-loading-title">AI 正在排版</div>
-            <div class="ai-loading-subtitle">
-                正在优化您的 Markdown 格式
-                <span class="ai-loading-dots"></span>
-            </div>
-            <div class="ai-loading-spinner"></div>
-        </div>
-    </div>
 
     <!-- TXT to MD Loading Overlay -->
     <div id="txt-to-md-loading-overlay" class="txt-to-md-loading-overlay">

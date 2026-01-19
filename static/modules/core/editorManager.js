@@ -106,6 +106,8 @@ function getEditorContent() {
 function setEditorContent(content) {
     if (window.codeMirrorInstance) {
         window.codeMirrorInstance.setValue(content);
+        // Refresh CodeMirror to recalculate height and prevent text cutoff
+        setTimeout(() => window.codeMirrorInstance.refresh(), 0);
     }
     
     updateCharCount();

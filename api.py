@@ -38,10 +38,7 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# Serve static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# Add CORS middleware
+# Add CORS middleware (must be added before static file mounting)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allows all origins for flexibility
@@ -49,6 +46,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Serve static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
