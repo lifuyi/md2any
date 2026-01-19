@@ -422,6 +422,75 @@
             animation: dots 1.5s steps(4, end) infinite;
         }
 
+        /* TXT to MD Loading Overlay */
+        .txt-to-md-loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 99999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .txt-to-md-loading-overlay.active {
+            display: flex;
+        }
+
+        .txt-to-md-loading-card {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .txt-to-md-loading-icon {
+            font-size: 48px;
+            color: #4CAF50;
+            margin-bottom: 20px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .txt-to-md-loading-title {
+            font-size: 20px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .txt-to-md-loading-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 24px;
+        }
+
+        .txt-to-md-loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4CAF50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        .txt-to-md-loading-dots {
+            display: inline-block;
+            margin-left: 8px;
+        }
+
+        .txt-to-md-loading-dots::after {
+            content: '';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
         @keyframes dots {
             0%, 20% {
                 content: '';
@@ -814,7 +883,7 @@
         
         .input-group textarea {
             width: 100%;
-            min-height: 120px;
+            min-height: 250px;
             padding: 12px;
             border: 1px solid #ddd;
             border-radius: 6px;
@@ -1355,6 +1424,18 @@
             <div class="ai-loading-title">AI 正在排版中</div>
             <div class="ai-loading-subtitle">请稍候，正在为您优化内容格式<span class="ai-loading-dots"></span></div>
             <div class="ai-loading-spinner"></div>
+        </div>
+    </div>
+    
+    <!-- TXT to MD Loading Overlay -->
+    <div class="txt-to-md-loading-overlay" id="txt-to-md-loading-overlay">
+        <div class="txt-to-md-loading-card">
+            <div class="txt-to-md-loading-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="txt-to-md-loading-title">正在转换中</div>
+            <div class="txt-to-md-loading-subtitle">请稍候，正在将文本转换为 Markdown<span class="txt-to-md-loading-dots"></span></div>
+            <div class="txt-to-md-loading-spinner"></div>
         </div>
     </div>
     

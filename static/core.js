@@ -220,5 +220,44 @@ const CoreModule = {
     get currentTheme() { return currentTheme; }
 };
 
+// =============================================================================
+// TXT TO MD OVERLAY HELPERS
+// =============================================================================
+
+/**
+ * Show txt-to-md loading overlay
+ */
+function showTxtToMdOverlay() {
+    const overlay = document.getElementById('txt-to-md-loading-overlay');
+    if (overlay) {
+        overlay.classList.add('active');
+    }
+}
+
+/**
+ * Hide txt-to-md loading overlay
+ */
+function hideTxtToMdOverlay() {
+    const overlay = document.getElementById('txt-to-md-loading-overlay');
+    if (overlay) {
+        overlay.classList.remove('active');
+    }
+}
+
+/**
+ * Update txt-to-md overlay message
+ */
+function updateTxtToMdMessage(title, subtitle) {
+    const titleEl = document.querySelector('#txt-to-md-loading-overlay .txt-to-md-loading-title');
+    const subtitleEl = document.querySelector('#txt-to-md-loading-overlay .txt-to-md-loading-subtitle');
+    
+    if (titleEl) {
+        titleEl.textContent = title;
+    }
+    if (subtitleEl) {
+        subtitleEl.innerHTML = subtitle + '<span class="txt-to-md-loading-dots"></span>';
+    }
+}
+
 // Export to window
 window.CoreModule = CoreModule;
