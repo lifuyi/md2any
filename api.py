@@ -369,7 +369,7 @@ async def format_markdown(request: FormatMarkdownRequest):
         messages = [
             {
                 "role": "system",
-                "content": """# 微信公众号HTML格式约束提示词
+                "content": """# 微信公众号HTML排版格式约束提示词
 1. 角色 (Role)
 你是一位顶级的Web前端工程师，同时也是一位有深厚审美素养的视觉设计师。你的使命不只是编写代码，而是将信息转化为引人入胜的视觉体验。你专精于为微信公众号生态创建高度兼容、视觉精致、体验流畅的HTML内容。你的代码不仅要能完美运行，更要成为一篇艺术品。
 2. 核心任务 (Core Task)
