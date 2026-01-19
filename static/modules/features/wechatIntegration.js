@@ -10,6 +10,13 @@
  */
 
 // =============================================================================
+// DEBUG CONFIGURATION
+// =============================================================================
+
+// DEBUG: Set to true to disable AI loading overlay for debugging
+const DEBUG_DISABLE_OVERLAY = true;
+
+// =============================================================================
 // UTILITY FUNCTIONS
 // =============================================================================
 
@@ -236,12 +243,14 @@ async function aiFormatMarkdown() {
         aiBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> AI排版中...';
         updateStatus('正在使用AI进行排版...');
         
-        // Show AI loading overlay
-        if (aiLoadingOverlay) {
+        // Show AI loading overlay (unless debug flag is set)
+        if (!DEBUG_DISABLE_OVERLAY && aiLoadingOverlay) {
             console.log('Showing AI loading overlay');
             aiLoadingOverlay.classList.add('active');
             overlayShowTime = Date.now();
             console.log('Overlay classList:', aiLoadingOverlay.classList);
+        } else if (DEBUG_DISABLE_OVERLAY) {
+            console.log('AI loading overlay disabled for debugging');
         } else {
             console.error('AI loading overlay element not found!');
         }
@@ -250,14 +259,17 @@ async function aiFormatMarkdown() {
         window.isAIFormatting = true;
         
         // Set a timeout to prevent overlay from being stuck indefinitely (60 seconds)
-        timeoutId = setTimeout(() => {
-            hideOverlay();
-            updateStatus('❌ AI排版超时', true);
-            alert('AI排版超时，请稍后重试');
-            aiBtn.disabled = false;
-            aiBtn.innerHTML = '<i class="fas fa-robot"></i> AI排版';
-            window.isAIFormatting = false;
-        }, 60000);
+        // Only set timeout if overlay is not disabled
+        if (!DEBUG_DISABLE_OVERLAY) {
+            timeoutId = setTimeout(() => {
+                hideOverlay();
+                updateStatus('❌ AI排版超时', true);
+                alert('AI排版超时，请稍后重试');
+                aiBtn.disabled = false;
+                aiBtn.innerHTML = '<i class="fas fa-robot"></i> AI排版';
+                window.isAIFormatting = false;
+            }, 60000);
+        }
         
         // Call /ai/format-markdown endpoint (new endpoint with concise prompt)
         const response = await fetch(`${SharedUtils.CONFIG.API_BASE_URL}/ai/format-markdown`, {
@@ -291,8 +303,10 @@ async function aiFormatMarkdown() {
         // Clear timeout on error
         if (timeoutId) clearTimeout(timeoutId);
         
-        // Hide AI loading overlay on error
-        hideOverlay();
+        // Hide AI loading overlay on error (only if not disabled for debugging)
+        if (!DEBUG_DISABLE_OVERLAY) {
+            hideOverlay();
+        }
         
         updateStatus('❌ AI排版失败', true);
         console.error('AI formatting error:', error);
@@ -425,10 +439,12 @@ async function convertToWeChatHTML() {
  * Show AI result modal
  */
 function showAIResultModal(htmlContent) {
-    // Hide AI loading overlay before showing result modal
-    const aiLoadingOverlay = document.getElementById('ai-loading-overlay');
-    if (aiLoadingOverlay) {
-        aiLoadingOverlay.classList.remove('active');
+    // Hide AI loading overlay before showing result modal (only if not disabled for debugging)
+    if (!DEBUG_DISABLE_OVERLAY) {
+        const aiLoadingOverlay = document.getElementById('ai-loading-overlay');
+        if (aiLoadingOverlay) {
+            aiLoadingOverlay.classList.remove('active');
+        }
     }
     
     const modalOverlay = document.createElement('div');
