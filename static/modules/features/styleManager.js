@@ -81,13 +81,16 @@ async function fetchAndApplyStyle() {
     
     fetchBtn.disabled = true;
     fetchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 获取中...';
-    showStyleStatus('正在获取页面样式...', 'info');
+    showStyleStatus('正在使用AI获取页面样式...', 'info');
     
     try {
-        const response = await fetch('/api/extract-style', {
+        const response = await fetch('/ai/extract-style', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url: url })
+            body: JSON.stringify({ 
+                url: url,
+                markdown: "" // Required by API but not needed for extraction-only
+            })
         });
         
         if (!response.ok) {

@@ -50,67 +50,71 @@ function getContainerStyleFromPreview() {
  * Send content to WeChat draft
  */
 async function sendToWeChatDraft() {
-    const preview = document.getElementById('preview');
+    const editor = document.getElementById('editor');
     
-    if (!preview || !preview.innerHTML.trim()) {
+    if (!editor || !editor.value.trim()) {
         updateStatus('❌ 没有内容可发送', true);
         return;
     }
 
-    updateStatus('正在转换为WeChat格式...');
+    // Get configuration
+    const appId = localStorage.getItem('wechat_app_id');
+    const appSecret = localStorage.getItem('wechat_app_secret');
+    const thumbMediaId = localStorage.getItem('wechat_thumb_media_id') || '';
+    
+    if (!appId || !appSecret) {
+        updateStatus('❌ 请先配置微信公众号信息', true);
+        configureWeChat();
+        return;
+    }
+
+    const markdown = editor.value;
+    // Get current theme from theme manager or fallback
+    let currentTheme = 'wechat-default';
+    if (typeof window._getCurrentTheme === 'function') {
+        currentTheme = window._getCurrentTheme();
+    } else if (typeof getCurrentTheme === 'function') {
+        currentTheme = getCurrentTheme();
+    }
+
+    updateStatus('正在发送到微信草稿箱...');
     
     try {
-        // Convert to WeChat-compatible HTML
-        const wechatHTML = await convertToWeChatHTML();
+        const response = await fetch(`${SharedUtils.CONFIG.API_BASE_URL}/wechat/send_draft`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                appid: appId,
+                secret: appSecret,
+                markdown: markdown,
+                style: currentTheme,
+                thumb_media_id: thumbMediaId,
+                author: '', // Optional: could be added to config
+                digest: '', // Optional: could be added to config
+                content_source_url: '', // Optional
+                need_open_comment: 1,
+                only_fans_can_comment: 1
+            })
+        });
         
-        if (!wechatHTML) {
-            throw new Error('HTML转换失败');
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail?.errmsg || error.detail || '发送失败');
         }
-
-        const containerStyle = getContainerStyleFromPreview();
         
-        const finalHTML = `
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <style>
-        body { margin: 0; padding: 0; background: white; }
-        .container { ${containerStyle} }
-    </style>
-</head>
-<body>
-    <div class="container">
-        ${wechatHTML}
-    </div>
-</body>
-</html>`;
-
-        const blob = new Blob([finalHTML], { type: 'text/html' });
+        const result = await response.json();
         
-        // Try to open WeChat Web (if available) or provide download
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    title: 'Markdown Content',
-                    text: 'Share this content to WeChat',
-                    files: [new File([blob], 'content.html', { type: 'text/html' })]
-                });
-                updateStatus('✅ 已分享到WeChat');
-            } catch (err) {
-                // Fallback to download
-                downloadFile(finalHTML, 'wechat-content.html', 'text/html');
-                updateStatus('✅ HTML已下载，可复制到WeChat');
-            }
+        if (result.media_id) {
+            updateStatus('✅ 已成功发送到微信草稿箱', 'success');
+            alert('发送成功！\nMedia ID: ' + result.media_id);
         } else {
-            // Fallback: download
-            downloadFile(finalHTML, 'wechat-content.html', 'text/html');
-            updateStatus('✅ HTML已下载，可复制到WeChat');
+            updateStatus('⚠️ 发送完成但未返回Media ID', 'info');
         }
-
+        
     } catch (error) {
-        updateStatus('❌ WeChat转换失败', true);
-        alert('WeChat转换失败: ' + error.message);
+        console.error('WeChat send error:', error);
+        updateStatus('❌ 发送失败: ' + error.message, true);
+        alert('发送失败: ' + error.message);
     }
 }
 
@@ -150,22 +154,23 @@ async function generateMarkdown() {
     const editor = document.getElementById('editor');
     const submitBtn = document.getElementById('ai-submit');
 
-    if (!input || !input.value.trim()) {
-        alert('请输入描述');
+    // Get text from ai-input textarea
+    const textToConvert = input ? input.value.trim() : '';
+
+    if (!textToConvert) {
+        alert('请在输入框中输入要转换的文本');
         return;
     }
 
     try {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 生成中...';
-        updateStatus('正在使用AI生成Markdown...');
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 转换中...';
+        updateStatus('正在转换文本为Markdown...');
 
-        const prompt = input.value.trim();
-        
-        const response = await fetch(`${SharedUtils.CONFIG.API_BASE_URL}/ai/generate-markdown`, {
+        const response = await fetch(`${SharedUtils.CONFIG.API_BASE_URL}/ai/convert-text`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt })
+            body: JSON.stringify({ text: textToConvert })
         });
 
         if (!response.ok) {
@@ -174,32 +179,31 @@ async function generateMarkdown() {
 
         const data = await response.json();
         
-        if (data.success && data.markdown) {
-            // Use setEditorContent to properly handle both textarea and CodeMirror
-            if (typeof window._setEditorContent === 'function') {
-                window._setEditorContent(data.markdown);
+        if (data.markdown) {
+            // Replace all editor content with converted markdown
+            if (window.codeMirrorInstance) {
+                const cm = window.codeMirrorInstance;
+                const doc = cm.getDoc();
+                doc.setValue(data.markdown);
             } else if (editor) {
                 editor.value = data.markdown;
+                editor.dispatchEvent(new Event('input'));
             }
             
             if (window.renderMarkdown) {
                 window.renderMarkdown();
             }
             
-            input.value = '';
-            updateStatus('✅ Markdown生成成功');
-            
-            // Close the left drawer after successful generation
-            if (typeof window._closeLeftDrawer === 'function') {
-                window._closeLeftDrawer();
-            }
+            // Clear input
+            if (input) input.value = '';
+            updateStatus('✅ 转换成功');
         } else {
-            throw new Error(data.message || 'Generation failed');
+            throw new Error('No markdown returned');
         }
 
     } catch (error) {
-        updateStatus('❌ 生成失败', true);
-        alert('生成失败: ' + error.message);
+        updateStatus('❌ 转换失败', true);
+        alert('转换失败: ' + error.message);
     } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-magic"></i> 生成Markdown';

@@ -176,14 +176,52 @@ let imageCounter = 0;
 function initImagePaste() {
     const editor = document.getElementById('editor');
     const pasteArea = document.getElementById('imagePasteArea');
-    
+
     imageStore.init().catch(err => {
     });
-    
+
     document.addEventListener('paste', async (event) => {
+        // 如果目标元素是 ai-input，直接返回，让默认粘贴行为发生
+        if (event.target && event.target.id === 'ai-input') {
+            console.log('Paste target is ai-input - allowing default paste behavior');
+            return;
+        }
+
+        // 如果左抽屉（AI助手）打开，不处理粘贴事件，让默认行为发生
+        const drawerById = document.getElementById('left-drawer');
+        const drawerByClass = document.querySelector('.left-drawer.open');
+        
+        // 检查抽屉是否打开
+        const isDrawerOpen = (drawerById && drawerById.classList.contains('open')) || drawerByClass;
+        
+        if (isDrawerOpen) {
+            console.log('Drawer is open, skipping paste handler');
+            return;
+        }
+
         const items = event.clipboardData?.items;
         if (!items) return;
 
+        // 检查是否包含图片，同时检查是否包含文本
+        let hasImage = false;
+        let hasText = false;
+        
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            if (item.type.indexOf('image') !== -1) {
+                hasImage = true;
+            } else if (item.type === 'text/plain') {
+                hasText = true;
+            }
+        }
+
+        // 如果包含文本但不包含图片，允许默认粘贴行为
+        if (hasText && !hasImage) {
+            console.log('Clipboard contains text but no images - allowing default paste');
+            return;
+        }
+
+        // 只处理图片粘贴
         for (let i = 0; i < items.length; i++) {
             const item = items[i];
             if (item.type.indexOf('image') !== -1) {
@@ -352,128 +390,6 @@ async function handleImageUpload(file) {
         showImageStatus('❌ 图片处理失败: ' + error.message, 'error');
     }
 }
-
-// =============================================================================
-// TXT TO MD CONVERSION
-// =============================================================================
-
-/**
- * Convert plain text to markdown using AI API
- */
-async function convertPlainTextToMarkdown(text) {
-    try {
-        const response = await fetch(`${SharedUtils.CONFIG.API_BASE_URL}/text-to-markdown`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                text: text,
-                style: 'standard',
-                preserve_formatting: true
-            })
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`API error: ${response.status} - ${errorText}`);
-        }
-
-        const data = await response.json();
-        return data.markdown || text;
-    } catch (error) {
-        console.error('Text to markdown conversion error:', error);
-        // Return original text if conversion fails
-        return text;
-    }
-}
-
-/**
- * Handle plain text paste and convert to markdown
- */
-async function handlePlainTextPaste(text) {
-    // Show conversion overlay
-    if (typeof showTxtToMdOverlay === 'function') {
-        showTxtToMdOverlay();
-    }
-
-    try {
-        // Convert text to markdown
-        const markdown = await convertPlainTextToMarkdown(text);
-        
-        // Insert converted markdown into editor
-        if (window.codeMirrorInstance) {
-            const cm = window.codeMirrorInstance;
-            const doc = cm.getDoc();
-            const cursor = doc.getCursor();
-            doc.replaceRange(markdown, cursor);
-        } else {
-            const editor = document.getElementById('editor');
-            if (editor) {
-                const start = editor.selectionStart;
-                const end = editor.selectionEnd;
-                editor.value = editor.value.substring(0, start) + markdown + editor.value.substring(end);
-                editor.dispatchEvent(new Event('input'));
-            }
-        }
-        
-        // Trigger preview update
-        if (typeof renderMarkdown === 'function') {
-            renderMarkdown();
-        }
-        
-    } catch (error) {
-        console.error('Failed to convert text to markdown:', error);
-        // Fallback: insert original text
-        if (window.codeMirrorInstance) {
-            const cm = window.codeMirrorInstance;
-            const doc = cm.getDoc();
-            const cursor = doc.getCursor();
-            doc.replaceRange(text, cursor);
-        }
-    } finally {
-        // Hide conversion overlay
-        if (typeof hideTxtToMdOverlay === 'function') {
-            setTimeout(() => hideTxtToMdOverlay(), 500);
-        }
-    }
-}
-
-// Enhanced paste handler that also handles plain text conversion
-document.addEventListener('paste', async (event) => {
-    const items = event.clipboardData?.items;
-    const types = event.clipboardData?.types || [];
-    
-    if (!items) return;
-
-    // Check if paste contains images first
-    let hasImage = false;
-    for (let i = 0; i < items.length; i++) {
-        if (items[i].type.indexOf('image') !== -1) {
-            hasImage = true;
-            break;
-        }
-    }
-    
-    // If no images and contains text, convert to markdown
-    if (!hasImage && (types.includes('text/plain') || types.includes('text/html'))) {
-        event.preventDefault();
-        
-        // Get plain text from clipboard
-        const text = event.clipboardData.getData('text/plain');
-        
-        // Only convert if text is substantial (more than just a few words)
-        if (text && text.length > 50) {
-            await handlePlainTextPaste(text);
-        } else {
-            // For short text, just insert as-is
-            if (window.codeMirrorInstance) {
-                const cm = window.codeMirrorInstance;
-                const doc = cm.getDoc();
-                const cursor = doc.getCursor();
-                doc.replaceRange(text, cursor);
-            }
-        }
-    }
-});
 
 // =============================================================================
 // STATUS MESSAGING
