@@ -199,6 +199,11 @@ async function generateMarkdown() {
             // Clear input
             if (input) input.value = '';
             updateStatus('✅ 转换成功');
+            
+            // Close left drawer after successful conversion
+            if (typeof closeLeftDrawer === 'function') {
+                closeLeftDrawer();
+            }
         } else {
             throw new Error('No markdown returned');
         }
