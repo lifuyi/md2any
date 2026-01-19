@@ -353,7 +353,7 @@ async def format_markdown(request: FormatMarkdownRequest):
         )
     
     except Exception as e:
-        logger.error(f"Error formatting markdown: {str(e)}")
+        logger.error(f"Error formatting markdown: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Failed to format markdown: {str(e)}"

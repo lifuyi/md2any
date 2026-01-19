@@ -221,6 +221,14 @@ async function aiFormatMarkdown() {
     
     // Track when overlay was shown
     let overlayShowTime = 0;
+    let timeoutId = null;
+    
+    // Helper to hide overlay
+    const hideOverlay = () => {
+        if (aiLoadingOverlay) {
+            aiLoadingOverlay.classList.remove('active');
+        }
+    };
     
     try {
         // Disable button and show loading
@@ -241,6 +249,16 @@ async function aiFormatMarkdown() {
         // Set AI formatting flag to prevent normal rendering
         window.isAIFormatting = true;
         
+        // Set a timeout to prevent overlay from being stuck indefinitely (60 seconds)
+        timeoutId = setTimeout(() => {
+            hideOverlay();
+            updateStatus('❌ AI排版超时', true);
+            alert('AI排版超时，请稍后重试');
+            aiBtn.disabled = false;
+            aiBtn.innerHTML = '<i class="fas fa-robot"></i> AI排版';
+            window.isAIFormatting = false;
+        }, 60000);
+        
         // Call /ai/format-markdown endpoint (new endpoint with concise prompt)
         const response = await fetch(`${SharedUtils.CONFIG.API_BASE_URL}/ai/format-markdown`, {
             method: 'POST',
@@ -248,11 +266,17 @@ async function aiFormatMarkdown() {
             body: JSON.stringify({ markdown: markdownContent })
         });
         
+        // Clear timeout since we got a response
+        if (timeoutId) clearTimeout(timeoutId);
+        
         if (!response.ok) {
-            throw new Error(`API error: ${response.status}`);
+            const errorText = await response.text();
+            console.error('API error response:', errorText);
+            throw new Error(`API error: ${response.status} - ${errorText}`);
         }
         
         const data = await response.json();
+        console.log('AI formatting response:', data);
         
         if (data.success && data.html) {
             // Show result in modal overlay
@@ -264,12 +288,14 @@ async function aiFormatMarkdown() {
         }
         
     } catch (error) {
+        // Clear timeout on error
+        if (timeoutId) clearTimeout(timeoutId);
+        
         // Hide AI loading overlay on error
-        if (aiLoadingOverlay) {
-            aiLoadingOverlay.classList.remove('active');
-        }
+        hideOverlay();
         
         updateStatus('❌ AI排版失败', true);
+        console.error('AI formatting error:', error);
         alert('AI排版失败: ' + error.message);
     } finally {
         // Re-enable button
