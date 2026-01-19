@@ -14,7 +14,7 @@
 // =============================================================================
 
 // DEBUG: Set to true to disable AI loading overlay for debugging
-const DEBUG_DISABLE_OVERLAY = true;
+const DEBUG_DISABLE_OVERLAY = false;
 
 // =============================================================================
 // UTILITY FUNCTIONS
