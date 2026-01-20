@@ -547,6 +547,11 @@
             max-width: 50%;
             min-width: 0;
             height: 100%;
+            overflow: hidden; /* Prevent content overflow */
+        }
+        
+        .editor-pane {
+            position: relative; /* Ensure proper positioning for CodeMirror container */
         }
 
         .settings-pane {
@@ -621,6 +626,8 @@
             border: none;
             font-size: 14px;
             line-height: 1.6;
+            overflow: auto; /* Ensure scrolling works properly */
+            min-height: 0; /* Prevent flexbox issues */
         }
         
         .CodeMirror {
@@ -630,7 +637,7 @@
         
         .CodeMirror-scroll {
             padding: 20px;
-            padding-bottom: 40px; /* Extra space to prevent bottom text cutoff */
+            padding-bottom: 60px; /* Extra space to prevent bottom text cutoff - increased from 40px */
         }
         
         .CodeMirror-linenumber {
@@ -1438,18 +1445,6 @@
             <div class="ai-loading-title">AI 正在排版中</div>
             <div class="ai-loading-subtitle">请稍候，正在为您优化内容格式<span class="ai-loading-dots"></span></div>
             <div class="ai-loading-spinner"></div>
-        </div>
-    </div>
-    
-    <!-- TXT to MD Loading Overlay -->
-    <div class="txt-to-md-loading-overlay" id="txt-to-md-loading-overlay">
-        <div class="txt-to-md-loading-card">
-            <div class="txt-to-md-loading-icon">
-                <i class="fas fa-file-alt"></i>
-            </div>
-            <div class="txt-to-md-loading-title">正在转换中</div>
-            <div class="txt-to-md-loading-subtitle">请稍候，正在将文本转换为 Markdown<span class="txt-to-md-loading-dots"></span></div>
-            <div class="txt-to-md-loading-spinner"></div>
         </div>
     </div>
     

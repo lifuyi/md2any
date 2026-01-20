@@ -259,5 +259,10 @@ function updateTxtToMdMessage(title, subtitle) {
     }
 }
 
+// Export overlay helpers to window
+window._showTxtToMdOverlay = showTxtToMdOverlay;
+window._hideTxtToMdOverlay = hideTxtToMdOverlay;
+window._updateTxtToMdMessage = updateTxtToMdMessage;
+
 // Export to window
 window.CoreModule = CoreModule;

@@ -166,6 +166,11 @@ async function generateMarkdown() {
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 转换中...';
         updateStatus('正在转换文本为Markdown...');
+        
+        // Show loading overlay
+        if (typeof window._showTxtToMdOverlay === 'function') {
+            window._showTxtToMdOverlay();
+        }
 
         const response = await fetch(`${SharedUtils.CONFIG.API_BASE_URL}/ai/convert-text`, {
             method: 'POST',
@@ -207,10 +212,20 @@ async function generateMarkdown() {
         } else {
             throw new Error('No markdown returned');
         }
+        
+        // Hide loading overlay on success
+        if (typeof window._hideTxtToMdOverlay === 'function') {
+            window._hideTxtToMdOverlay();
+        }
 
     } catch (error) {
         updateStatus('❌ 转换失败', true);
         alert('转换失败: ' + error.message);
+        
+        // Hide loading overlay on error
+        if (typeof window._hideTxtToMdOverlay === 'function') {
+            window._hideTxtToMdOverlay();
+        }
     } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-magic"></i> 生成Markdown';

@@ -106,10 +106,41 @@ function getEditorContent() {
 function setEditorContent(content) {
     if (window.codeMirrorInstance) {
         window.codeMirrorInstance.setValue(content);
-        // Refresh CodeMirror to recalculate height and prevent text cutoff
-        setTimeout(() => window.codeMirrorInstance.refresh(), 0);
+        
+        // Ensure the container has proper height before refreshing
+        const container = document.getElementById('codemirror-container');
+        if (container) {
+            container.style.height = '100%';
+        }
+        
+        // Multiple refresh calls at different timings to ensure proper height calculation
+        // Immediate refresh to handle quick DOM updates
+        setTimeout(() => {
+            if (window.codeMirrorInstance) {
+                window.codeMirrorInstance.refresh();
+            }
+        }, 0);
+        
+        // Refresh after DOM settles
+        setTimeout(() => {
+            if (window.codeMirrorInstance) {
+                window.codeMirrorInstance.refresh();
+            }
+        }, 100);
+        
         // Additional refresh after potential drawer/modal transitions complete
-        setTimeout(() => window.codeMirrorInstance.refresh(), 350);
+        setTimeout(() => {
+            if (window.codeMirrorInstance) {
+                window.codeMirrorInstance.refresh();
+            }
+        }, 350);
+        
+        // Final refresh to ensure everything is properly sized
+        setTimeout(() => {
+            if (window.codeMirrorInstance) {
+                window.codeMirrorInstance.refresh();
+            }
+        }, 500);
     }
     
     updateCharCount();
