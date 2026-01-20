@@ -163,6 +163,9 @@ async function generateMarkdown() {
     }
 
     try {
+        // Start timer for conversion
+        console.time('txt-to-md-conversion');
+        
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 转换中...';
         updateStatus('正在转换文本为Markdown...');
@@ -213,6 +216,9 @@ async function generateMarkdown() {
             throw new Error('No markdown returned');
         }
         
+        // End timer and log duration
+        console.timeEnd('txt-to-md-conversion');
+        
         // Hide loading overlay on success
         if (typeof window._hideTxtToMdOverlay === 'function') {
             window._hideTxtToMdOverlay();
@@ -221,6 +227,9 @@ async function generateMarkdown() {
     } catch (error) {
         updateStatus('❌ 转换失败', true);
         alert('转换失败: ' + error.message);
+        
+        // End timer and log duration even on error
+        console.timeEnd('txt-to-md-conversion');
         
         // Hide loading overlay on error
         if (typeof window._hideTxtToMdOverlay === 'function') {
@@ -263,6 +272,9 @@ async function aiFormatMarkdown() {
     };
     
     try {
+        // Start timer for AI formatting
+        console.time('ai-formatting');
+        
         // Disable button and show loading
         aiBtn.disabled = true;
         aiBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> AI排版中...';
@@ -300,6 +312,9 @@ async function aiFormatMarkdown() {
         console.log('AI formatting response:', data);
         
         if (data.success && data.html) {
+            // End timer and log duration
+            console.timeEnd('ai-formatting');
+            
             // Show result in modal overlay
             showAIResultModal(data.html);
             
@@ -309,6 +324,9 @@ async function aiFormatMarkdown() {
         }
         
     } catch (error) {
+        // End timer and log duration even on error
+        console.timeEnd('ai-formatting');
+        
         // Hide AI loading overlay on error (only if not disabled for debugging)
         if (!DEBUG_DISABLE_OVERLAY) {
             hideOverlay();
@@ -322,6 +340,13 @@ async function aiFormatMarkdown() {
         aiBtn.disabled = false;
         aiBtn.innerHTML = '<i class="fas fa-robot"></i> AI排版';
         window.isAIFormatting = false;
+        
+        // Safety check: ensure timer is ended (in case it wasn't ended elsewhere)
+        try {
+            console.timeEnd('ai-formatting');
+        } catch (e) {
+            // Timer already ended or not started, ignore
+        }
         
         // Note: AI loading overlay is hidden in showAIResultModal function
         // This ensures it stays visible until the result modal is displayed
