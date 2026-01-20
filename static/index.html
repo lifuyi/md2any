@@ -637,7 +637,7 @@
         
         .CodeMirror-scroll {
             padding: 20px;
-            padding-bottom: 60px; /* Extra space to prevent bottom text cutoff - increased from 40px */
+            padding-bottom: 100px; /* Extra space to prevent bottom text cutoff - increased from 60px */
         }
         
         .CodeMirror-linenumber {
@@ -1418,7 +1418,7 @@
                 <textarea id="ai-input" placeholder="你只需要输入要排版的纯文字内容，ai将协助你进行排版" rows="4"></textarea>
             </div>
             <div class="button-group">
-                <button id="ai-submit" class="btn btn-primary" onclick="generateMarkdown()">
+                <button id="ai-submit" class="btn btn-primary" onclick="window._generateMarkdown()">
                     <i class="fas fa-magic"></i> 生成Markdown
                 </button>
                 <button id="cancel-ai-btn" class="btn btn-secondary" onclick="closeLeftDrawer()">
@@ -1450,6 +1450,18 @@
     
     <!-- Libraries for markdown processing -->
     <!-- 前端渲染库已移除，现在完全使用后端渲染 -->
+    
+    <!-- Local development API override -->
+    <script>
+        // Auto-detect local development and override API URL
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            // Use the same port as the local server (default: 8000)
+            const localPort = window.location.port || '8000';
+            window.API_BASE_URL_OVERRIDE = `http://localhost:${localPort}`;
+            console.log('[Local Dev] API URL overridden to:', window.API_BASE_URL_OVERRIDE);
+        }
+    </script>
+    
     <script src="https://cdn.jsdelivr.net/npm/turndown/dist/turndown.min.js"></script>
     
     <!-- CodeMirror for syntax highlighting -->

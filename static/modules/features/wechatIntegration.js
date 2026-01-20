@@ -171,8 +171,14 @@ async function generateMarkdown() {
         updateStatus('正在转换文本为Markdown...');
         
         // Show loading overlay
+        console.log('DEBUG: About to call window._showTxtToMdOverlay');
+        console.log('DEBUG: window._showTxtToMdOverlay type:', typeof window._showTxtToMdOverlay);
         if (typeof window._showTxtToMdOverlay === 'function') {
+            console.log('DEBUG: Calling window._showTxtToMdOverlay()');
             window._showTxtToMdOverlay();
+            console.log('DEBUG: After calling window._showTxtToMdOverlay()');
+        } else {
+            console.error('DEBUG: window._showTxtToMdOverlay is not a function!');
         }
 
         const response = await fetch(`${SharedUtils.CONFIG.API_BASE_URL}/ai/convert-text`, {
@@ -340,13 +346,6 @@ async function aiFormatMarkdown() {
         aiBtn.disabled = false;
         aiBtn.innerHTML = '<i class="fas fa-robot"></i> AI排版';
         window.isAIFormatting = false;
-        
-        // Safety check: ensure timer is ended (in case it wasn't ended elsewhere)
-        try {
-            console.timeEnd('ai-formatting');
-        } catch (e) {
-            // Timer already ended or not started, ignore
-        }
         
         // Note: AI loading overlay is hidden in showAIResultModal function
         // This ensures it stays visible until the result modal is displayed

@@ -46,6 +46,7 @@ function initializeCodeMirror() {
         matchBrackets: true,
         tabSize: 2,
         indentUnit: 2,
+        scrollPadding: 20, // Add padding at bottom when scrolling to prevent last line cutoff
         extraKeys: {
             'Enter': 'newlineAndIndentContinueMarkdownList',
             'Tab': 'indentMore',
@@ -78,6 +79,11 @@ function initializeCodeMirror() {
     
     // Store reference to CodeMirror instance
     window.codeMirrorInstance = cm;
+    
+    // Refresh after a short delay to ensure proper rendering
+    setTimeout(() => {
+        cm.refresh();
+    }, 100);
     
 }
 
