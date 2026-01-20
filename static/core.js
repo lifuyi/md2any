@@ -228,18 +228,13 @@ const CoreModule = {
  * Show txt-to-md loading overlay
  */
 function showTxtToMdOverlay() {
-    console.log('DEBUG: showTxtToMdOverlay() called');
-    const overlay = document.getElementById('txt-to-md-loading-overlay');
-    console.log('DEBUG: overlay element:', overlay);
-    if (overlay) {
-        console.log('DEBUG: Adding active class to overlay');
-        overlay.classList.add('active');
-        console.log('DEBUG: Overlay classList after adding active:', overlay.classList);
-    } else {
-        console.error('DEBUG: Overlay element not found!');
-    }
+const overlay = document.getElementById('txt-to-md-loading-overlay');
+if (overlay) {
+overlay.classList.add('active');
+} else {
+console.error('Overlay element not found!');
 }
-
+}
 /**
  * Hide txt-to-md loading overlay
  */

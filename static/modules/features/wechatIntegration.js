@@ -171,14 +171,8 @@ async function generateMarkdown() {
         updateStatus('正在转换文本为Markdown...');
         
         // Show loading overlay
-        console.log('DEBUG: About to call window._showTxtToMdOverlay');
-        console.log('DEBUG: window._showTxtToMdOverlay type:', typeof window._showTxtToMdOverlay);
         if (typeof window._showTxtToMdOverlay === 'function') {
-            console.log('DEBUG: Calling window._showTxtToMdOverlay()');
             window._showTxtToMdOverlay();
-            console.log('DEBUG: After calling window._showTxtToMdOverlay()');
-        } else {
-            console.error('DEBUG: window._showTxtToMdOverlay is not a function!');
         }
 
         const response = await fetch(`${SharedUtils.CONFIG.API_BASE_URL}/ai/convert-text`, {
