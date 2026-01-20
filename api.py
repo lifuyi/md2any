@@ -86,6 +86,60 @@ def ensure_glm_client() -> OpenAI:
     return glm_client
 
 
+# NVIDIA Client Management
+nvidia_client: Optional[OpenAI] = None
+
+
+def get_nvidia_client() -> OpenAI:
+    """Initialize NVIDIA client with API key from environment"""
+    api_key = os.getenv("NVIDIA_API_KEY")
+    if not api_key:
+        raise ValueError(
+            "NVIDIA_API_KEY environment variable not set. "
+            "Please set it before running the application."
+        )
+    return OpenAI(api_key=api_key, base_url="https://integrate.api.nvidia.com/v1")
+
+
+def ensure_nvidia_client() -> OpenAI:
+    """Ensure NVIDIA client is initialized"""
+    global nvidia_client
+    if nvidia_client is None:
+        nvidia_client = get_nvidia_client()
+    return nvidia_client
+
+
+def get_ai_client() -> OpenAI:
+    """Get the configured AI client based on AI_PROVIDER setting"""
+    provider = os.getenv("AI_PROVIDER", "glm").lower()
+    if provider == "nvidia":
+        return ensure_nvidia_client()
+    elif provider == "glm":
+        return ensure_glm_client()
+    else:
+        # Default to GLM if unknown provider
+        logger.warning(f"Unknown AI provider '{provider}', defaulting to GLM")
+        return ensure_glm_client()
+
+
+def get_ai_model(task_type: str = "general") -> str:
+    """Get the appropriate AI model based on provider and task type"""
+    provider = os.getenv("AI_PROVIDER", "glm").lower()
+
+    if provider == "nvidia":
+        # NVIDIA uses DeepSeek models
+        if task_type == "formatting":
+            return "deepseek-ai/deepseek-v3.1"
+        else:
+            return "deepseek-ai/deepseek-v3.1"
+    elif provider == "glm":
+        # GLM uses glm-4.5-flash for most tasks
+        return "glm-4.5-flash"
+    else:
+        # Default fallback
+        return "glm-4.5-flash"
+
+
 def handle_wechat_error(error: WeChatError):
     """Convert WeChatError to HTTPException"""
     status_code = 400 if error.error_code < 500 else 500
@@ -275,7 +329,7 @@ class ExtractStyleResponse(BaseModel):
 async def convert_text(request: ConvertTextRequest):
     """Convert plain text to markdown format using AI"""
     try:
-        client = ensure_glm_client()
+        client = get_ai_client()
 
         messages = [
             {
@@ -342,7 +396,7 @@ As Markdown Formatting Expert, you must follow the above Rules and execute tasks
         ]
 
         response = client.chat.completions.create(
-            model="glm-4.5-flash", messages=messages, temperature=0.6
+            model=get_ai_model("general"), messages=messages, temperature=0.6
         )
 
         message = response.choices[0].message
@@ -364,7 +418,7 @@ As Markdown Formatting Expert, you must follow the above Rules and execute tasks
 async def format_markdown(request: FormatMarkdownRequest):
     """Convert markdown to WeChat HTML format using AI"""
     try:
-        client = ensure_glm_client()
+        client = get_ai_client()
 
         messages = [
             {
@@ -464,7 +518,7 @@ SVG: 必须以内联 <svg> 标签的形式嵌入，且包含 viewBox 属性。
         ]
 
         response = client.chat.completions.create(
-            model="glm-4.5-flash", messages=messages, temperature=0.6
+            model=get_ai_model("formatting"), messages=messages, temperature=0.6
         )
 
         message = response.choices[0].message
@@ -502,7 +556,7 @@ async def extract_and_apply_style(request: ExtractStyleRequest):
         # Get a representative sample of the content (to avoid token limits)
         content_sample = soup.get_text()[:4000]
 
-        client = ensure_glm_client()
+        client = get_ai_client()
 
         # Step 1: Extract styles using AI
         extraction_messages = [
@@ -529,7 +583,7 @@ async def extract_and_apply_style(request: ExtractStyleRequest):
         ]
 
         extraction_response = client.chat.completions.create(
-            model="glm-4.5-flash", messages=extraction_messages, temperature=0.2
+            model=get_ai_model("general"), messages=extraction_messages, temperature=0.2
         )
 
         styles_content = extraction_response.choices[0].message.content
@@ -560,7 +614,7 @@ async def extract_and_apply_style(request: ExtractStyleRequest):
         ]
 
         ai_response = client.chat.completions.create(
-            model="glm-4.5-flash", messages=messages, temperature=0.6
+            model=get_ai_model("formatting"), messages=messages, temperature=0.6
         )
 
         message = ai_response.choices[0].message
