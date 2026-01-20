@@ -492,7 +492,7 @@ SVG: 必须以内联 <svg> 标签的形式嵌入，且包含 viewBox 属性。
   
   <!-- 图片模块 -->
   <div style="margin: 32px 0;">
-    <img src="https://via.placeholder.com/600x300" alt="图片描述" style="max-width: 100%; display: block; margin: 0 auto;">
+    <img src="https://placeholder.co/600x300" alt="图片描述" style="max-width: 100%; display: block; margin: 0 auto;">
   </div>
 </section>
 7. 输出前验证清单 (Pre-Output Verification Checklist)
