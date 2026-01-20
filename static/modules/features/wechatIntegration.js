@@ -239,7 +239,6 @@ async function aiFormatMarkdown() {
     
     // Track when overlay was shown
     let overlayShowTime = 0;
-    let timeoutId = null;
     
     // Helper to hide overlay
     const hideOverlay = () => {
@@ -269,28 +268,12 @@ async function aiFormatMarkdown() {
         // Set AI formatting flag to prevent normal rendering
         window.isAIFormatting = true;
         
-        // Set a timeout to prevent overlay from being stuck indefinitely (60 seconds)
-        // Only set timeout if overlay is not disabled
-        if (!DEBUG_DISABLE_OVERLAY) {
-            timeoutId = setTimeout(() => {
-                hideOverlay();
-                updateStatus('❌ AI排版超时', true);
-                alert('AI排版超时，请稍后重试');
-                aiBtn.disabled = false;
-                aiBtn.innerHTML = '<i class="fas fa-robot"></i> AI排版';
-                window.isAIFormatting = false;
-            }, 60000);
-        }
-        
         // Call /ai/format-markdown endpoint (new endpoint with concise prompt)
         const response = await fetch(`${SharedUtils.CONFIG.API_BASE_URL}/ai/format-markdown`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ markdown: markdownContent })
         });
-        
-        // Clear timeout since we got a response
-        if (timeoutId) clearTimeout(timeoutId);
         
         if (!response.ok) {
             const errorText = await response.text();
@@ -311,9 +294,6 @@ async function aiFormatMarkdown() {
         }
         
     } catch (error) {
-        // Clear timeout on error
-        if (timeoutId) clearTimeout(timeoutId);
-        
         // Hide AI loading overlay on error (only if not disabled for debugging)
         if (!DEBUG_DISABLE_OVERLAY) {
             hideOverlay();
