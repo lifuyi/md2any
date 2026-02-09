@@ -637,7 +637,8 @@
         
         .CodeMirror-scroll {
             padding: 20px;
-            padding-bottom: 150px; /* Extra space to prevent bottom text cutoff - increased from 100px to ensure last line visibility */
+            padding-bottom: 20px;
+            margin-bottom: 60px; /* Add margin to account for fixed status bar - ensures last line is visible above status bar */
         }
         
         .CodeMirror-linenumber {
