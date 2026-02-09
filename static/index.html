@@ -627,7 +627,7 @@
             font-size: 14px;
             line-height: 1.6;
             overflow: auto; /* Ensure scrolling works properly */
-            min-height: 0; /* Prevent flexbox issues */
+            min-height: 200px; /* Ensure minimum height to prevent cutoff issues */
         }
         
         .CodeMirror {
@@ -637,7 +637,7 @@
         
         .CodeMirror-scroll {
             padding: 20px;
-            padding-bottom: 100px; /* Extra space to prevent bottom text cutoff - increased from 60px */
+            padding-bottom: 150px; /* Extra space to prevent bottom text cutoff - increased from 100px to ensure last line visibility */
         }
         
         .CodeMirror-linenumber {

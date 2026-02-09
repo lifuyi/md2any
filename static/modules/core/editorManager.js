@@ -46,7 +46,7 @@ function initializeCodeMirror() {
         matchBrackets: true,
         tabSize: 2,
         indentUnit: 2,
-        scrollPadding: 20, // Add padding at bottom when scrolling to prevent last line cutoff
+        scrollPadding: 50, // Add padding at bottom when scrolling to prevent last line cutoff - increased from 20 to 50
         extraKeys: {
             'Enter': 'newlineAndIndentContinueMarkdownList',
             'Tab': 'indentMore',
