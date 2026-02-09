@@ -85,6 +85,20 @@ function initializeCodeMirror() {
         cm.refresh();
     }, 100);
     
+    // Additional refresh after window resize to handle layout changes
+    window.addEventListener('resize', () => {
+        if (window.codeMirrorInstance) {
+            window.codeMirrorInstance.refresh();
+        }
+    });
+    
+    // Refresh when becoming visible (for tab switches, etc.)
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && window.codeMirrorInstance) {
+            window.codeMirrorInstance.refresh();
+        }
+    });
+    
 }
 
 // =============================================================================

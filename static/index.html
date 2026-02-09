@@ -628,6 +628,7 @@
             line-height: 1.6;
             overflow: auto; /* Ensure scrolling works properly */
             min-height: 200px; /* Ensure minimum height to prevent cutoff issues */
+            padding-bottom: 20px; /* Additional padding for last line visibility */
         }
         
         .CodeMirror {
@@ -637,8 +638,7 @@
         
         .CodeMirror-scroll {
             padding: 20px;
-            padding-bottom: 20px;
-            margin-bottom: 60px; /* Add margin to account for fixed status bar - ensures last line is visible above status bar */
+            padding-bottom: 80px; /* Extra padding to ensure last line is visible above fixed status bar */
         }
         
         .CodeMirror-linenumber {
