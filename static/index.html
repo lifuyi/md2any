@@ -547,11 +547,17 @@
             max-width: 50%;
             min-width: 0;
             height: 100%;
-            overflow: hidden; /* Prevent content overflow */
         }
         
         .editor-pane {
             position: relative; /* Ensure proper positioning for CodeMirror container */
+            display: flex;
+            flex-direction: column;
+            overflow: visible; /* Allow content to extend for proper scrolling */
+        }
+        
+        .preview-pane {
+            overflow: hidden; /* Prevent content overflow */
         }
 
         .settings-pane {
@@ -634,11 +640,16 @@
         .CodeMirror {
             height: 100% !important;
             font-family: 'Consolas', 'Monaco', monospace;
+            min-height: 100% !important;
         }
         
         .CodeMirror-scroll {
             padding: 20px;
-            padding-bottom: 80px; /* Extra padding to ensure last line is visible above fixed status bar */
+            padding-bottom: 20px;
+        }
+        
+        .CodeMirror-lines {
+            padding-bottom: 100px !important; /* Ensure last line is visible above fixed status bar */
         }
         
         .CodeMirror-linenumber {
