@@ -15,9 +15,10 @@
  */
 const CONFIG = {
     // API Configuration
-    API_BASE_URL: typeof window.API_BASE_URL_OVERRIDE !== 'undefined' ? 
-        window.API_BASE_URL_OVERRIDE : 
-        'https://md2any-production.up.railway.app',
+    // Use current host if available (for self-hosted VPS), fallback to Railway for development
+    API_BASE_URL: (typeof window !== 'undefined' && window.location && window.location.host) 
+        ? `${window.location.protocol}//${window.location.host}`
+        : 'https://md2any-production.up.railway.app',
     
     // UI Configuration
     DEBOUNCE_DELAY: 500,
