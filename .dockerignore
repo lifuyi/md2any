@@ -1,0 +1,45 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv
+venv/
+ENV/
+.pytest_cache/
+.ruff_cache/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Testing
+.coverage
+htmlcov/
+.tox/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Documentation (optional - uncomment if you want to exclude docs)
+# *.md
+# !README.md
+
+# Misc
+*.log
+*.tmp
+.env
+.env.local
+.DS_Store
+
+# Backups
+*.backup
+*~
