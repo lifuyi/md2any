@@ -45,7 +45,9 @@ class TestMarkdownRenderer:
     def test_renderer_initialization(self, renderer):
         """Test that renderer initializes correctly"""
         assert renderer is not None
-        assert renderer.md is not None
+        # Verify _create_md_instance method works
+        md = renderer._create_md_instance()
+        assert md is not None
     
     def test_render_basic_markdown(self, renderer, sample_markdown):
         """Test basic markdown rendering"""

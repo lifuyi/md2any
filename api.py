@@ -6,6 +6,7 @@ Built with FastAPI and managed by uv
 """
 
 import os
+import json
 import logging
 import requests
 from typing import Dict, Any, Optional
@@ -62,8 +63,31 @@ logger = logging.getLogger(__name__)
 # Load themes configuration
 THEMES = load_themes()
 
-# Custom styles storage
-CUSTOM_STYLES = {}
+# Custom styles storage with file persistence
+CUSTOM_STYLES_FILE = os.path.join(os.path.dirname(__file__), "custom_styles.json")
+
+
+def _load_custom_styles() -> Dict[str, Any]:
+    """Load custom styles from JSON file"""
+    if os.path.exists(CUSTOM_STYLES_FILE):
+        try:
+            with open(CUSTOM_STYLES_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except (json.JSONDecodeError, IOError) as e:
+            logger.warning(f"Failed to load custom styles: {e}")
+    return {}
+
+
+def _save_custom_styles(styles: Dict[str, Any]) -> None:
+    """Save custom styles to JSON file"""
+    try:
+        with open(CUSTOM_STYLES_FILE, "w", encoding="utf-8") as f:
+            json.dump(styles, f, ensure_ascii=False, indent=2)
+    except IOError as e:
+        logger.error(f"Failed to save custom styles: {e}")
+
+
+CUSTOM_STYLES = _load_custom_styles()
 
 # Initialize renderer
 renderer = MarkdownRenderer()
@@ -361,6 +385,12 @@ async def convert_text(request: ConvertTextRequest):
 
         return ConvertTextResponse(markdown=markdown_content)
 
+    except ValueError as e:
+        logger.error(f"Text conversion error: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Conversion error: {str(e)}")
+    except requests.RequestException as e:
+        logger.error(f"AI API request error: {str(e)}")
+        raise HTTPException(status_code=502, detail=f"AI service unavailable: {str(e)}")
     except Exception as e:
         logger.error(f"Text conversion error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Conversion error: {str(e)}")
@@ -400,6 +430,12 @@ async def format_markdown(request: FormatMarkdownRequest):
 
         return FormatMarkdownResponse(html=html_content)
 
+    except ValueError as e:
+        logger.error(f"Markdown formatting error: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Formatting error: {str(e)}")
+    except requests.RequestException as e:
+        logger.error(f"AI API request error: {str(e)}")
+        raise HTTPException(status_code=502, detail=f"AI service unavailable: {str(e)}")
     except Exception as e:
         logger.error(f"Markdown formatting error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Formatting error: {str(e)}")
@@ -447,8 +483,6 @@ async def extract_and_apply_style(request: ExtractStyleRequest):
         elif "```" in styles_content:
             styles_content = styles_content.split("```")[1].split("```")[0].strip()
 
-        import json
-
         try:
             styles = json.loads(styles_content)
         except json.JSONDecodeError:
@@ -484,6 +518,12 @@ async def extract_and_apply_style(request: ExtractStyleRequest):
 
         return ExtractStyleResponse(html=html_content, styles=styles)
 
+    except requests.RequestException as e:
+        logger.error(f"URL fetch error: {str(e)}")
+        raise HTTPException(status_code=502, detail=f"Failed to fetch URL: {str(e)}")
+    except ValueError as e:
+        logger.error(f"Style extraction error: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Style extraction error: {str(e)}")
     except Exception as e:
         logger.error(f"Style extraction error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Style extraction error: {str(e)}")
@@ -625,7 +665,10 @@ async def render_markdown(request: MarkdownRequest):
             message="Rendered successfully",
         )
 
+    except HTTPException:
+        raise
     except Exception as e:
+        logger.error(f"Rendering error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Rendering error: {str(e)}")
 
 
@@ -634,6 +677,7 @@ async def save_custom_style(request: CustomStyleRequest):
     """Save a custom style configuration"""
     try:
         CUSTOM_STYLES[request.style_name] = request.styles
+        _save_custom_styles(CUSTOM_STYLES)
         logger.info(f"Saved custom style: {request.style_name}")
 
         return CustomStyleResponse(
@@ -669,6 +713,7 @@ async def delete_custom_style(style_name: str):
 
     try:
         del CUSTOM_STYLES[style_name]
+        _save_custom_styles(CUSTOM_STYLES)
         logger.info(f"Deleted custom style: {style_name}")
 
         return CustomStyleResponse(
@@ -767,7 +812,7 @@ class ExampleClass:
 上面是一条分隔线，用于分割不同的内容区域。
 """
 
-    rendered_html = renderer.render(sample_markdown, theme_name, mode, platform)
+    rendered_html = renderer.render(sample_markdown, theme_config, mode, platform)
 
     return HTMLResponse(content=rendered_html)
 
