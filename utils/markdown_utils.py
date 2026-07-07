@@ -22,4 +22,42 @@ def preprocess_markdown(content: str) -> str:
     content = re.sub(r'^(\s*(?:\d+\.|\-|\*)\s+.+?:)\s*\n\s+(.+?)$', r'\1 \2', content, flags=re.MULTILINE)
     content = re.sub(r'^(\s*(?:\d+\.|\-|\*)\s+[^:\n]+)\n:\s*(.+?)$', r'\1: \2', content, flags=re.MULTILINE)
     content = re.sub(r'^(\s*(?:\d+\.|\-|\*)\s+.+?)\n\n\s+(.+?)$', r'\1 \2', content, flags=re.MULTILINE)
+
+    # Add HTML comment separator between different list types (ul to ol, ol to ul)
+    # Python markdown library merges list types without explicit separator
+    # Match: unordered list item followed by ordered list item
+    content = re.sub(
+        r'^(\s*[\-\*]\s+.+)$\n(\s*\d+\.\s+.+)$',
+        r'\1\n\n<!-- -->\n\n\2',
+        content,
+        flags=re.MULTILINE
+    )
+    # Match: ordered list item followed by unordered list item
+    content = re.sub(
+        r'^(\s*\d+\.\s+.+)$\n(\s*[\-\*]\s+.+)$',
+        r'\1\n\n<!-- -->\n\n\2',
+        content,
+        flags=re.MULTILINE
+    )
+
+    # Add blank line before list when preceded by non-list text
+    # Only add if there's no blank line already (for idempotency)
+    # Match: non-list line followed by unordered list item (without blank line in between)
+    content = re.sub(
+        r'^(?!.*[\-\*]\s+)(.*[^:\n])$\n(\s*[\-\*]\s+.+)$',
+        r'\1\n\n\2',
+        content,
+        flags=re.MULTILINE
+    )
+    # Match: non-list line followed by ordered list item (without blank line in between)
+    content = re.sub(
+        r'^(?!\s*\d+\.\s+)(.*[^:\n])$\n(\s*\d+\.\s+.+)$',
+        r'\1\n\n\2',
+        content,
+        flags=re.MULTILINE
+    )
+
+    # Clean up multiple consecutive blank lines (max 2)
+    content = re.sub(r'\n{3,}', '\n\n', content)
+
     return content

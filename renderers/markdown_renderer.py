@@ -87,12 +87,23 @@ class MarkdownRenderer:
         # Parse HTML with BeautifulSoup
         soup = BeautifulSoup(html_content, "html.parser")
 
-        # Apply styles to each element
+        # Separate pseudo-element selectors from regular selectors
+        pseudo_element_rules = []
+        regular_selectors = {}
+
         for selector, style_properties in styles.items():
             if selector in ["container", "innerContainer"]:
                 # Skip container styles as they're handled separately
                 continue
 
+            # Check if this is a pseudo-element selector
+            if "::" in selector:
+                pseudo_element_rules.append((selector, style_properties))
+            else:
+                regular_selectors[selector] = style_properties
+
+        # Apply styles to each regular element
+        for selector, style_properties in regular_selectors.items():
             # Apply mode and platform adjustments to styles
             adjusted_style = style_properties
             if mode == "dark-mode":
@@ -118,6 +129,31 @@ class MarkdownRenderer:
             except Exception:
                 # Skip invalid selectors
                 continue
+
+        # Generate <style> block for pseudo-element rules
+        if pseudo_element_rules:
+            style_block_parts = []
+            for selector, style_properties in pseudo_element_rules:
+                # Apply mode and platform adjustments
+                adjusted_style = style_properties
+                if mode == "dark-mode":
+                    adjusted_style = self._apply_dark_mode_adjustments_to_style(
+                        adjusted_style
+                    )
+                if platform == "wechat":
+                    adjusted_style = self._adjust_for_wechat_style(adjusted_style)
+                elif platform == "xiaohongshu":
+                    adjusted_style = self._adjust_for_xiaohongshu_style(adjusted_style)
+                elif platform == "zhihu":
+                    adjusted_style = self._adjust_for_zhihu_style(adjusted_style)
+
+                # Convert inline style format to CSS format
+                css_properties = adjusted_style.strip().rstrip(";")
+                style_block_parts.append(f"  {selector} {{ {css_properties} }}")
+
+            style_tag = soup.new_tag("style")
+            style_tag.string = "\n".join(style_block_parts)
+            soup.insert(0, style_tag)
 
         # Get container styles
         container_style = styles.get("container", "")
@@ -162,12 +198,23 @@ class MarkdownRenderer:
         # Parse HTML with BeautifulSoup
         soup = BeautifulSoup(html_content, "html.parser")
 
-        # Apply custom styles to each element
+        # Separate pseudo-element selectors from regular selectors
+        pseudo_element_rules = []
+        regular_selectors = {}
+
         for selector, style_properties in custom_styles.items():
             if selector in ["container", "innerContainer"]:
                 # Skip container styles as they're handled separately
                 continue
 
+            # Check if this is a pseudo-element selector
+            if "::" in selector:
+                pseudo_element_rules.append((selector, style_properties))
+            else:
+                regular_selectors[selector] = style_properties
+
+        # Apply custom styles to each regular element
+        for selector, style_properties in regular_selectors.items():
             # Apply mode and platform adjustments to styles
             adjusted_style = style_properties
             if mode == "dark-mode":
@@ -193,6 +240,31 @@ class MarkdownRenderer:
             except Exception:
                 # Skip invalid selectors
                 continue
+
+        # Generate <style> block for pseudo-element rules
+        if pseudo_element_rules:
+            style_block_parts = []
+            for selector, style_properties in pseudo_element_rules:
+                # Apply mode and platform adjustments
+                adjusted_style = style_properties
+                if mode == "dark-mode":
+                    adjusted_style = self._apply_dark_mode_adjustments_to_style(
+                        adjusted_style
+                    )
+                if platform == "wechat":
+                    adjusted_style = self._adjust_for_wechat_style(adjusted_style)
+                elif platform == "xiaohongshu":
+                    adjusted_style = self._adjust_for_xiaohongshu_style(adjusted_style)
+                elif platform == "zhihu":
+                    adjusted_style = self._adjust_for_zhihu_style(adjusted_style)
+
+                # Convert inline style format to CSS format
+                css_properties = adjusted_style.strip().rstrip(";")
+                style_block_parts.append(f"  {selector} {{ {css_properties} }}")
+
+            style_tag = soup.new_tag("style")
+            style_tag.string = "\n".join(style_block_parts)
+            soup.insert(0, style_tag)
 
         # Get container styles
         container_style = custom_styles.get("container", "")
