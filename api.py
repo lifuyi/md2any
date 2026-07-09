@@ -138,22 +138,47 @@ def ensure_nvidia_client() -> OpenAI:
     return nvidia_client
 
 
+# Agnes AI Client Management
+agnes_client: Optional[OpenAI] = None
+
+
+def get_agnes_client() -> OpenAI:
+    """Initialize Agnes AI client with API key from environment"""
+    api_key = os.getenv("AGNES_API_KEY")
+    if not api_key:
+        raise ValueError(
+            "AGNES_API_KEY environment variable not set. "
+            "Please set it before running the application."
+        )
+    return OpenAI(api_key=api_key, base_url="https://apihub.agnes-ai.com/v1")
+
+
+def ensure_agnes_client() -> OpenAI:
+    """Ensure Agnes AI client is initialized"""
+    global agnes_client
+    if agnes_client is None:
+        agnes_client = get_agnes_client()
+    return agnes_client
+
+
 def get_ai_client() -> OpenAI:
     """Get the configured AI client based on AI_PROVIDER setting"""
-    provider = os.getenv("AI_PROVIDER", "glm").lower()
+    provider = os.getenv("AI_PROVIDER", "agnes").lower()
     if provider == "nvidia":
         return ensure_nvidia_client()
     elif provider == "glm":
         return ensure_glm_client()
+    elif provider == "agnes":
+        return ensure_agnes_client()
     else:
-        # Default to GLM if unknown provider
-        logger.warning(f"Unknown AI provider '{provider}', defaulting to GLM")
-        return ensure_glm_client()
+        # Default to Agnes if unknown provider
+        logger.warning(f"Unknown AI provider '{provider}', defaulting to Agnes")
+        return ensure_agnes_client()
 
 
 def get_ai_model(task_type: str = "general") -> str:
     """Get the appropriate AI model based on provider and task type"""
-    provider = os.getenv("AI_PROVIDER", "glm").lower()
+    provider = os.getenv("AI_PROVIDER", "agnes").lower()
 
     if provider == "nvidia":
         # NVIDIA uses DeepSeek models
@@ -164,9 +189,12 @@ def get_ai_model(task_type: str = "general") -> str:
     elif provider == "glm":
         # GLM uses glm-4.5-flash for most tasks
         return "glm-4.5-flash"
+    elif provider == "agnes":
+        # Agnes uses agnes-2.0-flash for most tasks
+        return "agnes-2.0-flash"
     else:
         # Default fallback
-        return "glm-4.5-flash"
+        return "agnes-2.0-flash"
 
 
 def handle_wechat_error(error: WeChatError):
