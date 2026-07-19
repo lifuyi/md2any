@@ -1,0 +1,28 @@
+{
+  "name": "Hische·编辑部",
+  "styles": {
+    "container": "max-width: 700px; margin: 0 auto; padding: 70px 50px; font-family: \"Crimson Text\", Garamond, serif; font-size: 19px; line-height: 1.75 !important; color: #2c2c2c !important; background-color: #fffef9 !important; word-wrap: break-word;",
+    "h1": "font-size: 52px; font-weight: 400; color: #c9302c !important; line-height: 1.15 !important; margin: 70px 0 35px; letter-spacing: -0.03em; font-family: \"Bodoni MT\", \"Didot\", serif; text-align: center;",
+    "h2": "font-size: 38px; font-weight: 400; color: #2c2c2c !important; line-height: 1.25 !important; margin: 60px 0 30px; letter-spacing: -0.02em; font-family: \"Bodoni MT\", \"Didot\", serif; border-top: 1px solid #c9302c; border-bottom: 1px solid #c9302c; padding: 15px 0; text-align: center;",
+    "h3": "font-size: 30px; font-weight: 400; color: #2c2c2c !important; line-height: 1.35 !important; margin: 50px 0 25px; font-family: \"Bodoni MT\", \"Didot\", serif;",
+    "h4": "font-size: 24px; font-weight: 600; color: #2c2c2c !important; line-height: 1.4 !important; margin: 40px 0 20px; text-transform: uppercase; letter-spacing: 0.05em; font-size: 18px;",
+    "h5": "font-size: 20px; font-weight: 400; color: #2c2c2c !important; line-height: 1.45 !important; margin: 30px 0 15px; font-style: italic;",
+    "h6": "font-size: 18px; font-weight: 400; color: #666 !important; line-height: 1.5 !important; margin: 25px 0 12px;",
+    "p": "margin: 28px 0 !important; line-height: 1.75 !important; color: #2c2c2c !important; text-align: justify;",
+    "strong": "font-weight: 700; color: #c9302c !important; letter-spacing: 0.02em;",
+    "em": "font-style: italic; color: #2c2c2c !important;",
+    "a": "color: #c9302c !important; text-decoration: none; border-bottom: 1px solid #c9302c;",
+    "ul": "margin: 35px 0; padding-left: 25px; list-style: disc;",
+    "ol": "margin: 35px 0; padding-left: 25px;",
+    "li": "margin: 12px 0; line-height: 1.75 !important; color: #2c2c2c !important;",
+    "blockquote": "margin: 45px 0; padding: 0 40px; background-color: transparent !important; border-left: none; color: #2c2c2c !important; font-size: 24px; line-height: 1.6 !important; font-style: italic; text-align: center; font-family: \"Bodoni MT\", \"Didot\", serif;",
+    "code": "font-family: \"Courier Prime\", monospace; font-size: 17px; padding: 2px 6px; background-color: #f9f9f9 !important; color: #c9302c !important; border: 1px solid #e0e0e0;",
+    "pre": "margin: 40px 0; padding: 30px; background-color: #f9f9f9 !important; border-left: 5px solid #c9302c; overflow-x: auto; line-height: 1.6 !important;",
+    "hr": "margin: 70px auto; border: none; height: 1px; background-color: #c9302c !important; max-width: 100px;",
+    "img": "max-width: 100%; max-height: 600px !important; height: auto; display: block; margin: 45px auto; border: 1px solid #e0e0e0;",
+    "table": "width: 100%; margin: 40px 0; border-collapse: collapse; font-size: 17px;",
+    "th": "background-color: #f9f9f9 !important; padding: 15px; text-align: left; border-top: 2px solid #c9302c; border-bottom: 2px solid #c9302c; font-weight: 700; color: #2c2c2c !important; text-transform: uppercase; letter-spacing: 0.05em; font-size: 14px;",
+    "td": "padding: 15px; border-bottom: 1px solid #e0e0e0; color: #2c2c2c !important;",
+    "tr": "border-bottom: 1px solid #e0e0e0;"
+  }
+}

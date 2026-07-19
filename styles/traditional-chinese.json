@@ -1,0 +1,29 @@
+{
+  "name": "中国传统",
+  "styles": {
+    "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: \"STKaiti\", \"FangSong\", \"SimSun\", serif; font-size: 16px; line-height: 1.8 !important; color: #3f3f3f !important; background-color: #f8f0e0; word-wrap: break-word;",
+    "h1": "\n  font-family: \"STKaiti\", \"FangSong\", serif;\n  font-size: 32px;\n  position: relative;\n  color: #8b0000; /* 暗红色 */\n  margin-bottom: 20px;\n  letter-spacing: 4px;\n  font-weight: 600;\n  text-align: center;\n  padding: 10px 0;\n  line-height: 1.5;\n",
+    "h2": "\n  font-size: 18px;\n  color: #5c3317; /* 深棕色 */\n  margin-bottom: 24px;\n  font-weight: 400;\n  letter-spacing: 2px;\n  text-align: center;\n  position: relative;\n  padding-bottom: 15px;\n  font-family: \"STKaiti\", \"FangSong\", serif;\n",
+    "h3": "\n  display: block;\n  color: #8b0000;\n  margin-bottom: 6px;\n  font-size: 17px;\n  font-weight: 600;\n",
+    "h4": "font-size: 18px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 20px 0 10px;",
+    "h5": "font-size: 17px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 18px 0 9px;",
+    "h6": "\n  color: #6b8c42;\n  margin-top: 1.2em;\n  margin-bottom: 0.5em;\n  font-weight: 700;\n  border-bottom: 1px solid #d4d9c9;\n  padding-bottom: 0.3em;\n",
+    "p": "\n  color: #333;\n",
+    "strong": "\n  color: #8b0000;\n  font-weight: 600;\n",
+    "em": "\n  color: #a52a2a;\n  font-style: italic;\n",
+    "a": "\n  color: #8b0000;\n  text-decoration: none;\n  border-bottom: 1px solid rgba(165, 42, 42, 0.3);\n  transition: all 0.3s ease;\n",
+    "ul": "\n  padding-left: 0;\n",
+    "ol": "\n  list-style: none;\n  padding: 0.5em 3.5em;\n  counter-reset: decorated-counter;\n  margin-bottom: 1.5em;\n",
+    "li": "\n  position: relative;\n  \n  \n  margin-bottom: 20px;\n  padding-left: 40px;\n  color: #333;\n  font-size: 16px;\n  text-align: justify;\n",
+    "ol > li": "position: relative; counter-increment: item; list-style: none; margin-bottom: 20px; padding-left: 40px;",
+    "blockquote": "\n  background-color: rgba(248, 240, 224, 0.7);\n  border-left: 4px solid #a52a2a;\n  color: #5c3317;\n  padding: 15px 20px;\n  margin: 20px 0;\n  font-style: italic;\n  position: relative;\n",
+    "code": "\n  display: block;\n  padding-left: 15px;\n  line-height: 1.5;\n",
+    "pre": "\n  border: 1px solid rgba(165, 42, 42, 0.3);\n  background-color: rgba(248, 240, 224, 0.5);\n  border-radius: 4px;\n  padding: 15px;\n  overflow-x: auto;\n",
+    "hr": "\n  height: 1px;\n  border: none;\n  background: repeating-linear-gradient(\n    90deg,\n    #a52a2a,\n    #a52a2a 4px,\n    transparent 4px,\n    transparent 8px\n  );\n  margin: 25px 0;\n",
+    "img": "\n  border: 4px double #a52a2a;\n  max-width: 100%;\n  height: auto;\n  margin: 15px 0;\n  display: block;\n  margin-left: auto;\n  margin-right: auto;\n",
+    "table": "\n  border-collapse: collapse;\n  margin: 20px 0;\n  width: 100%;\n  border: 1px solid #a52a2a;\n",
+    "th": "\n  background-color: rgba(165, 42, 42, 0.1);\n  color: #8b0000;\n  padding: 10px;\n  text-align: center;\n  border: 1px solid #a52a2a;\n  font-weight: 600;\n",
+    "td": "\n  color: #333;\n  padding: 10px;\n  border: 1px solid rgba(165, 42, 42, 0.3);\n  text-align: center;\n",
+    "tr": "border-bottom: 1px solid #e0e0e0;"
+  }
+}

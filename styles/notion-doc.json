@@ -1,0 +1,45 @@
+{
+  "name": "极简文档",
+  "description": "Notion 风格：灰阶文字 #37352F + 红色行内代码 + 浅灰 callout，零装饰，科技读者的熟悉感",
+  "modes": [
+    {
+      "name": "默认",
+      "id": "light-mode",
+      "class": "",
+      "background": "#ffffff"
+    }
+  ],
+  "styles": {
+    "container": "background-color: #ffffff;",
+    "h1": "font-size: 25px; font-weight: 700; color: #37352F; text-align: left; margin-top: 28px; margin-bottom: 16px; line-height: 1.3; letter-spacing: 0.3px;",
+    "h2": "display: flex; line-height: 1.3;",
+    "h3": "font-size: 17px; font-weight: 700; color: #37352F; margin-top: 28px; margin-bottom: 10px; line-height: 1.3;",
+    "h4": "font-size: 16px; font-weight: 700; color: #37352F; margin-top: 22px; margin-bottom: 8px; line-height: 1.3;",
+    "h5": "font-size: 15px; font-weight: 700; color: #54514A; margin-top: 18px; margin-bottom: 6px; line-height: 1.3;",
+    "h6": "font-size: 15px; font-weight: 700; color: #787569; margin-top: 16px; margin-bottom: 6px; line-height: 1.3;",
+    "p": "font-size: 16px; color: #37352F; line-height: 1.75; margin-top: 0; margin-bottom: 18px; letter-spacing: 0.4px; text-align: left;",
+    "blockquote": "border-left: 3px solid #37352F; background: #F7F6F3; margin-top: 16px; margin-bottom: 16px; border-radius: 4px; font-size: 16px; color: #37352F; line-height: 1.75; border: none;",
+    "blockquote p": "font-size: 14px; color: #54514A; line-height: 1.7; margin-bottom: 0; letter-spacing: 0.3px; font-style: normal; background: transparent;",
+    "strong": "font-weight: 700; color: #1D1B16;",
+    "em": "font-style: italic; color: #54514A;",
+    "a": "color: #37352F; text-decoration: underline;",
+    "img": "max-width: 100%; border-radius: 3px; display: block; box-shadow: none; border: 1px solid #E9E9E7; background: #ffffff; margin-top: 12px; margin-bottom: 12px;",
+    "hr": "margin-top: 28px; margin-bottom: 28px; height: 1px; background: #E9E9E7; border: none;",
+    "code": "background: rgba(135,131,120,0.15); border-radius: 3px; font-size: 88%; color: #EB5757; font-family: 'SFMono-Regular', Menlo, Consolas, 'Courier New', monospace;",
+    "pre": "background: #F7F6F3; border-radius: 0; margin-top: 0; margin-bottom: 0; overflow: hidden; border: 1px solid #E9E9E7; color: #37352F; overflow-x: auto; font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; word-break: break-all;",
+    "pre::before": "display: flex; align-items: center; height: 32px; background: #EFEEEB;",
+    "pre code": "background: none; color: #37352F; font-size: 13px; font-family: 'SFMono-Regular', Menlo, Consolas, 'Courier New', monospace;",
+    "table": "width: 100%; border-collapse: separate; margin-top: 16px; margin-bottom: 18px; font-size: 14px; border-spacing: 0; border: 1px solid #E9E9E7; border-radius: 4px; overflow: hidden;",
+    "th": "background: #F7F6F3; border-bottom: 1px solid #E9E9E7; text-align: left; font-weight: 600; color: #54514A;",
+    "td": "border-bottom: 1px solid #F1F1EF; color: #37352F;",
+    "ul li::marker": "color: #37352F; margin-right: 9px; font-weight: normal;",
+    "ol li::marker": "color: #37352F; font-size: 16px; font-weight: normal; margin-right: 9px; min-width: 18px;",
+    "li": "font-size: 16px; color: #37352F; line-height: 1.75; letter-spacing: 0.4px; display: flex; margin-bottom: 6px; align-items: flex-start;",
+    "ul": "margin-top: 12px; margin-bottom: 12px;",
+    "footnotes": "margin-top: 32px; padding-top: 14px; border-top: 1px solid #E9E9E7;",
+    "footnotes h2": "font-size: 14px; font-weight: 600; color: #787569; margin-bottom: 10px;",
+    "footnotes li": "font-size: 13px; color: #787569; margin-bottom: 6px; line-height: 1.6; word-break: break-all;",
+    "sup": "font-size: 12px; color: #2383E2; vertical-align: super; margin-left: 2px;",
+    "blockquote strong": "font-weight: 600; color: #37352F; margin-bottom: 6px; font-size: 15px;"
+  }
+}

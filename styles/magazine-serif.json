@@ -1,0 +1,44 @@
+{
+  "name": "杂志 Serif",
+  "description": "印刷级杂志大字风 + Source Serif/Georgia 衬线 + 黑白对比 + 正红 #D11A2A 点缀。超大 H1 (30px) 居中压字距、H2 小型大写下 1px 细线、H3 italic 斜体、H4 uppercase 红色标签、p 两端对齐+首行缩进。适合深度解读/人物稿/读书笔记/长评论。",
+  "modes": [
+    {
+      "name": "默认",
+      "id": "light-mode",
+      "class": "",
+      "background": "#FFFFFF"
+    }
+  ],
+  "styles": {
+    "container": "background-color: #FFFFFF; font-family: 'Source Serif Pro',Georgia,'Songti SC','PingFang SC',serif;",
+    "h1": "font-size: 28px; font-weight: 700; color: #111111; text-align: center; line-height: 1.3; margin-top: 36px; margin-bottom: 26px; letter-spacing: -0.01em; padding-bottom: 14px; border-bottom: 3px solid #111111; font-family: 'Source Serif Pro',Georgia,'Songti SC',serif;",
+    "h2": "font-size: 22px; font-weight: 700; color: #111111; line-height: 1.35; margin-top: 32px; margin-bottom: 16px; padding-bottom: 6px; border-bottom: 1px solid #111111; letter-spacing: 1px;",
+    "h3": "font-size: 22px; font-weight: 600; font-style: italic; color: #111111; line-height: 1.4; margin-top: 26px; margin-bottom: 14px; font-family: 'Source Serif Pro',Georgia,'Songti SC',serif;",
+    "h4": "font-size: 13px; font-weight: 700; color: #D11A2A; line-height: 1.5; margin-top: 22px; margin-bottom: 10px; letter-spacing: 2.5px; text-transform: uppercase;",
+    "h5": "font-size: 15px; font-weight: 600; color: #333333; margin-top: 18px; margin-bottom: 8px; line-height: 1.5;",
+    "h6": "font-size: 13px; font-weight: 600; color: #666666; margin-top: 16px; margin-bottom: 6px; line-height: 1.5; letter-spacing: 1px;",
+    "p": "font-size: 17px; color: #111111; line-height: 1.9; margin-top: 0; margin-bottom: 18px; letter-spacing: 0.2px; text-align: justify;",
+    "blockquote": "font-size: 19px; color: #333333; line-height: 1.75; text-align: center; font-style: italic; border-top: 2px solid #111111; border-bottom: 2px solid #111111; background: transparent; font-family: 'Source Serif Pro',Georgia,'Songti SC',serif;",
+    "blockquote p": "font-size: 19px; color: #333333; line-height: 1.75; margin-bottom: 0; letter-spacing: 0.3px; background: transparent; font-style: italic;",
+    "strong": "font-weight: 700; color: #D11A2A;",
+    "em": "font-style: italic; color: #555555;",
+    "a": "color: #D11A2A; text-decoration: underline; text-underline-offset: 3px;",
+    "img": "max-width: 100%; border-radius: 0; display: block; margin-top: 18px; margin-bottom: 18px; background: transparent;",
+    "hr": "margin-top: 32px; margin-bottom: 32px; height: 3px; width: 60px; background: #111111; border: none;",
+    "code": "background: #F2F2F0; border-radius: 2px; font-size: 90%; color: #111111; font-family: 'SF Mono',Menlo,Consolas,monospace;",
+    "pre": "background: #F9F9F5; border: 1px solid #E0E0DC; border-radius: 0; margin-top: 0; margin-bottom: 0; overflow: hidden; color: #111111; overflow-x: auto; font-size: 13px; line-height: 1.7; white-space: pre-wrap; word-wrap: break-word;",
+    "pre::before": "display: flex; align-items: center; height: 30px; background: #111111; color: #FFFFFF; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;",
+    "pre code": "background: none; color: #111111; font-size: 13px; font-family: 'SF Mono',Menlo,Consolas,monospace;",
+    "table": "width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 20px; font-size: 14px;",
+    "th": "text-align: left; font-weight: 700; color: #111111; background: transparent; border-bottom: 2px solid #111111; letter-spacing: 1px; text-transform: uppercase; font-size: 12px;",
+    "td": "border-bottom: 1px solid #E0E0DC; color: #111111;",
+    "ul li::marker": "color: #D11A2A; margin-right: 10px; font-weight: bold;",
+    "ol li::marker": "color: #D11A2A; font-weight: 700; margin-right: 10px;",
+    "li": "font-size: 17px; color: #111111; line-height: 1.9; letter-spacing: 0.2px; display: flex; margin-bottom: 6px; align-items: flex-start;",
+    "ul": "margin-top: 14px; margin-bottom: 14px;",
+    "footnotes": "margin-top: 36px; padding-top: 18px; border-top: 1px solid #111111;",
+    "footnotes h2": "font-size: 12px; font-weight: 700; color: #111111; margin-bottom: 12px; letter-spacing: 2px; text-transform: uppercase;",
+    "footnotes li": "font-size: 13px; color: #555555; margin-bottom: 6px; line-height: 1.6; word-break: break-all;",
+    "sup": "font-size: 12px; color: #D11A2A; vertical-align: super; margin-left: 2px;"
+  }
+}

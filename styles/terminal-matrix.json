@@ -1,0 +1,44 @@
+{
+  "name": "终端矩阵",
+  "description": "老派黑客终端风，纯黑 #0A0A0A + 荧光绿 #00FF41 单色通透，全局等宽字体 JetBrains Mono。H1 左 4px 绿条+uppercase 大字距、H2 绿色粗体+ `>` 风装饰、p 等宽绿色 14px、blockquote 左条缩进、hr 绿色虚线。专门用于极客向技术笔记/黑客文化/CTF writeup/OS 深度/CLI 工具教程。(vs cyber-neon 用青+品红双色装饰多,本主题单绿单调工程感)",
+  "modes": [
+    {
+      "name": "默认",
+      "id": "light-mode",
+      "class": "",
+      "background": "#0A0A0A"
+    }
+  ],
+  "styles": {
+    "container": "background-color: #0A0A0A; font-family: 'JetBrains Mono','SF Mono',Menlo,Consolas,'PingFang SC',monospace;",
+    "h1": "font-size: 22px; font-weight: 700; color: #00FF41; line-height: 1.4; margin-top: 36px; margin-bottom: 22px; padding-left: 20px; border-left: 4px solid #00FF41; letter-spacing: 2px; text-transform: uppercase;",
+    "h2": "font-size: 18px; font-weight: 700; color: #00FF41; line-height: 1.45; margin-top: 30px; margin-bottom: 14px; padding-left: 16px; border-left: 3px solid #00FF41; letter-spacing: 1.5px;",
+    "h3": "font-size: 16px; font-weight: 600; color: #00CC33; line-height: 1.5; margin-top: 24px; margin-bottom: 12px; padding-left: 14px; border-left: 2px dashed #00CC33;",
+    "h4": "font-size: 13px; font-weight: 700; color: #008F2C; margin-top: 20px; margin-bottom: 10px; line-height: 1.55; letter-spacing: 2px; text-transform: uppercase;",
+    "h5": "font-size: 13px; font-weight: 600; color: #70C970; margin-top: 18px; margin-bottom: 8px; line-height: 1.55;",
+    "h6": "font-size: 12px; font-weight: 600; color: #4A7A4A; margin-top: 16px; margin-bottom: 6px; line-height: 1.55;",
+    "p": "font-size: 15px; color: #B0F5B0; line-height: 1.75; margin-top: 0; margin-bottom: 14px; letter-spacing: 0.2px;",
+    "blockquote": "border-left: 2px solid #00FF41; background: transparent; margin-top: 20px; margin-bottom: 20px; font-size: 13px; color: #70C970; line-height: 1.7; font-style: italic;",
+    "blockquote p": "font-size: 13px; color: #70C970; line-height: 1.7; margin-bottom: 0; background: transparent; font-style: italic;",
+    "strong": "font-weight: 700; color: #00FF41;",
+    "em": "font-style: italic; color: #70C970;",
+    "a": "color: #00FF41; text-decoration: underline; text-decoration-style: dashed; text-underline-offset: 3px;",
+    "img": "max-width: 100%; border-radius: 0; display: block; border: 1px solid #00FF41; background: transparent; margin-top: 16px; margin-bottom: 16px;",
+    "hr": "margin-top: 30px; margin-bottom: 30px; height: 0; border: none; border-top: 1px dashed #00FF41;",
+    "code": "background: rgba(0,255,65,0.12); border-radius: 0; font-size: 90%; color: #00FF41; font-family: 'JetBrains Mono','SF Mono',Menlo,monospace;",
+    "pre": "background: #000000; border: 1px solid #1A3A1A; border-radius: 0; margin-top: 0; margin-bottom: 0; overflow: hidden; color: #00FF41; overflow-x: auto; font-size: 13px; line-height: 1.65; white-space: pre-wrap; word-wrap: break-word;",
+    "pre::before": "display: flex; align-items: center; height: 28px; background: #00FF41; color: #000000; font-size: 11px; letter-spacing: 1.5px; font-weight: 700; text-transform: uppercase;",
+    "pre code": "background: none; color: #00FF41; font-size: 13px; font-family: 'JetBrains Mono','SF Mono',Menlo,monospace;",
+    "table": "width: 100%; border-collapse: collapse; margin-top: 18px; margin-bottom: 18px; font-size: 13px; border: 1px dashed rgba(0,255,65,0.3);",
+    "th": "text-align: left; font-weight: 700; color: #00FF41; background: rgba(0,255,65,0.15); border-bottom: 1px solid #00FF41; letter-spacing: 1px; text-transform: uppercase; font-size: 11px;",
+    "td": "border-bottom: 1px dashed rgba(0,255,65,0.2); color: #B0F5B0;",
+    "ul li::marker": "color: #00FF41; margin-right: 10px; font-weight: 700;",
+    "ol li::marker": "color: #00FF41; font-weight: 700; margin-right: 10px;",
+    "li": "font-size: 14px; color: #B0F5B0; line-height: 1.75; letter-spacing: 0.2px; display: flex; margin-bottom: 6px; align-items: flex-start;",
+    "ul": "margin-top: 12px; margin-bottom: 12px;",
+    "footnotes": "margin-top: 32px; padding-top: 14px; border-top: 1px dashed #00FF41;",
+    "footnotes h2": "font-size: 11px; font-weight: 700; color: #00FF41; margin-bottom: 10px; letter-spacing: 2px; text-transform: uppercase;",
+    "footnotes li": "font-size: 11px; color: #70C970; margin-bottom: 6px; line-height: 1.55; word-break: break-all;",
+    "sup": "font-size: 11px; color: #00FF41; vertical-align: super; margin-left: 2px;"
+  }
+}

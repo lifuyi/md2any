@@ -1,0 +1,32 @@
+{
+  "name": "玻璃拟态",
+  "styles": {
+    "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: \"SF Pro Display\", \"PingFang SC\", sans-serif; font-size: 16px; line-height: 1.8 !important; color: rgba(255, 255, 255, 0.85); background-color: #161616; word-wrap: break-word;",
+    "innerContainer": "background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%); border-radius: 24px; padding: 36px; margin: 30px 0; box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.15); position: relative; overflow: hidden; transition: all 0.4s ease;",
+    "innerContainer::before": "content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(0, 242, 254, 0.6), transparent); opacity: 0.8;",
+    "innerContainer:hover": "border-color: rgba(0, 242, 254, 0.3); box-shadow: 0 20px 56px rgba(0, 242, 254, 0.15); transform: translateY(-2px);",
+    "h1": "\n  font-size: 28px;\n  color: #00f2fe;\n  margin-bottom: 15px;\n  letter-spacing: 0.5px;\n  font-weight: 600;\n  position: relative;\n  text-align: center;\n",
+    "h2": "\n  font-size: 16px;\n  color: rgba(255, 255, 255, 0.8);\n  margin-bottom: 24px;\n  font-weight: 400;\n  letter-spacing: 0.5px;\n  text-align: center;\n  position: relative;\n",
+    "h3": "\n  display: block;\n  color: #00f2fe;\n  margin-bottom: 6px;\n  font-size: 16px;\n  font-weight: 600;\n  letter-spacing: 0.5px;\n",
+    "h4": "font-size: 18px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 20px 0 10px;",
+    "h5": "font-size: 17px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 18px 0 9px;",
+    "h6": "\n  color: #6b8c42;\n  margin-top: 1.2em;\n  margin-bottom: 0.5em;\n  font-weight: 700;\n  border-bottom: 1px solid #d4d9c9;\n  padding-bottom: 0.3em;\n",
+    "p": "\n  color: rgba(255, 255, 255, 0.85);\n  font-size: 15px;\n  position: relative;\n",
+    "strong": "\n  color: #00f2fe;\n  font-weight: 600;\n",
+    "em": "\n  color: #00f2fe;\n  font-style: italic;\n",
+    "a": "\n  color: #4facfe;\n  text-decoration: none;\n  border-bottom: 1px dashed rgba(79, 172, 254, 0.5);\n  transition: all 0.3s ease;\n  position: relative;\n",
+    "ul": "\n  padding-left: 0;\n  display: grid;\n  grid-template-columns: repeat(2, 1fr);\n  gap: 15px;\n  margin: 20px 0;\n",
+    "ol": "\n  counter-reset: item;\n  padding-left: 0;\n  margin: 20px 0;\n",
+    "li": "\n  position: relative;\n  \n  \n  margin-bottom: 16px;\n  padding-left: 40px;\n  color: rgba(255, 255, 255, 0.85);\n  line-height: 1.6;\n  font-size: 15px;\n",
+    "ol > li": "position: relative; counter-increment: item; list-style: none; margin-bottom: 16px; padding-left: 40px;",
+    "blockquote": "\n  background: rgba(0, 0, 0, 0.1);\n  border-left: 3px solid #4facfe;\n  color: rgba(255, 255, 255, 0.8);\n  padding: 15px 20px;\n  margin: 20px 0;\n  font-style: italic;\n  position: relative;\n  border-radius: 0 8px 8px 0;\n  backdrop-filter: blur(5px);\n  -webkit-backdrop-filter: blur(5px);\n",
+    "code": "\n  display: block;\n  padding-left: 15px;\n  line-height: 1.5;\n",
+    "pre": "\n  background: rgba(0, 0, 0, 0.2) !important;\n  border: 1px solid rgba(255, 255, 255, 0.18);\n  border-radius: 8px;\n  padding: 16px;\n  margin: 20px 0;\n  overflow-x: auto;\n  position: relative;\n  backdrop-filter: blur(5px);\n  -webkit-backdrop-filter: blur(5px);\n",
+    "hr": "\n  border: 0;\n  height: 1px;\n  background: linear-gradient(\n    90deg,\n    transparent,\n    rgba(79, 172, 254, 0.5),\n    transparent\n  );\n  margin: 25px 0;\n",
+    "img": "\n  max-width: 100%;\n  border: 1px solid rgba(255, 255, 255, 0.2);\n  border-radius: 8px;\n  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);\n  margin: 20px 0;\n  backdrop-filter: blur(5px);\n  -webkit-backdrop-filter: blur(5px);\n",
+    "table": "\n  width: 100%;\n  border-collapse: collapse;\n  margin: 20px 0;\n  background: rgba(255, 255, 255, 0.1);\n  border-radius: 8px;\n  overflow: hidden;\n  backdrop-filter: blur(5px);\n  -webkit-backdrop-filter: blur(5px);\n  border: 1px solid rgba(255, 255, 255, 0.2);\n",
+    "th": "\n  background: rgba(79, 172, 254, 0.2);\n  color: rgba(255, 255, 255, 0.9);\n  border-bottom: 1px solid rgba(255, 255, 255, 0.2);\n  padding: 12px;\n  font-weight: 600;\n  text-align: left;\n",
+    "td": "\n  color: rgba(255, 255, 255, 0.8);\n  padding: 12px;\n  border-bottom: 1px solid rgba(255, 255, 255, 0.1);\n",
+    "tr": "\n  border-bottom-color: #ffeae0;\n"
+  }
+}

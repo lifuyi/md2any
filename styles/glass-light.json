@@ -1,0 +1,45 @@
+{
+  "name": "琉璃",
+  "description": "伪玻璃态：靛紫渐变底 + 半透明白卡 + 细白边框（微信不支持毛玻璃 blur，用透明度+渐变模拟）",
+  "modes": [
+    {
+      "name": "默认",
+      "id": "light-mode",
+      "class": "",
+      "background": "#EEF2FF"
+    }
+  ],
+  "styles": {
+    "container": "background: linear-gradient(160deg, #E0E7FF 0%, #FCE7F3 50%, #DBEAFE 100%);",
+    "h1": "display: inline-block; justify-content: center; line-height: 1.4; font-size: 24px; font-weight: 800; color: #312E81; text-align: center; background: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.95); border-radius: 16px; letter-spacing: 1px; box-shadow: 0 8px 24px rgba(99,102,241,0.14);",
+    "h2": "display: flex; align-items: center; line-height: 1.4;",
+    "h3": "font-size: 17px; font-weight: bold; color: #4F46E5; border-left: 4px solid #A5B4FC; margin-top: 28px; margin-bottom: 10px; line-height: 1.35;",
+    "h4": "font-size: 16px; font-weight: bold; color: #3F3D56; margin-top: 24px; margin-bottom: 8px; line-height: 1.35;",
+    "h5": "font-size: 15px; font-weight: bold; color: #52507A; margin-top: 20px; margin-bottom: 6px; line-height: 1.35;",
+    "h6": "font-size: 15px; font-weight: bold; color: #6E6CA8; margin-top: 16px; margin-bottom: 6px; line-height: 1.35;",
+    "p": "font-size: 16px; color: #2A2A3C; line-height: 1.8; margin-top: 0; margin-bottom: 20px; letter-spacing: 0.5px; text-align: justify;",
+    "blockquote": "border: 1px solid rgba(255,255,255,0.9); background: rgba(255,255,255,0.6); margin-top: 16px; margin-bottom: 16px; border-radius: 12px; font-size: 15px; color: #4338CA; line-height: 1.78; box-shadow: 0 4px 14px rgba(99,102,241,0.08); border-left: 4px solid #6366F1;",
+    "blockquote p": "font-size: 14px; color: #3F3D56; line-height: 1.75; margin-bottom: 0; letter-spacing: 0.3px; font-style: normal; background: transparent;",
+    "strong": "font-weight: bold; color: #4F46E5;",
+    "em": "font-style: normal; font-weight: bold; color: #DB2777;",
+    "a": "color: #4F46E5; text-decoration: none; border-bottom: 1px solid rgba(99,102,241,0.35);",
+    "img": "max-width: 100%; border-radius: 16px; display: block; box-shadow: 0 8px 24px rgba(99,102,241,0.16); background: rgba(255,255,255,0.55); margin-top: 14px; margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.9);",
+    "hr": "margin-top: 32px; margin-bottom: 32px; height: 1px; background: linear-gradient(to right, rgba(99,102,241,0), rgba(99,102,241,0.5), rgba(219,39,119,0.4), rgba(99,102,241,0)); border: none;",
+    "code": "background: rgba(99,102,241,0.12); border-radius: 5px; font-size: 90%; color: #4F46E5; font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;",
+    "pre": "background: rgba(49,46,129,0.95); border-radius: 0; margin-top: 0; margin-bottom: 0; overflow: hidden; border: 1px solid rgba(255,255,255,0.4); box-shadow: 0 8px 24px rgba(49,46,129,0.25); color: #E0E7FF; overflow-x: auto; font-size: 14px; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; word-break: break-all;",
+    "pre::before": "display: flex; align-items: center; height: 36px; background: rgba(30,27,75,0.95);",
+    "pre code": "background: none; color: #E0E7FF; font-size: 14px; font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;",
+    "table": "width: 100%; border-collapse: separate; margin-top: 16px; margin-bottom: 20px; font-size: 14px; border-spacing: 0; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.9); background: rgba(255,255,255,0.6);",
+    "th": "background: rgba(99,102,241,0.14); border-bottom: 1px solid rgba(99,102,241,0.2); text-align: left; font-weight: bold; color: #312E81;",
+    "td": "border-bottom: 1px solid rgba(99,102,241,0.08); color: #2A2A3C;",
+    "ul li::marker": "color: #6366F1; margin-right: 8px; font-weight: bold;",
+    "ol li::marker": "display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; min-width: 22px; background: rgba(255,255,255,0.7); border: 1px solid rgba(99,102,241,0.35); color: #4F46E5; border-radius: 50%; font-size: 13px; font-weight: bold; margin-right: 10px; margin-top: 4px;",
+    "li": "font-size: 16px; color: #2A2A3C; line-height: 1.8; letter-spacing: 0.5px; display: flex; margin-bottom: 8px; align-items: flex-start;",
+    "ul": "margin-top: 15px; margin-bottom: 15px;",
+    "footnotes": "margin-top: 32px; background: rgba(255,255,255,0.5); border-radius: 12px; border: 1px solid rgba(255,255,255,0.85);",
+    "footnotes h2": "font-size: 14px; font-weight: bold; color: #6E6CA8; margin-bottom: 12px;",
+    "footnotes li": "font-size: 13px; color: #6E6CA8; margin-bottom: 6px; line-height: 1.6; word-break: break-all;",
+    "sup": "font-size: 12px; color: #4F46E5; vertical-align: super; margin-left: 2px;",
+    "blockquote strong": "font-weight: bold; color: #4F46E5; margin-bottom: 8px; font-size: 15px;"
+  }
+}

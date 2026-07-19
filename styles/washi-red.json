@@ -1,0 +1,44 @@
+{
+  "name": "和风朱绿",
+  "description": "日式和纸米底 #FBF6E7 + 朱红 #C93756 + 墨绿 #3F6A4E 双色对冲。Hiragino Mincho 明朝体，H1 上下 4px 朱红粗线夹持、H2 墨绿文字+左 6px 朱红竖条、H3 朱红+虚墨绿底线、blockquote 朱红竖条+墨绿文字。留白大、双色强对比。适合日系/文化/生活美学/慢读内容。",
+  "modes": [
+    {
+      "name": "默认",
+      "id": "light-mode",
+      "class": "",
+      "background": "#FBF6E7"
+    }
+  ],
+  "styles": {
+    "container": "background-color: #FBF6E7; font-family: 'Hiragino Mincho ProN','Yu Mincho','Songti SC','Noto Serif JP',serif;",
+    "h1": "font-size: 24px; font-weight: 700; color: #C93756; text-align: center; line-height: 1.5; margin-top: 38px; margin-bottom: 28px; border-top: 4px solid #C93756; border-bottom: 4px solid #C93756; letter-spacing: 3px;",
+    "h2": "font-size: 20px; font-weight: 700; color: #3F6A4E; line-height: 1.5; margin-top: 34px; margin-bottom: 18px; padding-left: 18px; border-left: 6px solid #C93756; letter-spacing: 2px;",
+    "h3": "font-size: 18px; font-weight: 600; color: #C93756; line-height: 1.55; margin-top: 26px; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px dashed #3F6A4E; letter-spacing: 1px;",
+    "h4": "font-size: 16px; font-weight: 600; font-style: italic; color: #3F6A4E; line-height: 1.6; margin-top: 20px; margin-bottom: 10px; padding-left: 10px; border-left: 2px solid #C93756;",
+    "h5": "font-size: 15px; font-weight: 600; color: #3F6A4E; margin-top: 18px; margin-bottom: 8px; line-height: 1.6;",
+    "h6": "font-size: 13px; font-weight: 600; color: #6A6253; margin-top: 16px; margin-bottom: 6px; line-height: 1.6; letter-spacing: 1.5px;",
+    "p": "font-size: 16px; color: #2A241F; line-height: 2; margin-top: 0; margin-bottom: 18px; letter-spacing: 0.5px; text-align: justify;",
+    "blockquote": "border-left: 5px solid #C93756; background: transparent; font-size: 16px; color: #3F6A4E; line-height: 1.9; font-style: italic;",
+    "blockquote p": "font-size: 16px; color: #3F6A4E; line-height: 1.9; margin-bottom: 0; letter-spacing: 0.5px; background: transparent; font-style: italic;",
+    "strong": "font-weight: 700; color: #C93756;",
+    "em": "font-style: italic; color: #3F6A4E;",
+    "a": "color: #C93756; text-decoration: none; border-bottom: 1px dashed #C93756;",
+    "img": "max-width: 100%; border-radius: 0; display: block; border: 1px solid #3F6A4E; background: transparent; margin-top: 20px; margin-bottom: 20px;",
+    "hr": "margin-top: 36px; margin-bottom: 36px; height: 1px; width: 35%; background: #C93756; border: none;",
+    "code": "background: rgba(201,55,86,0.06); border: 1px solid rgba(201,55,86,0.3); border-radius: 2px; font-size: 92%; color: #C93756; font-family: 'SF Mono',Menlo,Consolas,monospace;",
+    "pre": "background: #F3EDD9; border: 1px solid #3F6A4E; border-radius: 0; margin-top: 0; margin-bottom: 0; overflow: hidden; color: #2A241F; overflow-x: auto; font-size: 13px; line-height: 1.7; white-space: pre-wrap; word-wrap: break-word;",
+    "pre::before": "display: flex; align-items: center; height: 30px; background: #3F6A4E; color: #FBF6E7; font-size: 12px; letter-spacing: 1px;",
+    "pre code": "background: none; color: #2A241F; font-size: 13px; font-family: 'SF Mono',Menlo,Consolas,monospace;",
+    "table": "width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 20px; font-size: 14px;",
+    "th": "text-align: left; font-weight: 600; color: #FBF6E7; background: #3F6A4E; border-bottom: 3px solid #C93756;",
+    "td": "border-bottom: 1px solid rgba(63,106,78,0.2); color: #2A241F;",
+    "ul li::marker": "color: #C93756; margin-right: 10px; font-weight: bold;",
+    "ol li::marker": "color: #3F6A4E; font-weight: 700; margin-right: 10px;",
+    "li": "font-size: 16px; color: #2A241F; line-height: 2; letter-spacing: 0.5px; display: flex; margin-bottom: 6px; align-items: flex-start;",
+    "ul": "margin-top: 14px; margin-bottom: 14px;",
+    "footnotes": "margin-top: 36px; padding-top: 16px; border-top: 1px solid #3F6A4E;",
+    "footnotes h2": "font-size: 14px; font-weight: bold; color: #3F6A4E; margin-bottom: 12px; letter-spacing: 2px;",
+    "footnotes li": "font-size: 13px; color: #6A6253; margin-bottom: 6px; line-height: 1.6; word-break: break-all;",
+    "sup": "font-size: 12px; color: #C93756; vertical-align: super; margin-left: 2px;"
+  }
+}

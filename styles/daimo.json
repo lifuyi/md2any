@@ -1,0 +1,43 @@
+{
+  "name": "大厂",
+  "description": "大模型公司高端风:暖白底+赭橙克制点缀+衬线大标题+极致留白+零公众号装饰",
+  "modes": [
+    {
+      "name": "默认",
+      "id": "light-mode",
+      "class": "",
+      "background": "#FBFAF8"
+    }
+  ],
+  "styles": {
+    "container": "background-color: #FBFAF8; font-family: -apple-system,'PingFang SC','Helvetica Neue',sans-serif;",
+    "h1": "font-size: 30px; font-weight: 700; color: #1A1A1A; text-align: left; line-height: 1.38; letter-spacing: 0.3px; margin-top: 10px; margin-bottom: 30px; font-family: 'Source Han Serif SC','Songti SC','Noto Serif CJK SC',Georgia,serif;",
+    "h2": "font-size: 22px; font-weight: 700; color: #1A1A1A; line-height: 1.45; margin-top: 56px; margin-bottom: 20px; font-family: 'Source Han Serif SC','Songti SC','Noto Serif CJK SC',Georgia,serif;",
+    "h3": "font-size: 18px; font-weight: 700; color: #B5512F; line-height: 1.5; margin-top: 34px; margin-bottom: 12px; font-family: 'Source Han Serif SC','Songti SC','Noto Serif CJK SC',Georgia,serif;",
+    "h4": "font-size: 16px; font-weight: 600; color: #262320; margin-top: 24px; margin-bottom: 8px; font-family: -apple-system,'PingFang SC','Helvetica Neue',sans-serif;",
+    "p": "font-size: 16px; color: #262320; line-height: 1.9; margin-top: 0; margin-bottom: 22px; letter-spacing: 0.2px; font-family: -apple-system,'PingFang SC','Helvetica Neue',sans-serif;",
+    "blockquote": "border-left: 2px solid #B5512F; background: #F4F1EA; margin-top: 18px; margin-bottom: 18px; border-radius: 0 6px 6px 0; font-size: 18px; color: #4A453E; line-height: 1.7; font-family: 'Source Han Serif SC','Songti SC','Noto Serif CJK SC',Georgia,serif;",
+    "blockquote p": "font-size: 14px; color: #4A453E; line-height: 1.8; margin-bottom: 0; background: transparent; font-family: -apple-system,'PingFang SC','Helvetica Neue',sans-serif;",
+    "strong": "font-weight: 700; color: #B5512F;",
+    "em": "font-style: italic; color: #262320; font-family: 'Source Han Serif SC','Songti SC','Noto Serif CJK SC',Georgia,serif;",
+    "a": "color: #B5512F; text-decoration: none; border-bottom: 1px solid #E2C9BC;",
+    "img": "max-width: 100%; border-radius: 8px; display: block; box-shadow: 0 1px 3px rgba(0,0,0,0.07); background: transparent; margin-top: 22px; margin-bottom: 22px;",
+    "hr": "margin-top: 44px; margin-bottom: 44px; border: none; border-top: 1px solid #ECE8E0; height: 0;",
+    "code": "background: #F4F1EA; border-radius: 4px; font-size: 14px; color: #9B4527; font-family: 'SF Mono',Consolas,Menlo,monospace;",
+    "pre": "background: #262320; border-radius: 0; margin-top: 0; margin-bottom: 0; overflow: hidden; border: none; color: #F4F1EA; overflow-x: auto; font-size: 13.5px; line-height: 1.7; white-space: pre-wrap; word-wrap: break-word; word-break: break-all;",
+    "pre::before": "display: flex; align-items: center; height: 3px; background: #B5512F;",
+    "pre code": "background: none; color: #F4F1EA; font-size: 13.5px; font-family: 'SF Mono',Consolas,Menlo,monospace;",
+    "table": "width: 100%; border-collapse: collapse; margin-top: 24px; margin-bottom: 24px; font-size: 14.5px; font-family: -apple-system,'PingFang SC','Helvetica Neue',sans-serif;",
+    "th": "background: transparent; border-bottom: 2px solid #1A1A1A; text-align: left; font-weight: 700; color: #1A1A1A;",
+    "td": "border-bottom: 1px solid #ECE8E0; color: #262320;",
+    "ul li::marker": "color: #B5512F; margin-right: 11px; font-weight: bold; content: —;",
+    "ol li::marker": "display: inline-flex; align-items: center; justify-content: center; width: 23px; height: 23px; min-width: 23px; background: transparent; color: #B5512F; border: 1.5px solid #B5512F; border-radius: 50%; font-size: 12px; font-weight: bold; margin-right: 12px; margin-top: 3px;",
+    "li": "font-size: 16px; color: #262320; line-height: 1.85; font-family: -apple-system,'PingFang SC','Helvetica Neue',sans-serif; display: flex; margin-bottom: 12px; align-items: flex-start;",
+    "ul": "margin-top: 18px; margin-bottom: 18px;",
+    "footnotes": "margin-top: 40px; padding-top: 18px; border-top: 1px solid #ECE8E0;",
+    "footnotes h2": "font-size: 13px; font-weight: bold; color: #857F76; margin-bottom: 10px; font-family: -apple-system,'PingFang SC','Helvetica Neue',sans-serif;",
+    "footnotes li": "font-size: 13px; color: #857F76; margin-bottom: 6px; line-height: 1.6; word-break: break-all;",
+    "sup": "font-size: 12px; color: #B5512F; vertical-align: super; margin-left: 2px;",
+    "blockquote strong": "font-weight: 700; color: #B5512F; margin-bottom: 6px; font-size: 15px; font-family: -apple-system,'PingFang SC','Helvetica Neue',sans-serif;"
+  }
+}

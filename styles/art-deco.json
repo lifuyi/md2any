@@ -1,0 +1,73 @@
+{
+  "name": "艺术装饰",
+  "modes": [
+    {
+      "name": "浅色",
+      "id": "light-mode",
+      "class": "",
+      "background": "#f5f5f5"
+    },
+    {
+      "name": "深色",
+      "id": "dark-mode",
+      "class": "dark-mode",
+      "background": "#0a0a0a"
+    }
+  ],
+  "styles": {
+    "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: \"Playfair Display\", \"Times New Roman\", serif; font-size: 16px; line-height: 1.8 !important; color: #0a0a0a; background-color: #f5f5f5; word-wrap: break-word;",
+    "innerContainer": "background: linear-gradient(135deg, rgba(245, 245, 245, 0.95) 0%, rgba(240, 240, 240, 0.95) 100%); border-radius: 12px; padding: 40px; margin: 32px 0; box-shadow: 0 16px 48px rgba(212, 175, 55, 0.15); border: 2px solid rgba(212, 175, 55, 0.3); position: relative; overflow: hidden; transition: all 0.4s ease;",
+    "innerContainer::before": "content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, #d4af37, transparent); opacity: 0.8;",
+    "innerContainer:hover": "border-color: rgba(212, 175, 55, 0.6); box-shadow: 0 20px 56px rgba(212, 175, 55, 0.25); transform: translateY(-2px);",
+    "h1": "\n  font-size: 42px;\n  font-weight: 700;\n  color: #0a0a0a;\n  margin-top: 20px;\n  margin-bottom: 30px;\n  text-transform: uppercase;\n  letter-spacing: 3px;\n  text-align: center;\n  position: relative;\n  padding-bottom: 20px;\n",
+    "h2": "\n  font-size: 32px;\n  font-weight: 600;\n  color: #d4af37;\n  margin-top: 30px;\n  margin-bottom: 20px;\n  text-transform: uppercase;\n  letter-spacing: 2px;\n  position: relative;\n  padding-left: 20px;\n",
+    "h3": "\n  font-size: 24px;\n  font-weight: 600;\n  color: #0a0a0a;\n  margin-top: 25px;\n  margin-bottom: 15px;\n  position: relative;\n  padding-bottom: 10px;\n  border-bottom: 1px solid #d4af37;\n",
+    "h4": "font-size: 18px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 20px 0 10px;",
+    "h5": "font-size: 17px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 18px 0 9px;",
+    "h6": "\n  color: #6b8c42;\n  margin-top: 1.2em;\n  margin-bottom: 0.5em;\n  font-weight: 700;\n  border-bottom: 1px solid #d4d9c9;\n  padding-bottom: 0.3em;\n",
+    "p": "\n  color: #333;\n",
+    "strong": "\n  color: #d4af37;\n",
+    "em": "\n  color: #00f2fe;\n  font-style: italic;\n",
+    "a": "\n  color: #d4af37;\n  text-decoration: none;\n  font-weight: 600;\n  position: relative;\n  padding: 0 2px;\n  transition: all 0.3s ease;\n",
+    "ul": "\n  background-color: rgba(212, 175, 55, 0.05);\n  padding: 20px;\n  margin: 20px 0;\n  position: relative;\n",
+    "ol": "\n  counter-reset: item;\n  background-color: rgba(212, 175, 55, 0.05);\n  padding: 20px;\n  margin: 20px 0;\n  position: relative;\n",
+    "li": "\n  position: relative;\n  padding-left: 25px;\n  margin: 12px 0;\n  font-weight: 400;\n",
+    "blockquote": "\n  padding: 25px 25px 25px 40px;\n  margin: 30px 0;\n  color: #333;\n  font-style: italic;\n  font-weight: 400;\n  background-color: rgba(212, 175, 55, 0.1);\n  position: relative;\n  border-left: 2px solid #d4af37;\n",
+    "code": "\n  display: block;\n  padding-left: 15px;\n  line-height: 1.5;\n",
+    "pre": "\n  background-color: #f8f8f8;\n  padding: 20px;\n  font-family: \"SFMono-Regular\", Consolas, \"Liberation Mono\", Menlo, monospace;\n  font-size: 14px;\n  overflow-x: auto;\n  color: #333;\n  border-left: 3px solid #d4af37;\n  margin: 25px 0;\n  position: relative;\n",
+    "hr": "\n  border: 0;\n  height: 1px;\n  background: linear-gradient(90deg, transparent, #d4af37, transparent);\n  margin: 30px 0;\n  position: relative;\n",
+    "img": "\n  max-width: 100%;\n  border: 1px solid #d4af37;\n  padding: 5px;\n  background-color: #fff;\n  position: relative;\n",
+    "table": "\n  border-collapse: separate;\n  border-spacing: 0;\n  width: 100%;\n  margin: 30px 0;\n  background-color: rgba(255, 255, 255, 0.8);\n  overflow: hidden;\n  position: relative;\n  border: 1px solid #d4af37;\n",
+    "th": "\n  background-color: rgba(212, 175, 55, 0.15);\n  color: #d4af37;\n  padding: 15px;\n  text-align: left;\n  font-weight: 600;\n  text-transform: uppercase;\n  letter-spacing: 1px;\n  border-bottom: 1px solid #d4af37;\n",
+    "td": "\n  padding: 12px 15px;\n  border-bottom: 1px solid rgba(212, 175, 55, 0.2);\n",
+    "tr": "\n  border-bottom-color: #ffeae0;\n"
+  },
+  "dark-mode": {
+    "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: \"Playfair Display\", \"Times New Roman\", serif; font-size: 16px; line-height: 1.8 !important; color: #f5f5f5; background-color: #0a0a0a; word-wrap: break-word;",
+    "innerContainer": "background: linear-gradient(135deg, rgba(26, 26, 26, 0.95) 0%, rgba(10, 10, 10, 0.95) 100%); border-radius: 12px; padding: 40px; margin: 32px 0; box-shadow: 0 16px 48px rgba(212, 175, 55, 0.25); border: 2px solid rgba(212, 175, 55, 0.4); position: relative; overflow: hidden; transition: all 0.4s ease;",
+    "innerContainer::before": "content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, #d4af37, transparent); opacity: 0.9;",
+    "innerContainer:hover": "border-color: rgba(212, 175, 55, 0.7); box-shadow: 0 20px 56px rgba(212, 175, 55, 0.35); transform: translateY(-2px);",
+    "h1": "\n  font-size: 42px;\n  font-weight: 700;\n  color: #f5f5f5;\n  margin-top: 20px;\n  margin-bottom: 30px;\n  text-transform: uppercase;\n  letter-spacing: 3px;\n  text-align: center;\n  position: relative;\n  padding-bottom: 20px;\n",
+    "h2": "\n  font-size: 32px;\n  font-weight: 600;\n  color: #d4af37;\n  margin-top: 30px;\n  margin-bottom: 20px;\n  text-transform: uppercase;\n  letter-spacing: 2px;\n  position: relative;\n  padding-left: 20px;\n",
+    "h3": "\n  font-size: 24px;\n  font-weight: 600;\n  color: #f5f5f5;\n  margin-top: 25px;\n  margin-bottom: 15px;\n  position: relative;\n  padding-bottom: 10px;\n  border-bottom: 1px solid #d4af37;\n",
+    "h4": "font-size: 18px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 20px 0 10px;",
+    "h5": "font-size: 17px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 18px 0 9px;",
+    "h6": "\n  color: #6b8c42;\n  margin-top: 1.2em;\n  margin-bottom: 0.5em;\n  font-weight: 700;\n  border-bottom: 1px solid #d4d9c9;\n  padding-bottom: 0.3em;\n",
+    "p": "\n  color: #f5f5f5;\n",
+    "strong": "\n  color: #d4af37;\n",
+    "em": "\n  color: #00f2fe;\n  font-style: italic;\n",
+    "a": "\n  color: #d4af37;\n  text-decoration: none;\n  font-weight: 600;\n  position: relative;\n  padding: 0 2px;\n  transition: all 0.3s ease;\n",
+    "ul": "\n  background-color: rgba(212, 175, 55, 0.1);\n  padding: 20px;\n  margin: 20px 0;\n  position: relative;\n",
+    "ol": "\n  counter-reset: item;\n  background-color: rgba(212, 175, 55, 0.1);\n  padding: 20px;\n  margin: 20px 0;\n  position: relative;\n",
+    "li": "\n  position: relative;\n  padding-left: 25px;\n  margin: 12px 0;\n  font-weight: 400;\n",
+    "blockquote": "\n  padding: 25px 25px 25px 40px;\n  margin: 30px 0;\n  color: #f5f5f5;\n  font-style: italic;\n  font-weight: 400;\n  background-color: rgba(212, 175, 55, 0.15);\n  position: relative;\n  border-left: 2px solid #d4af37;\n",
+    "code": "\n  display: block;\n  padding-left: 15px;\n  line-height: 1.5;\n",
+    "pre": "\n  background-color: #1a1a1a;\n  padding: 20px;\n  font-family: \"SFMono-Regular\", Consolas, \"Liberation Mono\", Menlo, monospace;\n  font-size: 14px;\n  overflow-x: auto;\n  color: #f5f5f5;\n  border-left: 3px solid #d4af37;\n  margin: 25px 0;\n  position: relative;\n",
+    "hr": "\n  border: 0;\n  height: 1px;\n  background: linear-gradient(90deg, transparent, #d4af37, transparent);\n  margin: 30px 0;\n  position: relative;\n",
+    "img": "\n  max-width: 100%;\n  border: 1px solid #d4af37;\n  padding: 5px;\n  background-color: #0a0a0a;\n  position: relative;\n",
+    "table": "\n  border-collapse: separate;\n  border-spacing: 0;\n  width: 100%;\n  margin: 30px 0;\n  background-color: rgba(10, 10, 10, 0.8);\n  overflow: hidden;\n  position: relative;\n  border: 1px solid #d4af37;\n",
+    "th": "\n  background-color: rgba(212, 175, 55, 0.15);\n  color: #d4af37;\n  padding: 15px;\n  text-align: left;\n  font-weight: 600;\n  text-transform: uppercase;\n  letter-spacing: 1px;\n  border-bottom: 1px solid #d4af37;\n",
+    "td": "\n  padding: 12px 15px;\n  border-bottom: 1px solid rgba(212, 175, 55, 0.2);\n",
+    "tr": "\n  border-bottom-color: #ffeae0;\n"
+  }
+}

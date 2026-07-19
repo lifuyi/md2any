@@ -1,0 +1,44 @@
+{
+  "name": "夜读墨香",
+  "description": "温暖暗底 #1C1815 + 暖橘 #E08B6A + serif，弥补现有暗主题全是 coding 冷调的空缺。借鉴 github.com/GordenSun/WX Claude 主题的暗调变体：H1 居中下划、H2 左条、blockquote 左条柔橘、pre 深墨底。专为夜间深度阅读/长文沉浸设计。",
+  "modes": [
+    {
+      "name": "默认",
+      "id": "light-mode",
+      "class": "",
+      "background": "#1C1815"
+    }
+  ],
+  "styles": {
+    "container": "background-color: #1C1815; font-family: 'PingFang SC','Songti SC','Source Han Serif SC','Noto Serif CJK SC',serif;",
+    "h1": "font-size: 26px; font-weight: 700; color: #E08B6A; text-align: center; line-height: 1.4; margin-top: 34px; margin-bottom: 22px; padding-bottom: 12px; border-bottom: 2px solid #E08B6A; font-family: 'PingFang SC','Songti SC','Source Han Serif SC',serif;",
+    "h2": "font-size: 22px; font-weight: 700; color: #E6D9C4; line-height: 1.45; margin-top: 30px; margin-bottom: 16px; padding-left: 14px; border-left: 4px solid #E08B6A; font-family: 'PingFang SC','Songti SC','Source Han Serif SC',serif;",
+    "h3": "font-size: 19px; font-weight: 600; color: #F0A888; line-height: 1.5; margin-top: 24px; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid rgba(224,139,106,0.5);",
+    "h4": "font-size: 17px; font-weight: 600; font-style: italic; color: #E6D9C4; line-height: 1.55; margin-top: 20px; margin-bottom: 10px; padding-left: 10px; border-left: 3px solid rgba(224,139,106,0.6);",
+    "h5": "font-size: 16px; font-weight: 600; color: #C2B59E; margin-top: 18px; margin-bottom: 8px; line-height: 1.55;",
+    "h6": "font-size: 14px; font-weight: 600; color: #8A7F6C; margin-top: 16px; margin-bottom: 6px; line-height: 1.55; letter-spacing: 1px; text-transform: uppercase;",
+    "p": "font-size: 16px; color: #E6D9C4; line-height: 1.9; margin-top: 0; margin-bottom: 16px; letter-spacing: 0.3px; text-align: justify;",
+    "blockquote": "border-left: 4px solid #E08B6A; background: rgba(224,139,106,0.08); border-radius: 0 6px 6px 0; margin-top: 20px; margin-bottom: 20px; font-size: 15px; color: #C2B59E; line-height: 1.8;",
+    "blockquote p": "font-size: 15px; color: #C2B59E; line-height: 1.8; margin-bottom: 0; letter-spacing: 0.3px; background: transparent;",
+    "strong": "font-weight: 700; color: #F0A888;",
+    "em": "font-style: italic; color: #C2B59E;",
+    "a": "color: #E08B6A; text-decoration: none; border-bottom: 1px dashed #E08B6A;",
+    "img": "max-width: 100%; border-radius: 8px; display: block; margin-top: 16px; margin-bottom: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.4); background: transparent;",
+    "hr": "margin-top: 32px; margin-bottom: 32px; height: 1px; border: none; background: linear-gradient(90deg,transparent,#E08B6A,transparent);",
+    "code": "background: rgba(224,139,106,0.18); border-radius: 4px; font-size: 92%; color: #F0A888; font-family: 'SF Mono','JetBrains Mono',Menlo,Consolas,monospace;",
+    "pre": "background: #0F0C08; border: 1px solid #3A3127; border-radius: 0; margin-top: 0; margin-bottom: 0; overflow: hidden; color: #E6D9C4; overflow-x: auto; font-size: 13px; line-height: 1.7; white-space: pre-wrap; word-wrap: break-word;",
+    "pre::before": "display: flex; align-items: center; height: 32px; background: #2A2016; color: #C2B59E; font-size: 12px;",
+    "pre code": "background: none; color: #E6D9C4; font-size: 13px; font-family: 'SF Mono','JetBrains Mono',Menlo,Consolas,monospace;",
+    "table": "width: 100%; border-collapse: collapse; margin-top: 18px; margin-bottom: 18px; font-size: 14px;",
+    "th": "text-align: left; font-weight: 600; color: #F0A888; background: rgba(224,139,106,0.12); border-bottom: 1px solid rgba(224,139,106,0.4);",
+    "td": "border-bottom: 1px solid rgba(224,139,106,0.15); color: #E6D9C4;",
+    "ul li::marker": "color: #E08B6A; margin-right: 8px; font-weight: bold;",
+    "ol li::marker": "color: #E08B6A; font-weight: 700; margin-right: 8px;",
+    "li": "font-size: 16px; color: #E6D9C4; line-height: 1.9; letter-spacing: 0.3px; display: flex; margin-bottom: 6px; align-items: flex-start;",
+    "ul": "margin-top: 12px; margin-bottom: 12px;",
+    "footnotes": "margin-top: 32px; padding-top: 16px; border-top: 1px dashed rgba(224,139,106,0.25);",
+    "footnotes h2": "font-size: 14px; font-weight: bold; color: #C2B59E; margin-bottom: 12px;",
+    "footnotes li": "font-size: 13px; color: #8A7F6C; margin-bottom: 6px; line-height: 1.6; word-break: break-all;",
+    "sup": "font-size: 12px; color: #E08B6A; vertical-align: super; margin-left: 2px;"
+  }
+}

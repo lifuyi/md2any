@@ -1,0 +1,30 @@
+{
+  "name": "波普艺术 - 粉蓝 无字体",
+  "styles": {
+    "container": "width: 440px; margin: 0 auto; padding: 30px; font-family: \"Comic Sans MS\", \"Chalkboard SE\", \"Comic Neue\", sans-serif; font-size: 16px; line-height: 28px !important; color: #252a34 !important; background-color: #a6dcef !important; border-radius: 15px; box-shadow: 0 8px 0 #5f9fd8; border: 3px solid #000; position: relative; overflow: visible; word-wrap: break-word; display: block;",
+    "innerContainer": "background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(166, 220, 239, 0.96) 100%); border-radius: 18px; padding: 32px; margin: 26px 0; box-shadow: 0 14px 36px rgba(0, 0, 0, 0.16); border: 2px dotted #5f9fd8; transform: rotate(-2deg); transition: all 0.3s ease;",
+    "innerContainer:hover": "transform: rotate(0deg) scale(1.01); box-shadow: 0 18px 42px rgba(0, 0, 0, 0.2);",
+    "h1": "font-size: 24px; font-weight: 600; color: #2c3e50 !important; line-height: 1.4 !important; margin: 32px 0 16px;",
+    "h2": "font-size: 22px; font-weight: 600; color: #2c3e50 !important; line-height: 1.4 !important; margin: 28px 0 14px;",
+    "h3": "font-size: 20px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 24px 0 12px;",
+    "h4": "font-size: 18px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 20px 0 10px;",
+    "h5": "font-size: 17px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 18px 0 9px;",
+    "h6": "font-size: 16px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 16px 0 8px;",
+    "p": "margin: 0 0 16px !important; line-height: 28px !important; color: #252a34 !important; font-style: italic;",
+    "strong": "font-weight: 600; color: #2c3e50 !important;",
+    "em": "font-style: italic; color: #555 !important;",
+    "a": "color: #3498db !important; text-decoration: none; border-bottom: 1px solid #3498db; color: var(--pop-primary) !important;",
+    "ul": "margin: 16px 0; padding-left: 24px;",
+    "ol": "margin: 16px 0; padding: 15px; background-color: rgba(255, 255, 255, 0.7) !important; border: 1px dashed #a6a6a6; border-radius: 8px; color: #252a34 !important;",
+    "li": "margin: 8px 0; line-height: 1.8 !important;",
+    "blockquote": "margin: 16px 0 0; padding: 10px 20px; background-color: transparent !important; border-left: none; color: #252a34 !important; line-height: 28px !important; font-style: italic;",
+    "code": "font-family: SFMono-Regular, Consolas, \"Liberation Mono\", Menlo, monospace; font-size: 14.4px; padding: 2px 5px; background-color: #eaecf1 !important; color: #252a34 !important; border-radius: 4px; line-height: 25.2px;",
+    "pre": "margin: 20px 0; padding: 16px; background-color: #2d2d2d !important; border-radius: 8px; overflow-x: auto; line-height: 1.6 !important;",
+    "hr": "margin: 32px 0; border: none; border-top: 1px solid #e0e0e0;",
+    "img": "max-width: 100%; max-height: 600px !important; height: auto; display: block; margin: 20px auto; border-radius: 8px;",
+    "table": "width: 100%; margin: 20px 0; border-collapse: collapse; font-size: 15px;",
+    "th": "background-color: #f0f0f0 !important; padding: 10px; text-align: left; border: 1px solid #e0e0e0; font-weight: 600;",
+    "td": "padding: 10px; border: 1px solid #e0e0e0;",
+    "tr": "border-bottom: 1px solid #e0e0e0;"
+  }
+}

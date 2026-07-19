@@ -1,0 +1,44 @@
+{
+  "name": "瑞士国际主义",
+  "description": "Swiss International Style，极左对齐+Helvetica 无衬线+超大字距+钴蓝 #0047AB 点缀。H1 35px 左靠紧压-0.03em 字距、H2 小号 uppercase 3px 字距+细底线、H3 钴蓝、blockquote 纯左竖线无背景。骨架硬朗，适合设计/技术/信息类深度文。",
+  "modes": [
+    {
+      "name": "默认",
+      "id": "light-mode",
+      "class": "",
+      "background": "#FFFFFF"
+    }
+  ],
+  "styles": {
+    "container": "background-color: #FFFFFF; font-family: 'Inter','Helvetica Neue','PingFang SC',-apple-system,sans-serif;",
+    "h1": "font-size: 35px; font-weight: 800; color: #000000; text-align: left; line-height: 1.08; margin-top: 42px; margin-bottom: 28px; letter-spacing: -0.03em;",
+    "h2": "font-size: 22px; font-weight: 700; color: #000000; line-height: 1.3; margin-top: 38px; margin-bottom: 14px; padding-bottom: 6px; border-bottom: 1px solid #000000; letter-spacing: 1px;",
+    "h3": "font-size: 20px; font-weight: 700; color: #0047AB; line-height: 1.3; margin-top: 28px; margin-bottom: 12px; letter-spacing: -0.01em;",
+    "h4": "font-size: 11px; font-weight: 700; color: #666666; margin-top: 22px; margin-bottom: 10px; line-height: 1.3; letter-spacing: 2.5px; text-transform: uppercase;",
+    "h5": "font-size: 14px; font-weight: 600; color: #333333; margin-top: 18px; margin-bottom: 8px; line-height: 1.4;",
+    "h6": "font-size: 12px; font-weight: 600; color: #999999; margin-top: 16px; margin-bottom: 6px; line-height: 1.4;",
+    "p": "font-size: 16px; color: #111111; line-height: 1.75; margin-top: 0; margin-bottom: 16px; text-align: left; letter-spacing: 0.3px;",
+    "blockquote": "border-left: 3px solid #000000; background: transparent; margin-top: 22px; margin-bottom: 22px; font-size: 15px; color: #333333; line-height: 1.7; font-style: italic;",
+    "blockquote p": "font-size: 15px; color: #333333; line-height: 1.7; margin-bottom: 0; background: transparent; font-style: italic;",
+    "strong": "font-weight: 700; color: #000000; border-bottom: 2px solid #0047AB; padding-bottom: 1px;",
+    "em": "font-style: italic; color: #0047AB;",
+    "a": "color: #0047AB; text-decoration: underline; text-underline-offset: 2px;",
+    "img": "max-width: 100%; border-radius: 0; display: block; margin-top: 16px; margin-bottom: 16px; background: transparent;",
+    "hr": "margin-top: 32px; margin-bottom: 32px; height: 2px; width: 80px; background: #000000; border: none;",
+    "code": "background: #F5F5F5; border-radius: 0; font-size: 90%; color: #000000; font-family: 'JetBrains Mono','SF Mono',Menlo,monospace;",
+    "pre": "background: #F5F5F5; border: none; border-radius: 0; margin-top: 0; margin-bottom: 0; overflow: hidden; color: #000000; overflow-x: auto; font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word;",
+    "pre::before": "display: flex; align-items: center; height: 28px; background: #000000; color: #FFFFFF; font-size: 10px; letter-spacing: 2px; text-transform: uppercase;",
+    "pre code": "background: none; color: #000000; font-size: 13px; font-family: 'JetBrains Mono','SF Mono',Menlo,monospace;",
+    "table": "width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 20px; font-size: 13px;",
+    "th": "text-align: left; font-weight: 700; color: #000000; background: transparent; border-bottom: 2px solid #000000; letter-spacing: 1.5px; text-transform: uppercase; font-size: 11px;",
+    "td": "border-bottom: 1px solid #E0E0E0; color: #111111;",
+    "ul li::marker": "color: #000000; margin-right: 10px; font-weight: 700;",
+    "ol li::marker": "color: #0047AB; font-weight: 700; margin-right: 10px; letter-spacing: 1px;",
+    "li": "font-size: 16px; color: #111111; line-height: 1.75; letter-spacing: 0.3px; display: flex; margin-bottom: 6px; align-items: flex-start;",
+    "ul": "margin-top: 14px; margin-bottom: 14px;",
+    "footnotes": "margin-top: 36px; padding-top: 14px; border-top: 2px solid #000000;",
+    "footnotes h2": "font-size: 10px; font-weight: 700; color: #000000; margin-bottom: 10px; letter-spacing: 2.5px; text-transform: uppercase;",
+    "footnotes li": "font-size: 13px; color: #555555; margin-bottom: 6px; line-height: 1.5; word-break: break-all;",
+    "sup": "font-size: 11px; color: #0047AB; vertical-align: super; margin-left: 2px;"
+  }
+}

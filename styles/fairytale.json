@@ -1,0 +1,32 @@
+{
+  "name": "儿童童话",
+  "styles": {
+    "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: \"Comic Sans MS\", \"PingFang SC\", sans-serif; font-size: 16px; line-height: 1.8 !important; color: #3f3f3f !important; background-color: #f8f0ff; word-wrap: break-word;",
+    "innerContainer": "background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 240, 255, 0.96) 100%); border-radius: 24px; padding: 32px; margin: 28px 0; box-shadow: 0 12px 36px rgba(94, 124, 255, 0.18); border: 2px dashed #a5c7fe; transform: rotate(-1deg); transition: all 0.4s ease; position: relative; overflow: hidden;",
+    "innerContainer::before": "content: '✨'; position: absolute; top: 12px; right: 16px; color: #5e7cff; font-size: 24px; opacity: 0.6; animation: sparkle 2s infinite;",
+    "innerContainer:hover": "transform: rotate(0deg) scale(1.02); box-shadow: 0 16px 42px rgba(94, 124, 255, 0.25);",
+    "h1": "\n  font-family: \"Comic Sans MS\", \"Ma Shan Zheng\", \"PingFang SC\", cursive;\n  font-size: 28px;\n  position: relative;\n  color: #5e7cff;\n  margin-bottom: 15px;\n  letter-spacing: 1px;\n  font-weight: 600;\n  text-align: center;\n  padding: 5px 0;\n  text-shadow: 1px 1px 2px rgba(165, 199, 254, 0.5);\n",
+    "h2": "\n  font-size: 18px;\n  color: #7a6cb0;\n  margin-bottom: 20px;\n  font-weight: 500;\n  letter-spacing: 0.5px;\n  text-align: center;\n  position: relative;\n  padding-bottom: 15px;\n  font-family: \"Comic Sans MS\", \"PingFang SC\", sans-serif;\n",
+    "h3": "\n  display: block;\n  color: #5e7cff;\n  margin-bottom: 6px;\n  font-size: 17px;\n  font-weight: 600;\n  font-family: \"Comic Sans MS\", \"PingFang SC\", sans-serif;\n",
+    "h4": "font-size: 18px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 20px 0 10px;",
+    "h5": "font-size: 17px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 18px 0 9px;",
+    "h6": "\n  color: #6b8c42;\n  margin-top: 1.2em;\n  margin-bottom: 0.5em;\n  font-weight: 700;\n  border-bottom: 1px solid #d4d9c9;\n  padding-bottom: 0.3em;\n",
+    "p": "\n  color: #555;\n  font-family: \"Comic Sans MS\", \"PingFang SC\", sans-serif;\n",
+    "strong": "\n  color: #5e7cff;\n  font-weight: 600;\n",
+    "em": "\n  color: #ff8eb2;\n  font-style: italic;\n",
+    "a": "\n  color: #7a6cb0;\n  text-decoration: none;\n  border-bottom: 1px dashed #a5c7fe;\n  transition: all 0.3s ease;\n",
+    "ul": "\n  padding-left: 0;\n",
+    "ol": "\n  list-style: none;\n  padding: 0.5em 3.5em;\n  counter-reset: decorated-counter;\n  margin-bottom: 1.5em;\n",
+    "li": "\n  position: relative;\n  \n  \n  margin-bottom: 20px;\n  padding-left: 36px;\n  color: #555;\n  font-size: 16px;\n  font-family: \"Comic Sans MS\", \"PingFang SC\", sans-serif;\n",
+    "ol > li": "position: relative; counter-increment: item; list-style: none; margin-bottom: 20px; padding-left: 36px;",
+    "blockquote": "\n  background-color: rgba(248, 240, 255, 0.7);\n  border-left: 4px solid #ffb7c5;\n  color: #7a6cb0;\n  padding: 15px 20px;\n  margin: 20px 0;\n  border-radius: 0 10px 10px 0;\n  font-style: italic;\n",
+    "code": "\n  display: block;\n  padding-left: 15px;\n  line-height: 1.5;\n",
+    "pre": "\n  border: 2px dashed #a5c7fe;\n  box-shadow: 0 4px 15px rgba(165, 199, 254, 0.1);\n  background-color: rgba(248, 240, 255, 0.7);\n  border-radius: 10px;\n  padding: 15px;\n  overflow-x: auto;\n",
+    "hr": "\n  height: 3px;\n  border: none;\n  background: repeating-linear-gradient(\n    90deg,\n    #ffb7c5,\n    #ffb7c5 10px,\n    #a5c7fe 10px,\n    #a5c7fe 20px\n  );\n  border-radius: 3px;\n  margin: 25px 0;\n",
+    "img": "\n  border: 3px solid white;\n  box-shadow: 0 5px 15px rgba(165, 199, 254, 0.3);\n  border-radius: 15px;\n  max-width: 100%;\n  height: auto;\n  margin: 15px 0;\n  transition: transform 0.3s ease;\n",
+    "table": "\n  box-shadow: 0 4px 15px rgba(165, 199, 254, 0.2);\n  border-radius: 10px;\n  overflow: hidden;\n  border-collapse: collapse;\n  margin: 20px 0;\n  border: 2px dashed #a5c7fe;\n",
+    "th": "\n  background-color: rgba(165, 199, 254, 0.2);\n  color: #5e7cff;\n  padding: 10px 15px;\n  text-align: left;\n  border-bottom: 2px dashed #a5c7fe;\n",
+    "td": "\n  color: #555;\n  padding: 10px 15px;\n  border-bottom: 1px dashed #a5c7fe;\n",
+    "tr": "border-bottom: 1px solid #e0e0e0;"
+  }
+}

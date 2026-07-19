@@ -1,0 +1,40 @@
+{
+  "name": "便签鸭黄",
+  "description": "便利贴手写感：鸭黄底 #FFF8B8 + 橙红 #FF6B35 + 棕字 + Caveat 手写字体。H1 大字随意、H2 橙色手写、blockquote 像便条手写附注、wrapper 带单边阴影模拟翘角贴纸。轻快随性独一份（vs pastel 柔紫圆润）。适合备忘录/灵感手记/吐槽/轻快评论。",
+  "modes": [
+    {
+      "name": "默认",
+      "id": "light-mode",
+      "class": "",
+      "background": "#FFF8B8"
+    }
+  ],
+  "styles": {
+    "container": "background-color: #FFF8B8; font-family: 'Caveat','Marker Felt','Comic Sans MS','Hiragino Sans GB','PingFang SC',cursive; box-shadow: 6px 6px 0 rgba(0,0,0,0.10);",
+    "h1": "font-size: 34px; font-weight: 700; color: #4A3628; text-align: left; line-height: 1.2; margin-top: 28px; margin-bottom: 22px; padding-bottom: 10px; border-bottom: 3px wavy #FF6B35; letter-spacing: 1px; font-family: 'Caveat','Marker Felt',cursive; transform: rotate(-0.5deg);",
+    "h2": "font-size: 26px; font-weight: 700; color: #FF6B35; line-height: 1.25; margin-top: 26px; margin-bottom: 14px; font-family: 'Caveat','Marker Felt',cursive;",
+    "h3": "font-size: 22px; font-weight: 600; color: #4A3628; line-height: 1.3; margin-top: 22px; margin-bottom: 10px; padding-left: 14px; border-left: 4px solid #FF6B35; font-family: 'Caveat','Marker Felt',cursive;",
+    "h4": "font-size: 19px; font-weight: 600; color: #FF6B35; line-height: 1.4; margin-top: 18px; margin-bottom: 8px; font-style: italic; font-family: 'Caveat',cursive;",
+    "h5": "font-size: 18px; font-weight: 600; color: #6A5238; margin-top: 16px; margin-bottom: 8px; line-height: 1.4; font-family: 'Caveat',cursive;",
+    "h6": "font-size: 16px; font-weight: 600; color: #8A7656; margin-top: 14px; margin-bottom: 6px; line-height: 1.4; font-family: 'Caveat',cursive;",
+    "p": "font-size: 17px; color: #4A3628; line-height: 1.7; margin-top: 0; margin-bottom: 16px; letter-spacing: 0.3px;",
+    "blockquote": "background: #FFFAD4; border: 2px dashed #FF6B35; border-radius: 4px; margin-top: 20px; margin-bottom: 20px; font-size: 18px; color: #6A5238; line-height: 1.65; transform: rotate(-0.3deg); box-shadow: 3px 3px 0 rgba(0,0,0,0.08);",
+    "blockquote p": "font-size: 18px; color: #6A5238; line-height: 1.65; margin-bottom: 0; background: transparent;",
+    "strong": "font-weight: 700; color: #FF6B35; background: linear-gradient(180deg,rgba(255,107,53,0) 60%,rgba(255,107,53,0.25) 60%);",
+    "em": "font-style: italic; color: #6A5238;",
+    "a": "color: #FF6B35; text-decoration: underline; text-decoration-style: wavy; text-underline-offset: 3px;",
+    "img": "max-width: 100%; display: block; margin-top: 18px; margin-bottom: 18px; border: 3px solid #4A3628; background: transparent; box-shadow: 4px 4px 0 #FF6B35; transform: rotate(-1deg);",
+    "hr": "margin-top: 30px; margin-bottom: 30px; height: 0; border: none; border-top: 3px dashed #FF6B35; width: 60%; margin-left: auto; margin-right: auto;",
+    "code": "background: #FFE8C0; border-radius: 10px; font-size: 16px; color: #4A3628; font-family: 'Caveat','Marker Felt',cursive; font-weight: 600;",
+    "pre": "background: #FFFAD4; border: 2px solid #4A3628; border-radius: 6px; margin-top: 0; margin-bottom: 0; overflow: hidden; box-shadow: 4px 4px 0 #FF6B35; color: #4A3628; overflow-x: auto; font-size: 13px; line-height: 1.65; white-space: pre-wrap; font-family: 'SF Mono',Menlo,monospace;",
+    "pre::before": "display: flex; align-items: center; height: 32px; background: #FF6B35; color: #FFF8B8; font-size: 14px; font-weight: 700; font-family: 'Caveat',cursive;",
+    "pre code": "background: none; color: #4A3628; font-size: 13px; font-family: 'SF Mono',Menlo,monospace;",
+    "table": "width: 100%; border-collapse: collapse; margin-top: 18px; margin-bottom: 18px; font-size: 16px; border: 2px solid #4A3628;",
+    "th": "text-align: left; font-weight: 700; color: #FFF8B8; background: #FF6B35; font-size: 17px;",
+    "td": "border-bottom: 2px dashed #FFDA8A; color: #4A3628;",
+    "ul li::marker": "color: #FF6B35; margin-right: 10px; font-weight: 700;",
+    "ol li::marker": "color: #FF6B35; font-weight: 700; margin-right: 10px; font-size: 20px;",
+    "li": "font-size: 19px; color: #4A3628; line-height: 1.7; display: flex; margin-bottom: 8px; align-items: flex-start;",
+    "ul": "margin-top: 14px; margin-bottom: 14px;"
+  }
+}

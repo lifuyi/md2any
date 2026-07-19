@@ -1,0 +1,40 @@
+{
+  "name": "工程蓝图",
+  "description": "工程图纸质感：深钴蓝底 #0B3D66 + 白细线 #E5F0FA + 浅蓝 #64B5F6 + 网格感。H1 uppercase 大号白字 + 下方双细线（刻度感），H2 浅蓝 + 左侧细竖线，p 浅白色等宽字体，代码块带尺寸刻度线感。独一份工程图纸感（工业制图/CAD 图风）。适合硬核技术架构/系统设计/工程决策。",
+  "modes": [
+    {
+      "name": "默认",
+      "id": "light-mode",
+      "class": "",
+      "background": "#0B3D66"
+    }
+  ],
+  "styles": {
+    "container": "background-color: #0B3D66; font-family: 'Inter','Helvetica Neue','PingFang SC',sans-serif;",
+    "h1": "font-size: 24px; font-weight: 700; color: #E5F0FA; text-align: center; line-height: 1.3; margin-top: 38px; margin-bottom: 26px; padding-bottom: 14px; border-bottom: 1px solid #64B5F6; letter-spacing: 4px; text-transform: uppercase;",
+    "h2": "font-size: 18px; font-weight: 700; color: #64B5F6; line-height: 1.4; margin-top: 32px; margin-bottom: 16px; padding-left: 14px; border-left: 1px solid #64B5F6; letter-spacing: 2px; text-transform: uppercase;",
+    "h3": "font-size: 15px; font-weight: 600; color: #E5F0FA; line-height: 1.5; margin-top: 26px; margin-bottom: 12px; letter-spacing: 1.5px; text-transform: uppercase;",
+    "h4": "font-size: 13px; font-weight: 700; color: #64B5F6; line-height: 1.55; margin-top: 22px; margin-bottom: 10px; letter-spacing: 2px; text-transform: uppercase;",
+    "h5": "font-size: 13px; font-weight: 600; color: #B8D4EE; margin-top: 18px; margin-bottom: 8px; line-height: 1.55;",
+    "h6": "font-size: 11px; font-weight: 600; color: #7FA8CE; margin-top: 16px; margin-bottom: 6px; line-height: 1.55; letter-spacing: 1.5px; text-transform: uppercase;",
+    "p": "font-size: 15px; color: #E5F0FA; line-height: 1.8; margin-top: 0; margin-bottom: 16px; letter-spacing: 0.3px; font-family: 'JetBrains Mono','SF Mono','PingFang SC',monospace;",
+    "blockquote": "background: rgba(100,181,246,0.10); border-left: 1px dashed #64B5F6; border-radius: 0; margin-top: 22px; margin-bottom: 22px; font-size: 13px; color: #B8D4EE; line-height: 1.75; font-family: 'JetBrains Mono','SF Mono',monospace;",
+    "blockquote p": "font-size: 13px; color: #B8D4EE; line-height: 1.75; margin-bottom: 0; background: transparent;",
+    "strong": "font-weight: 700; color: #64B5F6; border-bottom: 1px solid #64B5F6;",
+    "em": "font-style: italic; color: #B8D4EE;",
+    "a": "color: #64B5F6; text-decoration: underline; text-decoration-style: dashed; text-underline-offset: 3px;",
+    "img": "max-width: 100%; display: block; margin-top: 18px; margin-bottom: 18px; border: 1px solid #64B5F6; background: transparent;",
+    "hr": "margin-top: 30px; margin-bottom: 30px; height: 0; border: none; border-top: 1px dashed #64B5F6;",
+    "code": "background: rgba(100,181,246,0.15); border-radius: 0; font-size: 90%; color: #E5F0FA; font-family: 'JetBrains Mono','SF Mono',Menlo,monospace; border: 1px solid #64B5F6;",
+    "pre": "background: #062540; border: 1px solid #64B5F6; border-radius: 0; margin-top: 0; margin-bottom: 0; overflow: hidden; color: #E5F0FA; overflow-x: auto; font-size: 12px; line-height: 1.7; white-space: pre-wrap;",
+    "pre::before": "display: flex; align-items: center; height: 28px; background: #64B5F6; color: #0B3D66; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;",
+    "pre code": "background: none; color: #E5F0FA; font-size: 12px; font-family: 'JetBrains Mono','SF Mono',Menlo,monospace;",
+    "table": "width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 20px; font-size: 13px; border: 1px solid #64B5F6; font-family: 'JetBrains Mono',monospace;",
+    "th": "text-align: left; font-weight: 700; color: #0B3D66; background: #64B5F6; letter-spacing: 1.5px; text-transform: uppercase; font-size: 11px; border: 1px solid #64B5F6;",
+    "td": "border: 1px dashed rgba(100,181,246,0.4); color: #E5F0FA;",
+    "ul li::marker": "color: #64B5F6; margin-right: 10px; font-weight: 700;",
+    "ol li::marker": "color: #64B5F6; font-weight: 700; margin-right: 10px;",
+    "li": "font-size: 14px; color: #E5F0FA; line-height: 1.8; font-family: 'JetBrains Mono','SF Mono',monospace; display: flex; margin-bottom: 6px; align-items: flex-start;",
+    "ul": "margin-top: 12px; margin-bottom: 12px;"
+  }
+}

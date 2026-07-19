@@ -1,0 +1,40 @@
+{
+  "name": "报刊密集",
+  "description": "纽约时报 broadsheet 风：纯黑白 + Georgia serif + 小字 13-15px + 紧凑行距 1.5-1.6。H1 35px 居中+副标题 kicker 感、H2 14px uppercase 小标+细底线、blockquote 大号 italic 居中+上下双线、段首下沉感。信息密度极高（vs magazine-serif 大字疏朗派）。适合新闻评论/报道/长篇分析。",
+  "modes": [
+    {
+      "name": "默认",
+      "id": "light-mode",
+      "class": "",
+      "background": "#FDFBF7"
+    }
+  ],
+  "styles": {
+    "container": "background-color: #FDFBF7; font-family: Georgia,'Times New Roman','Songti SC','PingFang SC',serif;",
+    "h1": "font-size: 34px; font-weight: 700; color: #121212; text-align: center; line-height: 1.15; margin-top: 36px; margin-bottom: 16px; letter-spacing: -0.01em;",
+    "h2": "font-size: 22px; font-weight: 700; color: #121212; line-height: 1.35; margin-top: 28px; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid #121212; letter-spacing: 1px;",
+    "h3": "font-size: 19px; font-weight: 700; color: #121212; line-height: 1.35; margin-top: 22px; margin-bottom: 10px; font-style: italic; font-family: Georgia,'Times New Roman','Songti SC',serif;",
+    "h4": "font-size: 15px; font-weight: 700; color: #121212; line-height: 1.4; margin-top: 18px; margin-bottom: 8px;",
+    "h5": "font-size: 14px; font-weight: 600; color: #333333; margin-top: 16px; margin-bottom: 6px; line-height: 1.4;",
+    "h6": "font-size: 12px; font-weight: 700; color: #666666; margin-top: 14px; margin-bottom: 6px; line-height: 1.4; letter-spacing: 1px; text-transform: uppercase;",
+    "p": "font-size: 15px; color: #121212; line-height: 1.7; margin-top: 0; margin-bottom: 12px; text-align: justify;",
+    "blockquote": "font-size: 18px; color: #121212; line-height: 1.5; text-align: center; font-style: italic; border-top: 2px solid #121212; border-bottom: 2px solid #121212; background: transparent; font-family: Georgia,'Times New Roman',serif;",
+    "blockquote p": "font-size: 18px; color: #121212; line-height: 1.5; margin-bottom: 0; background: transparent; font-style: italic;",
+    "strong": "font-weight: 700; color: #121212;",
+    "em": "font-style: italic; color: #555555;",
+    "a": "color: #8B0000; text-decoration: underline; text-underline-offset: 2px;",
+    "img": "max-width: 100%; display: block; margin-top: 16px; margin-bottom: 16px; border: 1px solid #E0DDD4; background: transparent;",
+    "hr": "margin-top: 28px; margin-bottom: 28px; height: 0; border: none; border-top: 1px solid #121212; width: 100px; margin-left: auto; margin-right: auto;",
+    "code": "background: #F0EDE5; border-radius: 0; font-size: 90%; color: #121212; font-family: 'SF Mono','Courier New',Menlo,monospace;",
+    "pre": "background: #F7F4ED; border: 1px solid #E0DDD4; border-radius: 0; margin-top: 0; margin-bottom: 0; overflow: hidden; color: #121212; overflow-x: auto; font-size: 12px; line-height: 1.6; white-space: pre-wrap;",
+    "pre::before": "display: flex; align-items: center; height: 28px; background: #121212; color: #FDFBF7; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;",
+    "pre code": "background: none; color: #121212; font-size: 12px; font-family: 'SF Mono','Courier New',Menlo,monospace;",
+    "table": "width: 100%; border-collapse: collapse; margin-top: 18px; margin-bottom: 18px; font-size: 13px;",
+    "th": "text-align: left; font-weight: 700; color: #121212; background: transparent; border-bottom: 2px solid #121212; letter-spacing: 1.5px; text-transform: uppercase; font-size: 11px;",
+    "td": "border-bottom: 1px solid #E0DDD4; color: #121212;",
+    "ul li::marker": "color: #121212; margin-right: 8px; font-weight: 700;",
+    "ol li::marker": "color: #8B0000; font-weight: 700; margin-right: 8px; font-style: italic;",
+    "li": "font-size: 15px; color: #121212; line-height: 1.55; display: flex; margin-bottom: 4px; align-items: flex-start;",
+    "ul": "margin-top: 12px; margin-bottom: 12px;"
+  }
+}

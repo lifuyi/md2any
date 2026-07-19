@@ -1,13 +1,25 @@
-# -*- coding: utf-8 -*-
-"""
-Theme management and styling configuration
-"""
-
+import os
+import json
+import glob
 from typing import Dict, Any
+
+STYLES_DIR = os.path.join(os.path.dirname(__file__), "styles")
+
+
+def _load_all_styles() -> Dict[str, Any]:
+    all_styles = {}
+    pattern = os.path.join(STYLES_DIR, "*.json")
+    for filepath in sorted(glob.glob(pattern)):
+        style_id = os.path.splitext(os.path.basename(filepath))[0]
+        try:
+            with open(filepath, "r", encoding="utf-8") as f:
+                all_styles[style_id] = json.load(f)
+        except (json.JSONDecodeError, IOError) as e:
+            print(f"Warning: Could not load style '{style_id}': {e}")
+    return all_styles
 
 
 def get_enhanced_default_styles() -> Dict[str, str]:
-    """Get enhanced default styles for light mode"""
     return {
         "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; font-size: 16px; line-height: 1.8; color: #333; background-color: #ffffff;",
         "h1": "font-size: 28px; line-height: 1.4; font-weight: 700; color: #2c3e50; position: relative; padding-bottom: 16px; border-bottom: 2px solid #3498db; margin: 32px 0 24px;",
@@ -34,7 +46,6 @@ def get_enhanced_default_styles() -> Dict[str, str]:
 
 
 def get_enhanced_dark_styles() -> Dict[str, str]:
-    """Get enhanced dark mode styles"""
     return {
         "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; font-size: 16px; line-height: 1.8; color: #e8e8e8; background-color: #1a1a1a;",
         "h1": "font-size: 28px; line-height: 1.4; font-weight: 700; color: #ffffff; position: relative; padding-bottom: 16px; border-bottom: 2px solid #3498db; margin: 32px 0 24px;",
@@ -61,7 +72,6 @@ def get_enhanced_dark_styles() -> Dict[str, str]:
 
 
 def get_default_themes() -> Dict[str, Any]:
-    """Return default themes if styles.js cannot be loaded"""
     return {
         "wechat-default": {
             "name": "默认样式",
@@ -88,10 +98,12 @@ def get_default_themes() -> Dict[str, Any]:
 
 
 def load_themes() -> Dict[str, Any]:
-    """Load theme configurations from styles.py module"""
     try:
-        from styles import STYLES
-        return STYLES
+        themes = _load_all_styles()
+        if themes:
+            return themes
+        print("Warning: No style files found in styles/ directory")
+        return get_default_themes()
     except Exception as e:
-        print(f"Warning: Could not load themes from styles.py: {e}")
+        print(f"Warning: Could not load themes: {e}")
         return get_default_themes()

@@ -1,0 +1,28 @@
+{
+  "name": "运动风 - 活力动感",
+  "styles": {
+    "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: '__Inter_e8ce0c', '__Inter_Fallback_e8ce0c', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 15px; line-height: 1.8 !important; color: #333333 !important; background-color: #ffffff !important; word-wrap: break-word;",
+    "h1": "font-size: 24px; font-weight: 800; color: #ffffff !important; line-height: 1.2 !important; margin: 33px 0px 16.5px; padding: 19.2px 33px; background: linear-gradient(45deg, #00a968, #ff6600, #38c6f4) !important; border-radius: 8px; text-align: center; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0px 4px 15px 0px rgba(0, 169, 104, 0.3);",
+    "h2": "font-size: 20px; font-weight: 700; color: #00a968 !important; line-height: 1.5 !important; margin: 36px 0px 20px; padding: 10px 0px 12px 16px; border-left: 5px solid #00a968;",
+    "h3": "font-size: 18px; font-weight: 700; color: #ff6600 !important; line-height: 1.5 !important; margin: 28.8px 0px 14.4px; padding: 7.2px 0px 9px 12.6px; border-left: 4px solid #ff6600;",
+    "h4": "font-size: 16px; font-weight: 600; color: #38c6f4 !important; line-height: 1.5 !important; margin: 24px 0px 12.8px; padding: 4.8px 0px 6.4px 9.6px; border-left: 3px solid #38c6f4;",
+    "h5": "font-size: 15px; font-weight: 600; color: #00a968 !important; line-height: 1.5 !important; margin: 18px 0px 9px; padding: 3px 0px 3px 7.5px; border-left: 2px solid #00a968;",
+    "h6": "font-size: 14px; font-weight: 600; color: #666666 !important; line-height: 1.5 !important; margin: 14px 0px 7px; padding: 1.4px 0px 1.4px 7px; border-left: 1px solid #666666;",
+    "p": "margin: 18px 0px !important; line-height: 1.8 !important; color: #333333 !important; text-align: justify; letter-spacing: 1.5px;",
+    "strong": "font-weight: 700; color: #00a968 !important; text-transform: uppercase;",
+    "em": "font-style: italic; color: #ff6600 !important; font-weight: 600;",
+    "a": "color: #00a968 !important; text-decoration: none; border-bottom: 2px solid #00a968; font-weight: 600;",
+    "ul": "margin: 18px 0px; padding-left: 24px;",
+    "ol": "margin: 18px 0px; padding-left: 24px;",
+    "li": "margin: 6px 0px; line-height: 1.5 !important; color: #333333 !important; font-weight: 500;",
+    "blockquote": "margin: 24px 0px; padding: 16px 19.2px; background-color: rgba(0, 169, 104, 0.02) !important; border-left: 4px solid #00a968; color: #333333 !important; border-radius: 8px;",
+    "code": "font-family: SFMono-Regular, Consolas, Menlo, monospace; font-size: 13.5px; padding: 3px 6px; background-color: rgba(56, 198, 244, 0.1) !important; color: #38c6f4 !important; border-radius: 4px; font-weight: 600;",
+    "pre": "margin: 21px 0px; padding: 16.8px; background-color: #f0f9ff !important; color: #141413 !important; border-radius: 8px; overflow-x: auto; line-height: 1.5 !important; box-shadow: 0px 4px 15px 0px rgba(56, 198, 244, 0.2);",
+    "hr": "margin: 32px 0px; border: none; height: 3px; background: repeating-linear-gradient(45deg, #00a968, #00a968 10px, #ff6600 10px, #ff6600 20px); border-radius: 2px;",
+    "img": "max-width: 100%; max-height: 600px !important; height: auto; display: block; margin: 20px auto; border-radius: 8px; border: 3px solid #00a968;",
+    "table": "width: 100%; margin: 18px 0px; border-collapse: collapse; font-size: 15px;",
+    "th": "background-color: rgba(0, 169, 104, 0.1) !important; padding: 8px 12px; text-align: left; font-weight: 700; color: #00a968 !important; border-bottom: 3px solid #00a968;",
+    "td": "padding: 8px 12px; border-bottom: 1px solid #e1e4e8; color: #333333 !important;",
+    "tr": "border-bottom: 1px solid #e1e4e8;"
+  }
+}

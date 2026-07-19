@@ -1,0 +1,29 @@
+{
+  "name": "波普艺术·粉蓝",
+  "enName": "Pop Art·Pink & Blue",
+  "styles": {
+    "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: \"Comic Sans MS\", \"Chalkboard SE\", \"Comic Neue\", cursive; font-size: 16px; line-height: 1.8 !important; color: #252a34 !important; background: #a6dcef !important; word-wrap: break-word;",
+    "h1": "font-size: 32px; font-weight: 800; color: #252a34; text-transform: uppercase; letter-spacing: 1px; text-shadow: 3px 3px 0 #ff4e79; padding-bottom: 10px; margin: 32px 0 16px; position: relative;",
+    "h2": "font-size: 24px; font-weight: 700; color: #252a34; background-color: #7fd1ae; padding: 4px 10px; transform: rotate(-2deg); margin: 28px 0 14px; border: 3px solid #252a34;",
+    "h3": "font-size: 20px; font-weight: 700; color: #252a34; background-color: #ffd666; padding: 4px 10px; border-radius: 4px; margin: 24px 0 12px; transform: rotate(1deg);",
+    "h4": "font-size: 18px; font-weight: 600; color: #252a34; line-height: 1.4 !important; margin: 20px 0 10px; border-left: 5px solid #ff4e79; padding-left: 12px;",
+    "h5": "font-size: 17px; font-weight: 600; color: #252a34; line-height: 1.4 !important; margin: 18px 0 9px; background: repeating-linear-gradient(45deg, #ff4e79, #ff4e79 5px, #7fd1ae 5px, #7fd1ae 10px); padding: 8px;",
+    "h6": "font-size: 16px; font-weight: 600; color: #252a34; line-height: 1.4 !important; margin: 16px 0 8px; border: 2px dotted #252a34; padding: 6px;",
+    "p": "margin: 16px 0 !important; line-height: 1.8 !important; color: #252a34 !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);",
+    "strong": "font-weight: 700; color: #252a34; background-color: #fff; padding: 0 5px; border: 3px solid #252a34; display: inline-block; transform: rotate(-2deg); box-shadow: 3px 3px 0 #252a34;",
+    "em": "font-style: italic; color: #7fd1ae; font-weight: 600; text-decoration: underline wavy #ffd666;",
+    "a": "color: #ff4e79 !important; text-decoration: none; font-weight: 700; border-bottom: 3px solid #252a34; padding: 0 3px; transition: all 0.3s ease; background-color: #fff;",
+    "ul": "margin: 16px 0; padding-left: 24px; background-color: rgba(#ff4e7922); padding: 15px; border: 2px solid #252a34; border-radius: 8px;",
+    "ol": "margin: 16px 0; padding-left: 24px; counter-reset: item; background-color: rgba(#7fd1ae22); padding: 15px; border: 2px dashed #252a34; border-radius: 8px;",
+    "li": "margin: 10px 0; line-height: 1.8 !important; color: #252a34 !important; position: relative; padding-left: 25px; font-weight: 600;",
+    "blockquote": "margin: 20px 0; padding: 15px 20px; background-color: rgba(#ff4e7922); border-left: 8px solid #ff4e79; color: #252a34 !important; font-style: italic; font-weight: 600; border-radius: 0 8px 8px 0; position: relative;",
+    "code": "font-family: \"Comic Sans MS\", cursive; background: #fff; padding: 4px 8px; border-radius: 4px; font-size: 14px; color: #ff4e79; border: 2px solid #252a34; font-weight: 600;",
+    "pre": "margin: 20px 0; padding: 16px; background-color: undefined !important; border-radius: 8px; overflow-x: auto; line-height: 1.6 !important; border: 3px solid #252a34; box-shadow: 5px 5px 0 #252a34; color: #fff !important;",
+    "hr": "margin: 32px 0; border: none; height: 6px; background: repeating-linear-gradient(45deg, #ff4e79, #ff4e79 10px, #7fd1ae 10px, #7fd1ae 20px); border-radius: 3px;",
+    "img": "max-width: 100%; max-height: 600px !important; height: auto; display: block; margin: 20px auto; border: 5px solid #252a34; border-radius: 0; box-shadow: 8px 8px 0 #ff4e79; transform: rotate(-1deg);",
+    "table": "width: 100%; margin: 20px 0; border-collapse: separate; border-spacing: 5px; font-size: 15px; background: rgba(#ff4e7922); border: 3px solid #252a34; border-radius: 8px;",
+    "th": "background: linear-gradient(45deg, #ff4e79, #7fd1ae); color: #fff !important; padding: 12px; text-align: left; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; border-radius: 4px;",
+    "td": "padding: 12px; border-bottom: 2px solid #252a34; color: #252a34 !important; background: #fff; border-radius: 4px;",
+    "tr": "border-bottom: 2px solid #252a34;"
+  }
+}

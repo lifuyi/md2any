@@ -1,0 +1,28 @@
+{
+  "name": "经典温暖",
+  "styles": {
+    "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: 'PingFang SC', -apple-system-font, system-ui, 'Helvetica Neue', 'Hiragino Sans GB', 'Microsoft YaHei UI', 'Microsoft YaHei', Arial, sans-serif; font-size: 15px; line-height: 1.75 !important; color: #222222 !important; background-color: #faf9f5 !important; word-wrap: break-word;",
+    "h1": "font-size: 22px; font-weight: 700; color: #ffffff !important; line-height: 1.2 !important; margin: 33px 8px 16.5px 0px; padding: 17.6px 33px; background-color: #c86442 !important; border-radius: 8px; text-align: center; box-shadow: 0px 2px 8px 0px rgba(200, 100, 66, 0.2);",
+    "h2": "font-size: 20px; font-weight: 700; color: #3f3f3f !important; line-height: 1.2 !important; margin: 40px 8px 15px 0px; padding: 0px 0px 10px 12px; border-left: 4px solid #3f3f3f;",
+    "h3": "font-size: 18px; font-weight: 700; color: #3f3f3f !important; line-height: 1.2 !important; margin: 36px 8px 13.5px 0px; padding: 0px 0px 7.2px 12px; border-left: 3px solid #3f3f3f;",
+    "h4": "font-size: 16px; font-weight: 700; color: #3f3f3f !important; line-height: 1.2 !important; margin: 24px 8px 8px 0px; padding: 0px 0px 0px 12px; border-left: 2px solid #3f3f3f;",
+    "h5": "font-size: 15px; font-weight: 700; color: #3f3f3f !important; line-height: 1.2 !important; margin: 18px 8px 6px 0px; padding: 0px 0px 0px 8px; border-left: 2px solid #3f3f3f;",
+    "h6": "font-size: 14px; font-weight: 700; color: #3f3f3f !important; line-height: 1.2 !important; margin: 14px 8px 4.2px 0px; padding: 0px 0px 0px 6px; border-left: 1px solid #3f3f3f;",
+    "p": "margin: 18px 8px !important; line-height: 1.75 !important; color: #222222 !important; text-align: justify; letter-spacing: 1.5px;",
+    "strong": "font-weight: 700; color: #c86442 !important;",
+    "em": "font-style: italic; color: #666666 !important;",
+    "a": "color: #c86442 !important; text-decoration: none; border-bottom: 1px solid #c86442;",
+    "ul": "margin: 0px 8px 22.5px; padding-left: 24px;",
+    "ol": "margin: 0px 8px 22.5px; padding-left: 24px;",
+    "li": "margin: 7.5px 0px; line-height: 1.75 !important; color: #3f3f3f !important;",
+    "blockquote": "margin: 24px 0px 32px; padding: 16px 16px 16px 32px; background-color: #f7f7f7 !important; border-left: 4px solid #cccccc; color: rgba(0, 0, 0, 0.6) !important; border-radius: 6px;",
+    "code": "font-family: Menlo, Monaco, Consolas, 'Courier New', monospace; font-size: 13.5px; padding: 3px 6px; background-color: rgba(200, 100, 66, 0.1) !important; color: #c86442 !important; border-radius: 4px;",
+    "pre": "margin: 21px 8px; padding: 16.8px; background-color: #fafafa !important; color: #141413 !important; border-radius: 8px; overflow-x: auto; line-height: 1.5 !important; box-shadow: 0px 2px 8px 0px rgba(200, 100, 66, 0.1);",
+    "hr": "margin: 32px 0px; border: none; height: 1px; background-color: #e0e0e0 !important;",
+    "img": "max-width: 100%; max-height: 600px !important; height: auto; display: block; margin: 20px auto; border-radius: 8px;",
+    "table": "width: 100%; margin: 16px 8px; border-collapse: collapse; font-size: 15px;",
+    "th": "background-color: #f6f6f4 !important; padding: 8px 12px; text-align: left; border: 1px solid #e5e5e5; font-weight: 700; color: #141413 !important;",
+    "td": "padding: 8px 12px; border: 1px solid #e5e5e5; color: #141413 !important;",
+    "tr": "border-bottom: 1px solid #e5e5e5;"
+  }
+}

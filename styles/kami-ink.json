@@ -1,0 +1,45 @@
+{
+  "name": "纸墨",
+  "description": "Kami 纸系·墨蓝。宋体衬线+极浅暖白底+墨蓝 #27548A 点缀，加粗渐变下划高亮、❖ 装饰分隔。沉稳专业，适合深度解读、研报、严肃长文",
+  "modes": [
+    {
+      "name": "默认",
+      "id": "light-mode",
+      "class": "",
+      "background": "#FCFBF9"
+    }
+  ],
+  "styles": {
+    "container": "background-color: #FCFBF9; font-family: 'Songti SC','Source Han Serif SC','Noto Serif CJK SC','STSong',Georgia,serif;",
+    "h1": "font-size: 27px; font-weight: 700; color: #27548A; text-align: center; line-height: 1.45; letter-spacing: 1px; border-bottom: 2px solid #27548A; margin-top: 34px; margin-bottom: 24px; font-family: 'Songti SC','Source Han Serif SC','Noto Serif CJK SC','STSong',Georgia,serif;",
+    "h2": "font-size: 20px; font-weight: 700; color: #1F2A33; line-height: 1.5; border-left: 4px solid #27548A; margin-top: 32px; margin-bottom: 16px; font-family: 'Songti SC','Source Han Serif SC','Noto Serif CJK SC','STSong',Georgia,serif;",
+    "h3": "font-size: 17px; font-weight: 600; color: #27548A; line-height: 1.5; border-bottom: 1px solid #3A6BA5; margin-top: 26px; margin-bottom: 12px; font-family: 'Songti SC','Source Han Serif SC','Noto Serif CJK SC','STSong',Georgia,serif;",
+    "h4": "font-size: 16px; font-weight: 600; color: #1F2A33; border-left: 2px solid #e6e3da; margin-top: 22px; margin-bottom: 8px; line-height: 1.5; font-family: 'Songti SC','Source Han Serif SC','Noto Serif CJK SC','STSong',Georgia,serif;",
+    "h5": "font-size: 15px; font-weight: 600; color: #1F2A33; margin-top: 18px; margin-bottom: 6px; line-height: 1.5; font-family: 'Songti SC','Source Han Serif SC','Noto Serif CJK SC','STSong',Georgia,serif;",
+    "h6": "font-size: 14px; font-weight: 600; color: #8a857c; margin-top: 16px; margin-bottom: 6px; line-height: 1.5; font-family: 'Songti SC','Source Han Serif SC','Noto Serif CJK SC','STSong',Georgia,serif;",
+    "p": "font-size: 16px; color: #1F2A33; line-height: 1.85; margin-top: 0; margin-bottom: 18px; letter-spacing: 0.3px; text-align: justify; font-family: 'Songti SC','Source Han Serif SC','Noto Serif CJK SC','STSong',Georgia,serif;",
+    "blockquote": "border-left: 4px solid #27548A; background: #F1F5FA; margin-top: 16px; margin-bottom: 16px; border-radius: 0 6px 6px 0; font-size: 15px; color: #8a857c; line-height: 1.78; font-family: 'Songti SC','Source Han Serif SC','Noto Serif CJK SC','STSong',Georgia,serif;",
+    "blockquote p": "font-size: 14px; color: #1F2A33; line-height: 1.78; margin-bottom: 0; background: transparent; font-family: 'Songti SC','Source Han Serif SC','Noto Serif CJK SC','STSong',Georgia,serif; letter-spacing: 0.2px;",
+    "strong": "font-weight: 700; color: #1F2A33; background: linear-gradient(180deg, transparent 56%, #DCE7F2 56%, #DCE7F2 100%);",
+    "em": "font-style: normal; color: #27548A; font-family: 'Songti SC','Source Han Serif SC','Noto Serif CJK SC','STSong',Georgia,serif;",
+    "a": "color: #27548A; text-decoration: underline;",
+    "img": "max-width: 100%; border-radius: 6px; display: block; box-shadow: 0 4px 22px rgba(0,0,0,0.06); background: transparent; margin-top: 10px; margin-bottom: 10px;",
+    "hr": "margin-top: 34px; margin-bottom: 34px; border: none; text-align: center; color: #27548A; font-size: 15px; letter-spacing: 10px; content: ❖ ❖ ❖;",
+    "code": "background: #EEF2F7; border-radius: 3px; font-size: 14px; color: #27548A; font-family: 'SF Mono', Consolas, Menlo, monospace;",
+    "pre": "background: #EEF2F7; border-radius: 0; margin-top: 0; margin-bottom: 0; overflow: hidden; border: 1px solid #e6e3da; color: #1F2A33; overflow-x: auto; font-size: 13.5px; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; word-break: break-all;",
+    "pre::before": "display: flex; align-items: center; height: 3px; background: #27548A;",
+    "pre code": "background: none; color: #1F2A33; font-size: 13.5px; font-family: 'SF Mono', Consolas, Menlo, monospace;",
+    "table": "width: 100%; border-collapse: collapse; margin-top: 22px; margin-bottom: 22px; font-size: 15px; overflow: hidden; font-family: 'Songti SC','Source Han Serif SC','Noto Serif CJK SC','STSong',Georgia,serif;",
+    "th": "background: #F1F5FA; border-bottom: 2px solid #27548A; text-align: left; font-weight: 700; color: #1F2A33; font-family: 'Songti SC','Source Han Serif SC','Noto Serif CJK SC','STSong',Georgia,serif;",
+    "td": "border-bottom: 1px solid #e6e3da; color: #1F2A33; font-family: 'Songti SC','Source Han Serif SC','Noto Serif CJK SC','STSong',Georgia,serif;",
+    "ul li::marker": "color: #27548A; margin-right: 9px; font-weight: bold; content: ▪;",
+    "ol li::marker": "display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; min-width: 22px; background: #DCE7F2; color: #27548A; border-radius: 50%; font-size: 13px; font-weight: bold; margin-right: 10px; margin-top: 4px;",
+    "li": "font-size: 16px; color: #1F2A33; line-height: 1.85; letter-spacing: 0.3px; font-family: 'Songti SC','Source Han Serif SC','Noto Serif CJK SC','STSong',Georgia,serif; display: flex; margin-bottom: 9px; align-items: flex-start;",
+    "ul": "margin-top: 18px; margin-bottom: 18px;",
+    "footnotes": "margin-top: 32px; padding-top: 16px; border-top: 1px solid #e6e3da;",
+    "footnotes h2": "font-size: 14px; font-weight: bold; color: #8a857c; margin-bottom: 12px; font-family: 'Songti SC','Source Han Serif SC','Noto Serif CJK SC','STSong',Georgia,serif;",
+    "footnotes li": "font-size: 13px; color: #8a857c; margin-bottom: 6px; line-height: 1.6; word-break: break-all;",
+    "sup": "font-size: 12px; color: #27548A; vertical-align: super; margin-left: 2px;",
+    "blockquote strong": "font-weight: 700; color: #27548A; margin-bottom: 8px; font-size: 15px; font-family: 'Songti SC','Source Han Serif SC','Noto Serif CJK SC','STSong',Georgia,serif;"
+  }
+}

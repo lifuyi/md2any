@@ -1,0 +1,45 @@
+{
+  "name": "清新卡片",
+  "description": "春日嫩绿 #6b9b7a 强调，淡绿底+卡片布局+点状纹理+清新阴影，适合生活方式、自然主题",
+  "modes": [
+    {
+      "name": "默认",
+      "id": "light-mode",
+      "class": "",
+      "background": "#f5f8f5"
+    }
+  ],
+  "styles": {
+    "container": "background-color: #f5f8f5;",
+    "h1": "font-size: 22px; font-weight: bold; color: #3d4a3d; text-align: center; margin-top: 0; margin-bottom: 12px; line-height: 1.3; border-bottom: 1px dashed rgba(74,128,88,0.3);",
+    "h2": "font-size: 20px; font-weight: bold; color: #6b9b7a; border-bottom: 1px dashed rgba(74,128,88,0.3); margin-top: 32px; margin-bottom: 16px; line-height: 1.3;",
+    "h3": "font-size: 18px; font-weight: bold; color: #6b9b7a; border-bottom: 2px solid #6b9b7a; margin-top: 28px; margin-bottom: 12px; line-height: 1.3; display: inline-block;",
+    "p": "font-size: 15px; color: #3d4a3d; line-height: 1.75; margin-top: 0; margin-bottom: 20px; letter-spacing: 0.5px; text-align: justify;",
+    "blockquote": "border-left: 5px solid #6b9b7a; background: linear-gradient(135deg, #e8f0e8, #f0f5f0); margin-top: 16px; margin-bottom: 16px; border-radius: 12px; font-size: 15px; color: #3d4a3d; line-height: 1.75; font-style: italic; box-shadow: inset 0 0 15px rgba(107,155,122,0.1); border: 2px solid #6b9b7a;",
+    "blockquote p": "font-size: 14px; color: #3d4a3d; line-height: 1.8; margin-bottom: 0; letter-spacing: 0.3px; font-style: normal; background: transparent;",
+    "strong": "font-weight: bold; color: #4a8058;",
+    "em": "font-style: italic; color: #666666;",
+    "a": "color: #6b9b7a; text-decoration: none;",
+    "img": "max-width: 100%; border-radius: 14px; display: block; box-shadow: 0 4px 12px rgba(107,155,122,0.15); background: #ffffff; margin-top: 10px; margin-bottom: 10px;",
+    "hr": "margin-top: 32px; margin-bottom: 32px; height: 1px; background: rgba(74,128,88,0.1); border: none;",
+    "code": "background: rgba(107,155,122,0.1); border-radius: 4px; font-size: 90%; color: #4a8058; font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;",
+    "pre": "background: #f5f8f5; border-radius: 0; margin-top: 0; margin-bottom: 0; overflow: hidden; border-top: 3px solid #6b9b7a; box-shadow: 0 4px 12px rgba(107,155,122,0.1); color: #3d4a3d; overflow-x: auto; font-size: 14px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; word-break: break-all;",
+    "pre::before": "display: flex; align-items: center; height: 36px; background: #e8ede8;",
+    "pre code": "background: none; color: #3d4a3d; font-size: 14px; font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;",
+    "table": "width: 100%; border-collapse: separate; margin-top: 16px; margin-bottom: 16px; font-size: 15px; border-spacing: 0; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(107,155,122,0.08);",
+    "th": "background: rgba(107,155,122,0.06); border: 1px solid rgba(74,128,88,0.1); text-align: left; font-weight: bold; color: #3d4a3d;",
+    "td": "border: 1px solid rgba(74,128,88,0.1); color: #3d4a3d;",
+    "ul li::marker": "color: #6b9b7a; margin-right: 8px; font-weight: bold;",
+    "ol li::marker": "display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; min-width: 22px; background: rgba(107,155,122,0.12); color: #6b9b7a; border-radius: 50%; font-size: 13px; font-weight: bold; margin-right: 10px; margin-top: 4px;",
+    "li": "font-size: 15px; color: #3d4a3d; line-height: 1.75; letter-spacing: 0.5px; display: flex; margin-bottom: 8px; align-items: flex-start;",
+    "ul": "margin-top: 15px; margin-bottom: 15px;",
+    "footnotes": "margin-top: 32px; padding-top: 16px; border-top: 1px dashed rgba(74,128,88,0.2);",
+    "footnotes h2": "font-size: 14px; font-weight: bold; color: #999999; margin-bottom: 12px;",
+    "footnotes li": "font-size: 13px; color: #999999; margin-bottom: 6px; line-height: 1.6; word-break: break-all;",
+    "sup": "font-size: 12px; color: #6b9b7a; vertical-align: super; margin-left: 2px;",
+    "blockquote strong": "font-weight: bold; color: #4a8058; margin-bottom: 8px; font-size: 15px;",
+    "h4": "font-size: 17px; font-weight: bold; color: #4a8058; margin-top: 24px; margin-bottom: 8px; line-height: 1.3;",
+    "h5": "font-size: 16px; font-weight: bold; color: #555555; margin-top: 20px; margin-bottom: 6px; line-height: 1.3;",
+    "h6": "font-size: 15px; font-weight: bold; color: #888888; margin-top: 16px; margin-bottom: 6px; line-height: 1.3;"
+  }
+}

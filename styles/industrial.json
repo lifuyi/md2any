@@ -1,0 +1,40 @@
+{
+  "name": "工业警戒",
+  "description": "工业警示标语感：深灰 #1F1F1F 底 + 警示橙 #FF6B00 + Inter Bold。H1 超大 Black 粗体+橙底+斜纹警戒条感、H2 橙字+左黄黑斜条、p 浅灰、blockquote 橙框警示牌感、hr 黄黑斜纹条。建筑工地/工厂警戒感（vs brutalism 纯黑派，vs terminal 荧光派）。适合硬核测评/行业警示/问题揭露/批评文。",
+  "modes": [
+    {
+      "name": "默认",
+      "id": "light-mode",
+      "class": "",
+      "background": "#1F1F1F"
+    }
+  ],
+  "styles": {
+    "container": "background-color: #1F1F1F; font-family: 'Inter','Helvetica Neue','Arial','PingFang SC',sans-serif;",
+    "h1": "font-size: 32px; font-weight: 900; color: #1F1F1F; line-height: 1.15; margin-top: 36px; margin-bottom: 24px; background: #FF6B00; letter-spacing: -0.01em; text-transform: uppercase; border-left: 8px solid #FFD700; border-right: 8px solid #FFD700;",
+    "h2": "font-size: 20px; font-weight: 900; color: #FF6B00; line-height: 1.3; margin-top: 32px; margin-bottom: 16px; border-left: 6px solid #FF6B00; letter-spacing: 2px; text-transform: uppercase; background: linear-gradient(135deg,#FFD700 0 12px,transparent 12px);",
+    "h3": "font-size: 17px; font-weight: 800; color: #FFD700; line-height: 1.4; margin-top: 26px; margin-bottom: 12px; letter-spacing: 2px; text-transform: uppercase;",
+    "h4": "font-size: 14px; font-weight: 700; color: #1F1F1F; background: #FFD700; display: inline-block; line-height: 1.4; margin-top: 22px; margin-bottom: 10px; letter-spacing: 2.5px; text-transform: uppercase;",
+    "h5": "font-size: 14px; font-weight: 700; color: #E8E8E8; margin-top: 18px; margin-bottom: 8px; line-height: 1.4;",
+    "h6": "font-size: 12px; font-weight: 700; color: #999999; margin-top: 16px; margin-bottom: 6px; line-height: 1.4; letter-spacing: 2px; text-transform: uppercase;",
+    "p": "font-size: 16px; color: #E8E8E8; line-height: 1.75; margin-top: 0; margin-bottom: 16px; letter-spacing: 0.3px;",
+    "blockquote": "background: rgba(255,107,0,0.10); border: 2px solid #FF6B00; border-radius: 0; margin-top: 22px; margin-bottom: 22px; font-size: 14px; color: #FF6B00; line-height: 1.7; font-weight: 600;",
+    "blockquote p": "font-size: 14px; color: #FF6B00; line-height: 1.7; margin-bottom: 0; background: transparent; font-weight: 600;",
+    "strong": "font-weight: 900; color: #FFD700; background: #1F1F1F;",
+    "em": "font-style: italic; color: #FF6B00;",
+    "a": "color: #FFD700; text-decoration: underline; text-underline-offset: 3px;",
+    "img": "max-width: 100%; display: block; margin-top: 18px; margin-bottom: 18px; border: 4px solid #FF6B00; background: transparent;",
+    "hr": "margin-top: 30px; margin-bottom: 30px; height: 10px; border: none; background: repeating-linear-gradient(-45deg,#FFD700 0 12px,#1F1F1F 12px 24px);",
+    "code": "background: rgba(255,107,0,0.15); border-radius: 0; font-size: 92%; color: #FFD700; font-family: 'JetBrains Mono','SF Mono',Menlo,monospace; border: 1px solid #FF6B00; font-weight: 600;",
+    "pre": "background: #141414; border: 2px solid #FF6B00; border-radius: 0; margin-top: 0; margin-bottom: 0; overflow: hidden; color: #E8E8E8; overflow-x: auto; font-size: 13px; line-height: 1.65; white-space: pre-wrap;",
+    "pre::before": "display: flex; align-items: center; height: 30px; background: #FF6B00; color: #1F1F1F; font-size: 11px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase;",
+    "pre code": "background: none; color: #E8E8E8; font-size: 13px; font-family: 'JetBrains Mono','SF Mono',Menlo,monospace;",
+    "table": "width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 20px; font-size: 13px; border: 2px solid #FF6B00;",
+    "th": "text-align: left; font-weight: 900; color: #1F1F1F; background: #FF6B00; letter-spacing: 1.5px; text-transform: uppercase; font-size: 11px;",
+    "td": "border: 1px solid rgba(255,107,0,0.3); color: #E8E8E8;",
+    "ul li::marker": "color: #1F1F1F; background: #FFD700; margin-right: 10px; font-weight: 900;",
+    "ol li::marker": "color: #FFD700; background: #FF6B00; font-weight: 900; margin-right: 10px;",
+    "li": "font-size: 16px; color: #E8E8E8; line-height: 1.75; letter-spacing: 0.3px; display: flex; margin-bottom: 6px; align-items: flex-start;",
+    "ul": "margin-top: 12px; margin-bottom: 12px;"
+  }
+}

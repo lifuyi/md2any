@@ -1,0 +1,69 @@
+{
+  "name": "商务简报",
+  "modes": [
+    {
+      "name": "浅色",
+      "id": "light-mode",
+      "class": "",
+      "background": "#ffffff"
+    },
+    {
+      "name": "深色",
+      "id": "dark-mode",
+      "class": "dark-mode",
+      "background": "#1f2937"
+    }
+  ],
+  "styles": {
+    "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: \"SF Pro Display\", \"PingFang SC\", \"Helvetica Neue\", sans-serif; font-size: 16px; line-height: 1.8 !important; color: #3f3f3f !important; background-color: #ffffff; word-wrap: break-word;",
+    "h1": "\n  font-family: \"SF Pro Display\", \"PingFang SC\", \"Helvetica Neue\", sans-serif;\n  font-size: 24px;\n  position: relative;\n  color: #1e3a8a;\n  margin-bottom: 16px;\n  font-weight: 600;\n  text-align: left;\n  padding-bottom: 12px;\n  border-bottom: 1px solid #e5e7eb;\n",
+    "h2": "\n  font-size: 18px;\n  color: #1e3a8a;\n  margin-bottom: 16px;\n  font-weight: 500;\n  text-align: left;\n  position: relative;\n  padding: 8px 8px 8px 12px;\n  border-left: 3px solid #3b82f6;\n",
+    "h3": "\n  display: block;\n  color: #1e3a8a;\n  margin-bottom: 6px;\n  font-size: 16px;\n  font-weight: 600;\n",
+    "h4": "font-size: 18px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 20px 0 10px;",
+    "h5": "font-size: 17px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 18px 0 9px;",
+    "h6": "\n  color: #6b8c42;\n  margin-top: 1.2em;\n  margin-bottom: 0.5em;\n  font-weight: 700;\n  border-bottom: 1px solid #d4d9c9;\n  padding-bottom: 0.3em;\n",
+    "p": "\n  color: #334155;\n  font-size: 15px;\n",
+    "strong": "\n  color: #1e3a8a;\n  font-weight: 600;\n",
+    "em": "\n  color: #3b82f6;\n  font-style: italic;\n",
+    "a": "\n  color: #2563eb;\n  text-decoration: none;\n  border-bottom: 1px solid rgba(37, 99, 235, 0.2);\n  transition: all 0.2s ease;\n",
+    "ul": "\n  padding-left: 0;\n",
+    "ol": "\n  padding-left: 20px;\n",
+    "li": "\n  position: relative;\n  \n  \n  margin-bottom: 12px;\n  color: #334155;\n  line-height: 1.6;\n  font-size: 15px;\n",
+    "ol > li": "position: relative; counter-increment: item; list-style: none; margin-bottom: 12px;",
+    "blockquote": "\n  background-color: #f8fafc;\n  border-left: 4px solid #3b82f6;\n  color: #475569;\n  padding: 12px 16px;\n  margin: 16px 0;\n  font-style: italic;\n",
+    "code": "\n  display: block;\n  padding-left: 15px;\n  line-height: 1.5;\n",
+    "pre": "\n  border: 1px solid #e5e7eb;\n  background-color: #f8fafc;\n  border-radius: 4px;\n  padding: 12px;\n  overflow-x: auto;\n",
+    "hr": "\n  height: 1px;\n  border: none;\n  background: #e5e7eb;\n  margin: 20px 0;\n",
+    "img": "\n  border-radius: 4px;\n  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);\n",
+    "table": "\n  border-collapse: collapse;\n  margin: 20px 0;\n  width: 100%;\n  border: 1px solid #e5e7eb;\n  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);\n",
+    "th": "\n  background-color: #f8fafc;\n  color: #1e3a8a;\n  padding: 10px;\n  text-align: left;\n  border: 1px solid #e5e7eb;\n  font-weight: 600;\n",
+    "td": "\n  color: #334155;\n  padding: 10px;\n  border: 1px solid #e5e7eb;\n",
+    "tr": "border-bottom: 1px solid #e0e0e0;"
+  },
+  "dark-mode": {
+    "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: \"SF Pro Display\", \"PingFang SC\", \"Helvetica Neue\", sans-serif; font-size: 16px; line-height: 1.8 !important; color: #e5e7eb; background-color: #1f2937; word-wrap: break-word;",
+    "h1": "\n  font-family: \"SF Pro Display\", \"PingFang SC\", \"Helvetica Neue\", sans-serif;\n  font-size: 24px;\n  position: relative;\n  color: #60a5fa;\n  margin-bottom: 16px;\n  font-weight: 600;\n  text-align: left;\n  padding-bottom: 12px;\n  border-bottom: 1px solid #374151;\n",
+    "h2": "\n  font-size: 18px;\n  color: #60a5fa;\n  margin-bottom: 16px;\n  font-weight: 500;\n  text-align: left;\n  position: relative;\n  padding: 8px 8px 8px 12px;\n  border-left: 3px solid #3b82f6;\n",
+    "h3": "\n  display: block;\n  color: #60a5fa;\n  margin-bottom: 6px;\n  font-size: 16px;\n  font-weight: 600;\n",
+    "h4": "font-size: 18px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 20px 0 10px;",
+    "h5": "font-size: 17px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 18px 0 9px;",
+    "h6": "\n  color: #6b8c42;\n  margin-top: 1.2em;\n  margin-bottom: 0.5em;\n  font-weight: 700;\n  border-bottom: 1px solid #d4d9c9;\n  padding-bottom: 0.3em;\n",
+    "p": "\n  color: #d1d5db;\n  font-size: 15px;\n",
+    "strong": "\n  color: #60a5fa;\n  font-weight: 600;\n",
+    "em": "\n  color: #3b82f6;\n  font-style: italic;\n",
+    "a": "\n  color: #60a5fa;\n  text-decoration: none;\n  border-bottom: 1px solid rgba(96, 165, 250, 0.3);\n  transition: all 0.2s ease;\n",
+    "ul": "\n  padding-left: 0;\n",
+    "ol": "\n  padding-left: 20px;\n",
+    "li": "\n  position: relative;\n  \n  \n  margin-bottom: 12px;\n  color: #d1d5db;\n  line-height: 1.6;\n  font-size: 15px;\n",
+    "ol > li": "position: relative; counter-increment: item; list-style: none; margin-bottom: 12px;",
+    "blockquote": "\n  background-color: #374151;\n  border-left: 4px solid #3b82f6;\n  color: #9ca3af;\n  padding: 12px 16px;\n  margin: 16px 0;\n  font-style: italic;\n",
+    "code": "\n  display: block;\n  padding-left: 15px;\n  line-height: 1.5;\n",
+    "pre": "\n  border: 1px solid #374151;\n  background-color: #111827;\n  border-radius: 4px;\n  padding: 12px;\n  overflow-x: auto;\n",
+    "hr": "\n  height: 1px;\n  border: none;\n  background: #374151;\n  margin: 20px 0;\n",
+    "img": "\n  border-radius: 4px;\n  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);\n",
+    "table": "\n  border-collapse: collapse;\n  margin: 20px 0;\n  width: 100%;\n  border: 1px solid #374151;\n  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);\n",
+    "th": "\n  background-color: #374151;\n  color: #60a5fa;\n  padding: 10px;\n  text-align: left;\n  border: 1px solid #374151;\n  font-weight: 600;\n",
+    "td": "\n  color: #d1d5db;\n  padding: 10px;\n  border: 1px solid #374151;\n",
+    "tr": "border-bottom: 1px solid #374151;"
+  }
+}

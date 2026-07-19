@@ -1,0 +1,29 @@
+{
+  "name": "Instagram风格 - 经典渐变new",
+  "styles": {
+    "container": "width: 440px; margin: 0 auto; padding: 20px; font-family: \"PingFang SC\", -apple-system, \"system-ui\", \"Hiragino Sans GB\", \"Segoe UI\", \"Microsoft YaHei\", Arial, sans-serif; font-size: 16px; line-height: 28px !important; color: #24292e !important; background: linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%) !important; word-wrap: break-word; display: block; position: relative; overflow: visible;",
+    "innerContainer": "background: rgba(255, 255, 255, 0.8); border-radius: 12px; padding: 30px; margin: 20px 0; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);",
+    "h1": "font-size: 24px; font-weight: 600; color: #2c3e50 !important; line-height: 1.4 !important; margin: 32px 0 16px;",
+    "h2": "font-size: 22px; font-weight: 600; color: #2c3e50 !important; line-height: 1.4 !important; margin: 28px 0 14px;",
+    "h3": "font-size: 20px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 24px 0 12px;",
+    "h4": "font-size: 18px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 20px 0 10px;",
+    "h5": "font-size: 17px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 18px 0 9px;",
+    "h6": "font-size: 16px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 16px 0 8px;",
+    "p": "margin: 0 0 16px !important; line-height: 28px !important; color: #24292e !important; font-style: italic;",
+    "strong": "font-weight: 600; color: #2c3e50 !important;",
+    "em": "font-style: italic; color: #555 !important;",
+    "a": "color: #3498db !important; text-decoration: none; border-bottom: 1px solid #3498db;",
+    "ul": "margin: 16px 0; padding-left: 24px;",
+    "ol": "margin: 16px 0; padding: 15px; background-color: rgba(255, 255, 255, 0.7) !important; border: 1px dashed #a6a6a6; border-radius: 8px;",
+    "li": "margin: 8px 0; line-height: 1.8 !important;",
+    "blockquote": "margin: 16px 0 0; padding: 10px 20px; background-color: transparent !important; border-left: none; color: #24292e !important; line-height: 28px !important; font-style: italic;",
+    "code": "font-family: SFMono-Regular, Consolas, \"Liberation Mono\", Menlo, monospace; font-size: 14.4px; padding: 2px 5px; background-color: #eaecf1 !important; color: #24292e !important; border-radius: 4px; line-height: 25.2px;",
+    "pre": "margin: 20px 0; padding: 16px; background-color: #2d2d2d !important; border-radius: 8px; overflow-x: auto; line-height: 1.6 !important;",
+    "hr": "margin: 32px 0; border: none; border-top: 1px solid #e0e0e0;",
+    "img": "max-width: 100%; max-height: 600px !important; height: auto; display: block; margin: 20px auto; border-radius: 8px;",
+    "table": "width: 100%; margin: 20px 0; border-collapse: collapse; font-size: 15px;",
+    "th": "background-color: #f0f0f0 !important; padding: 10px; text-align: left; border: 1px solid #e0e0e0; font-weight: 600;",
+    "td": "padding: 10px; border: 1px solid #e0e0e0;",
+    "tr": "border-bottom: 1px solid #e0e0e0;"
+  }
+}

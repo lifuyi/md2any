@@ -1,0 +1,28 @@
+{
+  "name": "线圈笔记本",
+  "styles": {
+    "container": "max-width: 740px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif; font-size: 16px; line-height: 1.8 !important; color: #5271ff; background-color: #fff !important; word-wrap: break-word;",
+    "h1": "\n  font-size: 32px;\n  font-weight: 800;\n  color: var(--pop-text);\n  margin-top: 20px;\n  margin-bottom: 20px;\n  text-transform: uppercase;\n  letter-spacing: 1px;\n  text-shadow: 3px 3px 0 var(--pop-primary);\n  position: relative;\n  padding-bottom: 10px;\n",
+    "h2": "\n  font-size: 24px;\n  font-weight: 700;\n  color: var(--pop-text);\n  margin-top: 24px;\n  margin-bottom: 16px;\n  background-color: var(--pop-accent2);\n  padding: 4px 10px;\n  transform: rotate(-2deg);\n",
+    "h3": "\n  font-size: 20px;\n  font-weight: 700;\n  color: var(--pop-text);\n  margin-top: 20px;\n  margin-bottom: 12px;\n  background-color: var(--pop-accent3);\n  padding: 4px 10px;\n  border-radius: 4px;\n",
+    "h4": "font-size: 18px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 20px 0 10px;",
+    "h5": "font-size: 17px; font-weight: 600; color: #34495e !important; line-height: 1.4 !important; margin: 18px 0 9px;",
+    "h6": "\n  color: #6b8c42;\n  margin-top: 1.2em;\n  margin-bottom: 0.5em;\n  font-weight: 700;\n  border-bottom: 1px solid #d4d9c9;\n  padding-bottom: 0.3em;\n",
+    "p": "\n  color: var(--pop-text);\n",
+    "strong": "\n  color: var(--pop-primary);\n  background-color: var(--pop-white);\n  padding: 0 5px;\n  border: 3px solid var(--pop-border);\n  display: inline-block;\n  transform: rotate(-2deg);\n",
+    "em": "\n  color: #00f2fe;\n  font-style: italic;\n",
+    "a": "\n  color: var(--pop-primary);\n  text-decoration: none;\n  font-weight: 700;\n  border-bottom: 3px solid var(--pop-border);\n  padding: 0 3px;\n  transition: all 0.3s ease;\n",
+    "ul": "\n  background-color: rgba(255, 255, 255, 0.7);\n  padding: 15px;\n  border: 2px solid var(--pop-border);\n  border-radius: 8px;\n",
+    "ol": "\n  background-color: var(--coil-list-bg);\n  padding: 15px;\n  border: 1px dashed var(--coil-border);\n  border-radius: 8px;\n",
+    "li": "\n  margin: 10px 0;\n",
+    "blockquote": "\n  border-left: 8px solid var(--pop-primary);\n  color: var(--pop-text);\n  font-style: italic;\n  font-weight: 600;\n  background-color: rgba(var(--pop-primary-rgb), 0.1);\n  border-radius: 0 8px 8px 0;\n  position: relative;\n",
+    "code": "\n  font-family: \"SFMono-Regular\", Consolas, \"Liberation Mono\", Menlo, monospace;\n  background: rgba(0, 0, 0, 0.04);\n  padding: 2px 6px;\n  border-radius: 4px;\n  font-size: 14px;\n  color: #fa2c19;\n  border-bottom: 2px solid rgba(250, 44, 25, 0.1);\n",
+    "pre": "\n  background-color: var(--pop-code-bg);\n  border-radius: 8px;\n  padding: 15px;\n  font-family: \"SFMono-Regular\", Consolas, \"Liberation Mono\", Menlo, monospace;\n  font-size: 14px;\n  overflow-x: auto;\n  color: var(--pop-white);\n  border: 2px solid var(--pop-primary);\n  box-shadow: 5px 5px 0 var(--pop-accent2);\n",
+    "hr": "\n  border: 0;\n  height: 6px;\n  background: repeating-linear-gradient(\n    45deg,\n    var(--pop-primary),\n    var(--pop-primary) 10px,\n    var(--pop-text) 10px,\n    var(--pop-text) 20px\n  );\n  margin: 25px 0;\n  border-radius: 3px;\n",
+    "img": "\n  max-width: 100%;\n  border: 5px solid var(--pop-border);\n  border-radius: 0;\n  box-shadow: 8px 8px 0 var(--pop-primary);\n  transform: rotate(-1deg);\n",
+    "table": "\n  border-collapse: separate;\n  border-spacing: 0;\n  width: 100%;\n  margin: 20px 0;\n  background-color: rgba(255, 255, 255, 0.7);\n  border: 3px solid var(--pop-border);\n  border-radius: 8px;\n  overflow: hidden;\n  box-shadow: 5px 5px 0 var(--pop-primary);\n",
+    "th": "\n  background-color: var(--pop-code-bg);\n  color: var(--pop-white);\n  padding: 12px;\n  text-align: left;\n  font-weight: 700;\n  text-transform: uppercase;\n  letter-spacing: 1px;\n",
+    "td": "\n  border-bottom: 2px solid var(--pop-border);\n  padding: 10px;\n  position: relative;\n",
+    "tr": "\n  border-bottom-color: #ffeae0;\n"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "name": "粗野主义",
+  "description": "Brutalism 暴力美学，纯白底 + 纯黑粗框 + 黄色 #FFFF00 强调。H1 超大 38px 黑字左+底双粗线、H2 黑粗框包裹+荧光黄底、H3 纯黑下 3px 粗线、blockquote 纯黑 3px 粗框灰底、pre 全黑绿字 3px 框、strong 黑底白字反白、hr 6px 黑粗条。每个元素都被粗框包裹，no border-radius，方块极致。适合设计批评/独立观点/逆流文章/艺术评论。",
+  "modes": [
+    {
+      "name": "默认",
+      "id": "light-mode",
+      "class": "",
+      "background": "#FFFFFF"
+    }
+  ],
+  "styles": {
+    "container": "background-color: #FFFFFF; font-family: 'Helvetica Neue','Arial','PingFang SC',sans-serif;",
+    "h1": "font-size: 38px; font-weight: 900; color: #000000; line-height: 1.1; margin-top: 40px; margin-bottom: 24px; border-left: 6px solid #000000; border-bottom: 4px solid #000000; letter-spacing: -0.02em; text-transform: uppercase;",
+    "h2": "font-size: 22px; font-weight: 900; color: #000000; line-height: 1.3; margin-top: 36px; margin-bottom: 18px; display: inline-block; background: #FFFF00; border: 3px solid #000000; letter-spacing: 1.5px; text-transform: uppercase;",
+    "h3": "font-size: 19px; font-weight: 700; color: #000000; line-height: 1.4; margin-top: 28px; margin-bottom: 12px; padding-bottom: 4px; border-bottom: 3px solid #000000;",
+    "h4": "font-size: 13px; font-weight: 700; color: #FFFFFF; background: #000000; display: inline-block; margin-top: 22px; margin-bottom: 10px; line-height: 1.4; letter-spacing: 3px; text-transform: uppercase;",
+    "h5": "font-size: 15px; font-weight: 800; color: #000000; margin-top: 18px; margin-bottom: 8px; line-height: 1.4;",
+    "h6": "font-size: 12px; font-weight: 700; color: #333333; margin-top: 16px; margin-bottom: 6px; line-height: 1.4; letter-spacing: 2px; text-transform: uppercase;",
+    "p": "font-size: 16px; color: #111111; line-height: 1.75; margin-top: 0; margin-bottom: 16px; letter-spacing: 0.3px;",
+    "blockquote": "border: 3px solid #000000; background: #F0F0F0; border-radius: 0; margin-top: 22px; margin-bottom: 22px; font-size: 15px; color: #000000; line-height: 1.6; font-weight: 700;",
+    "blockquote p": "font-size: 15px; color: #000000; line-height: 1.6; margin-bottom: 0; background: transparent; font-weight: 700;",
+    "strong": "font-weight: 900; color: #FFFFFF; background: #000000;",
+    "em": "font-style: italic; color: #000000; text-decoration: underline;",
+    "a": "color: #000000; background: #FFFF00; text-decoration: none; font-weight: 700;",
+    "img": "max-width: 100%; border-radius: 0; display: block; border: 3px solid #000000; margin-top: 18px; margin-bottom: 18px; background: transparent;",
+    "hr": "margin-top: 32px; margin-bottom: 32px; height: 6px; background: #000000; border: none;",
+    "code": "background: #000000; color: #00FF00; border-radius: 0; font-size: 92%; font-family: 'JetBrains Mono','Courier New',Menlo,monospace; font-weight: 700;",
+    "pre": "background: #000000; border: 3px solid #000000; border-radius: 0; margin-top: 0; margin-bottom: 0; overflow: hidden; color: #00FF00; overflow-x: auto; font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word;",
+    "pre::before": "display: flex; align-items: center; height: 30px; background: #FFFF00; color: #000000; font-size: 11px; letter-spacing: 2px; font-weight: 900; text-transform: uppercase; border-bottom: 3px solid #000000;",
+    "pre code": "background: none; color: #00FF00; font-size: 13px; font-family: 'JetBrains Mono','Courier New',Menlo,monospace; font-weight: 700;",
+    "table": "width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 20px; font-size: 13px; border: 3px solid #000000;",
+    "th": "text-align: left; font-weight: 900; color: #FFFFFF; background: #000000; letter-spacing: 1.5px; text-transform: uppercase; font-size: 11px; border: 2px solid #000000;",
+    "td": "border: 2px solid #000000; color: #111111; background: #FFFFFF;",
+    "ul li::marker": "color: #000000; margin-right: 10px; font-weight: 900; background: #FFFF00;",
+    "ol li::marker": "color: #FFFFFF; background: #000000; font-weight: 900; margin-right: 10px; display: inline-block;",
+    "li": "font-size: 16px; color: #111111; line-height: 1.75; letter-spacing: 0.3px; display: flex; margin-bottom: 8px; align-items: flex-start;",
+    "ul": "margin-top: 14px; margin-bottom: 14px;",
+    "footnotes": "margin-top: 36px; padding-top: 14px; border-top: 6px solid #000000;",
+    "footnotes h2": "font-size: 11px; font-weight: 900; color: #FFFFFF; background: #000000; display: inline-block; margin-bottom: 10px; letter-spacing: 2px; text-transform: uppercase;",
+    "footnotes li": "font-size: 13px; color: #000000; margin-bottom: 6px; line-height: 1.5; word-break: break-all; font-weight: 700;",
+    "sup": "font-size: 11px; color: #000000; background: #FFFF00; vertical-align: super; margin-left: 2px; font-weight: 900;"
+  }
+}
