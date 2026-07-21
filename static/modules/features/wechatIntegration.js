@@ -669,4 +669,6 @@ function showAIResultModal(htmlContent) {
     });
 }
 
-    
+// Export aiFormatGzh to window immediately so HTML onclick handlers work
+// even if features.js initializeFeatures() fails or hasn't run yet
+window.aiFormatGzh = aiFormatGzh;
