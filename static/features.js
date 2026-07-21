@@ -31,10 +31,10 @@ function initializeFeatures() {
         initImagePaste();
     }
     
-    // Export aiFormatMarkdown for HTML onclick (must be after wechatIntegration.js loads)
-    if (typeof aiFormatMarkdown === 'function') {
-        window._aiFormatMarkdown = aiFormatMarkdown;
-        window.aiFormatMarkdown = aiFormatMarkdown;  // Direct export for HTML onclick
+    // Export aiFormatGzh for HTML onclick (must be after wechatIntegration.js loads)
+    if (typeof aiFormatGzh === 'function') {
+        window._aiFormatGzh = aiFormatGzh;
+        window.aiFormatGzh = aiFormatGzh;  // Direct export for HTML onclick
     }
 }
 
@@ -80,7 +80,7 @@ window._convertToWeChatHTML = convertToWeChatHTML;
 // AI Functions
 window._generateMarkdown = generateMarkdown;
 window._showAIResultModal = showAIResultModal;
-// Note: aiFormatMarkdown is exported in initializeFeatures after DOM is ready
+// Note: aiFormatGzh is exported in initializeFeatures after DOM is ready
 
 // Style Manager Functions
 window._openLeftDrawer = openLeftDrawer;
@@ -132,7 +132,7 @@ const FeaturesModule = {
     // AI Functions
     generateMarkdown,
     showAIResultModal,
-    aiFormatMarkdown,
+    aiFormatGzh,
     
     // Style Manager Functions
     openLeftDrawer,

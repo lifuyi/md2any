@@ -56,6 +56,11 @@ def get_css_style_extraction_prompt() -> str:
     return load_prompt("css_style_extraction")
 
 
+def get_gzh_workflow_prompt() -> str:
+    """Get the gzh-design workflow rules prompt."""
+    return load_prompt("gzh_workflow_rules")
+
+
 def clear_cache():
     """Clear the prompt cache. Useful for testing."""
     _PROMPT_CACHE.clear()

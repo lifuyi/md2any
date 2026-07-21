@@ -244,42 +244,42 @@ async function generateMarkdown() {
 /**
  * Format markdown using AI (/ai endpoint)
  */
-async function aiFormatMarkdown() {
+async function aiFormatGzh(theme) {
     const editor = document.getElementById('editor');
     const aiBtn = document.getElementById('ai-format-btn');
     const aiLoadingOverlay = document.getElementById('ai-loading-overlay');
-    
+
     if (!editor) {
         updateStatus('❌ 编辑器未找到', true);
         return;
     }
-    
+
     const markdownContent = window._getEditorContent ? window._getEditorContent() : editor.value;
-    
+
     if (!markdownContent.trim()) {
         alert('请先输入Markdown内容');
         return;
     }
-    
+
     // Track when overlay was shown
     let overlayShowTime = 0;
-    
+
     // Helper to hide overlay
     const hideOverlay = () => {
         if (aiLoadingOverlay) {
             aiLoadingOverlay.classList.remove('active');
         }
     };
-    
+
     try {
         // Start timer for AI formatting
         console.time('ai-formatting');
-        
+
         // Disable button and show loading
         aiBtn.disabled = true;
         aiBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> AI排版中...';
-        updateStatus('正在使用AI进行排版...');
-        
+        updateStatus(theme ? `正在使用AI排版（${theme}主题）...` : '正在使用AI排版（自动选主题）...');
+
         // Show AI loading overlay (unless debug flag is set)
         if (!DEBUG_DISABLE_OVERLAY && aiLoadingOverlay) {
             console.log('Showing AI loading overlay');
@@ -291,15 +291,19 @@ async function aiFormatMarkdown() {
         } else {
             console.error('AI loading overlay element not found!');
         }
-        
+
         // Set AI formatting flag to prevent normal rendering
         window.isAIFormatting = true;
-        
-        // Call /ai/format-markdown endpoint (new endpoint with concise prompt)
-        const response = await fetch(`${SharedUtils.CONFIG.API_BASE_URL}/ai/format-markdown`, {
+
+        // Call /ai/format-gzh endpoint
+        const requestBody = { markdown: markdownContent };
+        if (theme) {
+            requestBody.theme = theme;
+        }
+        const response = await fetch(`${SharedUtils.CONFIG.API_BASE_URL}/ai/format-gzh`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ markdown: markdownContent })
+            body: JSON.stringify(requestBody)
         });
         
         if (!response.ok) {
@@ -314,11 +318,26 @@ async function aiFormatMarkdown() {
         if (data.success && data.html) {
             // End timer and log duration
             console.timeEnd('ai-formatting');
-            
-            // Show result in modal overlay
-            showAIResultModal(data.html);
-            
-            updateStatus('✅ AI排版完成');
+
+            // Hide loading overlay
+            hideOverlay();
+
+            // Inject AI result directly into preview area
+            const previewEl = document.getElementById('preview');
+            if (previewEl) {
+                previewEl.innerHTML = data.html;
+            }
+
+            // Show theme used and any validation warnings
+            let statusMsg = '✅ AI排版完成';
+            if (data.theme_used) {
+                statusMsg += `（主题：${data.theme_used}）`;
+            }
+            if (data.validation_warnings && data.validation_warnings.length > 0) {
+                statusMsg += ` ⚠️ ${data.validation_warnings.length} 个警告`;
+                console.warn('Validation warnings:', data.validation_warnings);
+            }
+            updateStatus(statusMsg);
         } else {
             throw new Error(data.message || 'AI排版失败');
         }
@@ -338,7 +357,7 @@ async function aiFormatMarkdown() {
     } finally {
         // Re-enable button
         aiBtn.disabled = false;
-        aiBtn.innerHTML = '<i class="fas fa-robot"></i> AI排版';
+        aiBtn.innerHTML = '<i class="fas fa-robot"></i> AI排版 <i class="fas fa-caret-down"></i>';
         window.isAIFormatting = false;
         
         // Note: AI loading overlay is hidden in showAIResultModal function

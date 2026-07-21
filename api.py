@@ -40,6 +40,12 @@ from prompts import (
     get_wechat_html_formatting_prompt,
     get_css_style_extraction_prompt,
 )
+from services.gzh_service import (
+    GzhFormatRequest,
+    GzhFormatResponse,
+    format_gzh,
+    VALID_THEMES,
+)
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -287,6 +293,7 @@ async def root():
             "/render": "POST - Render markdown to HTML",
             "/ai/convert-text": "POST - Convert plain text to markdown format",
             "/ai/format-markdown": "POST - Convert markdown to WeChat HTML format",
+            "/ai/format-gzh": "POST - AI排版：使用 gzh-design-skill 主题引擎转换 Markdown 为公众号 HTML",
             "/ai/extract-style": "POST - Extract styles from URL and apply to markdown",
             "/wechat/access_token": "POST - Get WeChat access token",
             "/wechat/send_draft": "POST - Send markdown to WeChat draft",
@@ -471,6 +478,16 @@ async def format_markdown(request: FormatMarkdownRequest):
     except Exception as e:
         logger.error(f"Markdown formatting error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Formatting error: {str(e)}")
+
+
+@app.post("/ai/format-gzh", response_model=GzhFormatResponse)
+async def format_gzh_endpoint(request: GzhFormatRequest):
+    """AI 排版：使用 gzh-design-skill 主题引擎将 Markdown 转为公众号 HTML"""
+    try:
+        return format_gzh(request.markdown, request.theme)
+    except Exception as e:
+        logger.error(f"GZH formatting error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"GZH formatting error: {str(e)}")
 
 
 @app.post("/ai/extract-style", response_model=ExtractStyleResponse)
