@@ -73,3 +73,6 @@ venv.bak/
 # Jupyter Notebook
 .ipynb_checkpoints
 
+# MiMoCode workspace
+.mimocode/
+
