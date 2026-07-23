@@ -3,8 +3,8 @@ version: '2.4'
 services:
   md2any:
     build: .
-    ports:
-      - "8090:8000"
+    expose:
+      - "8000"
     env_file:
       - .env
     restart: unless-stopped
@@ -14,3 +14,13 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - md2any
+    restart: unless-stopped
