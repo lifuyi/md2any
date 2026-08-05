@@ -11,6 +11,11 @@
 // =============================================================================
 // EDITOR INITIALIZATION
 // =============================================================================
+// CodeMirror is the SINGLE SOURCE OF TRUTH for editor content.
+// The hidden #editor <textarea> is a write-only mirror, kept in sync ONLY by
+// CodeMirror's change event (below). All reads must use getEditorContent()
+// and all writes must go through setEditorContent()/appendToEditor().
+// =============================================================================
 
 /**
  * Initialize CodeMirror editor (the only editor)
@@ -22,7 +27,7 @@ function initializeCodeMirror() {
     }
     
     
-    // Hide the textarea (kept for form compatibility but not used)
+    // Hide the textarea (kept as a compatibility mirror but not the source of truth)
     editorElement.style.display = 'none';
     
     // Create a container for CodeMirror
@@ -61,20 +66,24 @@ function initializeCodeMirror() {
     // Check if CodeMirror is visible
     const wrapper = cm.getWrapperElement();
     
+    // Single shared debounced render: reuse ONE debounced function so rapid
+    // change events collapse into a single /render request (central render trigger).
+    const debouncedRender = SharedUtils.debounce(() => {
+        if (typeof renderMarkdown === 'function') {
+            renderMarkdown();
+        }
+    }, 300);
+    
     // Add event listeners
     cm.on('change', function(cmInstance) {
-        // Update the hidden textarea for form compatibility
+        // Mirror CodeMirror content to the hidden textarea (write-only backup)
         editorElement.value = cmInstance.getValue();
         
         // Update character count
         updateCharCount();
         
-        // Trigger preview update with debounce
-        SharedUtils.debounce(() => {
-            if (typeof renderMarkdown === 'function') {
-                renderMarkdown();
-            }
-        }, 300)();
+        // Trigger preview update with debounce (central render trigger)
+        debouncedRender();
     });
     
     // Store reference to CodeMirror instance
@@ -161,6 +170,11 @@ function setEditorContent(content) {
                 window.codeMirrorInstance.refresh();
             }
         }, 500);
+    } else {
+        const editor = document.getElementById('editor');
+        if (editor) {
+            editor.value = content;
+        }
     }
     
     updateCharCount();
@@ -193,14 +207,12 @@ function appendToEditor(content) {
  * Update character count
  */
 function updateCharCount() {
-    const editor = document.getElementById('editor');
     const status = document.getElementById('status');
+    if (!status) return;
     
-    if (editor && status) {
-        const count = editor.value.length;
-        if (status.textContent.includes('渲染完成')) {
-            status.textContent = `渲染完成 ${count} 字符`;
-        }
+    const count = getEditorContent().length;
+    if (status.textContent.includes('渲染完成')) {
+        status.textContent = `渲染完成 ${count} 字符`;
     }
 }
 
@@ -214,9 +226,10 @@ function updateCharCount() {
 function clearEditor() {
     if (window.codeMirrorInstance) {
         window.codeMirrorInstance.setValue('');
-        updateCharCount();
-        if (typeof renderMarkdown === 'function') {
-            renderMarkdown();
+    } else {
+        const editor = document.getElementById('editor');
+        if (editor) {
+            editor.value = '';
         }
     }
 }

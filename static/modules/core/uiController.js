@@ -245,31 +245,19 @@ $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$
 `;
     
     if (typeof setEditorContent === 'function') {
+        // setEditorContent writes to CodeMirror (single source of truth);
+        // its change event triggers the debounced re-render automatically.
         setEditorContent(sampleMarkdown);
+    } else {
+        const editor = document.getElementById('editor');
+        if (editor) {
+            editor.value = sampleMarkdown;
+        }
+        if (typeof updateCharCount === 'function') {
+            updateCharCount();
+        }
         if (typeof renderMarkdown === 'function') {
             renderMarkdown();
-        }
-    } else {
-        // Fallback
-        if (window.codeMirrorInstance) {
-            window.codeMirrorInstance.setValue(sampleMarkdown);
-            if (typeof updateCharCount === 'function') {
-                updateCharCount();
-            }
-            if (typeof renderMarkdown === 'function') {
-                renderMarkdown();
-            }
-        } else {
-            const editor = document.getElementById('editor');
-            if (editor) {
-                editor.value = sampleMarkdown;
-                if (typeof updateCharCount === 'function') {
-                    updateCharCount();
-                }
-                if (typeof renderMarkdown === 'function') {
-                    renderMarkdown();
-                }
-            }
         }
     }
 }

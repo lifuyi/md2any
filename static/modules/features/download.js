@@ -15,11 +15,11 @@
 // =============================================================================
 
 async function downloadHTML() {
-    const editor = document.getElementById('editor');
+    const markdown = getEditorContent();
     const preview = document.getElementById('preview');
     const themeSelector = document.getElementById('theme-selector');
     
-    if (!editor || !editor.value.trim()) {
+    if (!markdown.trim()) {
         alert('请先输入Markdown内容');
         return;
     }
@@ -37,7 +37,7 @@ async function downloadHTML() {
                 }
             }
         } else {
-            htmlContent = await renderMarkdownForExport(editor.value, themeSelector?.value);
+            htmlContent = await renderMarkdownForExport(markdown, themeSelector?.value);
         }
         
         const hasMathJaxContainers = htmlContent.includes('mjx-container');
@@ -116,10 +116,10 @@ async function downloadHTML() {
 // =============================================================================
 
 async function downloadPNG() {
-    const editor = document.getElementById('editor');
+    const markdown = getEditorContent();
     const themeSelector = document.getElementById('theme-selector');
     
-    if (!editor || !editor.value.trim()) {
+    if (!markdown.trim()) {
         alert('请先输入Markdown内容');
         return;
     }
@@ -133,7 +133,7 @@ async function downloadPNG() {
     updateStatus('正在生成PNG...');
 
     try {
-        const htmlContent = await renderMarkdownForExport(editor.value, themeSelector?.value);
+        const htmlContent = await renderMarkdownForExport(markdown, themeSelector?.value);
         
         const iframe = document.createElement('iframe');
         iframe.style.position = 'absolute';
@@ -265,16 +265,16 @@ async function downloadPNG() {
 // =============================================================================
 
 function downloadMD() {
-    const editor = document.getElementById('editor');
+    const markdown = getEditorContent();
     const themeSelector = document.getElementById('theme-selector');
     
-    if (!editor || !editor.value.trim()) {
+    if (!markdown.trim()) {
         alert('请先输入Markdown内容');
         return;
     }
 
     const filename = generateFilename('markdown', 'md', themeSelector?.value || 'default');
-    downloadFile(editor.value, filename, 'text/markdown');
+    downloadFile(markdown, filename, 'text/markdown');
 }
 
 // =============================================================================
@@ -282,15 +282,15 @@ function downloadMD() {
 // =============================================================================
 
 function downloadTXT() {
-    const editor = document.getElementById('editor');
+    const markdown = getEditorContent();
     const themeSelector = document.getElementById('theme-selector');
     
-    if (!editor || !editor.value.trim()) {
+    if (!markdown.trim()) {
         alert('请先输入Markdown内容');
         return;
     }
 
-    const plainText = markdownToPlainText(editor.value);
+    const plainText = markdownToPlainText(markdown);
     const filename = generateFilename('markdown', 'txt', themeSelector?.value || 'default');
     downloadFile(plainText, filename, 'text/plain');
 }
@@ -300,10 +300,10 @@ function downloadTXT() {
 // =============================================================================
 
 async function downloadPDF() {
-    const editor = document.getElementById('editor');
+    const markdown = getEditorContent();
     const themeSelector = document.getElementById('theme-selector');
     
-    if (!editor || !editor.value.trim()) {
+    if (!markdown.trim()) {
         alert('请先输入Markdown内容');
         return;
     }
@@ -322,7 +322,7 @@ async function downloadPDF() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    markdown_text: editor.value,
+                    markdown_text: markdown,
                     theme: themeSelector?.value || SharedUtils.CONFIG.DEFAULT_THEME,
                     mode: SharedUtils.CONFIG.DEFAULT_MODE,
                     platform: SharedUtils.CONFIG.DEFAULT_PLATFORM,
@@ -407,10 +407,10 @@ async function downloadPDF() {
 // =============================================================================
 
 async function downloadDOCX() {
-    const editor = document.getElementById('editor');
+    const markdown = getEditorContent();
     const themeSelector = document.getElementById('theme-selector');
     
-    if (!editor || !editor.value.trim()) {
+    if (!markdown.trim()) {
         alert('请先输入Markdown内容');
         return;
     }
@@ -423,7 +423,7 @@ async function downloadDOCX() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                markdown_text: editor.value,
+                markdown_text: markdown,
                 theme: themeSelector?.value || SharedUtils.CONFIG.DEFAULT_THEME,
                 mode: SharedUtils.CONFIG.DEFAULT_MODE,
                 platform: SharedUtils.CONFIG.DEFAULT_PLATFORM,

@@ -50,9 +50,9 @@ function getContainerStyleFromPreview() {
  * Send content to WeChat draft
  */
 async function sendToWeChatDraft() {
-    const editor = document.getElementById('editor');
+    const markdown = getEditorContent();
     
-    if (!editor || !editor.value.trim()) {
+    if (!markdown.trim()) {
         updateStatus('❌ 没有内容可发送', true);
         return;
     }
@@ -68,7 +68,6 @@ async function sendToWeChatDraft() {
         return;
     }
 
-    const markdown = editor.value;
     // Get current theme from theme manager or fallback
     let currentTheme = 'wechat-default';
     if (typeof window._getCurrentTheme === 'function') {
@@ -188,20 +187,13 @@ async function generateMarkdown() {
         const data = await response.json();
         
         if (data.markdown) {
-            // Replace all editor content with converted markdown
+            // Replace all editor content with converted markdown.
+            // setEditorContent writes to CodeMirror (single source of truth);
+            // its change event triggers the debounced re-render automatically.
             if (typeof setEditorContent === 'function') {
                 setEditorContent(data.markdown);
-            } else if (window.codeMirrorInstance) {
-                const cm = window.codeMirrorInstance;
-                const doc = cm.getDoc();
-                doc.setValue(data.markdown);
             } else if (editor) {
                 editor.value = data.markdown;
-                editor.dispatchEvent(new Event('input'));
-            }
-            
-            if (window.renderMarkdown) {
-                window.renderMarkdown();
             }
             
             // Clear input
@@ -254,7 +246,7 @@ async function aiFormatGzh(theme) {
         return;
     }
 
-    const markdownContent = window._getEditorContent ? window._getEditorContent() : editor.value;
+    const markdownContent = window._getEditorContent ? window._getEditorContent() : getEditorContent();
 
     if (!markdownContent.trim()) {
         alert('请先输入Markdown内容');
@@ -628,11 +620,12 @@ function showAIResultModal(htmlContent) {
         transition: background 0.2s;
     `;
     applyBtn.addEventListener('click', () => {
-        const editor = document.getElementById('editor');
-        if (editor) {
-            editor.value = htmlContent;
-            if (window.renderMarkdown) {
-                window.renderMarkdown();
+        if (typeof setEditorContent === 'function') {
+            setEditorContent(htmlContent);
+        } else {
+            const editor = document.getElementById('editor');
+            if (editor) {
+                editor.value = htmlContent;
             }
         }
         modalOverlay.remove();

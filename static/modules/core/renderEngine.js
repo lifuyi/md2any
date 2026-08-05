@@ -21,12 +21,12 @@ async function renderMarkdown() {
         return;
     }
     
-    const editor = document.getElementById('editor');
     const preview = document.getElementById('preview');
+    if (!preview) return;
     
-    if (!editor || !preview) return;
-    
-    let markdown = editor.value.trim();
+    // Read from CodeMirror (single source of truth) via getEditorContent()
+    const content = typeof getEditorContent === 'function' ? getEditorContent() : (document.getElementById('editor')?.value || '');
+    let markdown = content.trim();
     const theme = getCurrentTheme ? getCurrentTheme() : 'wechat-default';
     
     if (!markdown) {
@@ -39,7 +39,12 @@ async function renderMarkdown() {
         return;
     }
     
-    showLoading();
+    // Lightweight preview-only loading state - never cover the whole page.
+    // Full-screen showLoading() is reserved for explicit export operations.
+    // Guarded with typeof so preview always updates even if a stale shared.js is cached.
+    if (typeof showPreviewLoading === 'function') {
+        showPreviewLoading();
+    }
     updateStatus('渲染中...');
     
     try {
@@ -56,7 +61,7 @@ async function renderMarkdown() {
         initializeMermaid();
         initializeMathJax();
         
-        const charCount = editor.value.length;
+        const charCount = content.length;
         updateStatus(`渲染完成 ${charCount} 字符`);
         
     } catch (error) {
@@ -69,7 +74,9 @@ async function renderMarkdown() {
         `;
         updateStatus('渲染失败', true);
     } finally {
-        hideLoading();
+        if (typeof hidePreviewLoading === 'function') {
+            hidePreviewLoading();
+        }
     }
 }
 

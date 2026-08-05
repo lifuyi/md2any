@@ -338,26 +338,21 @@ async function handleImageUpload(file) {
         const objectURL = URL.createObjectURL(compressedBlob);
         const markdownImage = `![${file.name || 'image'}](${objectURL})\n`;
         
-        const editor = document.getElementById('editor');
-        
         if (window.codeMirrorInstance) {
             const cm = window.codeMirrorInstance;
             const doc = cm.getDoc();
             const cursor = doc.getCursor();
+            // replaceRange fires CodeMirror's change event, which triggers the
+            // debounced re-render centrally - no explicit render needed.
             doc.replaceRange(markdownImage, cursor);
-            
-            if (window.renderMarkdown) {
-                window.renderMarkdown();
-            }
-        } else if (editor) {
-            const cursorPos = editor.selectionStart;
-            const textBefore = editor.value.substring(0, cursorPos);
-            const textAfter = editor.value.substring(cursorPos);
-            editor.value = textBefore + markdownImage + textAfter;
-            editor.setSelectionRange(cursorPos + markdownImage.length, cursorPos + markdownImage.length);
-            
-            if (window.renderMarkdown) {
-                window.renderMarkdown();
+        } else {
+            const editor = document.getElementById('editor');
+            if (editor) {
+                const cursorPos = editor.selectionStart;
+                const textBefore = editor.value.substring(0, cursorPos);
+                const textAfter = editor.value.substring(cursorPos);
+                editor.value = textBefore + markdownImage + textAfter;
+                editor.setSelectionRange(cursorPos + markdownImage.length, cursorPos + markdownImage.length);
             }
         }
         

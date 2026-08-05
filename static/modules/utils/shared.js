@@ -74,6 +74,23 @@ function hideLoading() {
 }
 
 /**
+ * Show preview-pane-only loading state (no full-screen overlay).
+ * Used by live preview rendering so typing does not flash the whole page.
+ */
+function showPreviewLoading() {
+    const pane = document.querySelector('.preview-pane');
+    if (pane) pane.classList.add('preview-loading');
+}
+
+/**
+ * Hide preview-pane-only loading state
+ */
+function hidePreviewLoading() {
+    const pane = document.querySelector('.preview-pane');
+    if (pane) pane.classList.remove('preview-loading');
+}
+
+/**
  * Update status message
  * @param {string} message - Status message to display
  * @param {boolean} isError - Whether this is an error message
@@ -272,6 +289,8 @@ window.SharedUtils = {
     debounce,
     showLoading,
     hideLoading,
+    showPreviewLoading,
+    hidePreviewLoading,
     updateStatus,
     formatFileSize,
     generateFilename,
@@ -291,6 +310,8 @@ Object.assign(window, {
     debounce,
     showLoading,
     hideLoading,
+    showPreviewLoading,
+    hidePreviewLoading,
     updateStatus,
     formatFileSize,
     generateFilename,

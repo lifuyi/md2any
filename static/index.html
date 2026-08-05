@@ -353,6 +353,24 @@
             animation: spin 1s linear infinite;
         }
 
+        /* Preview-pane-only loading state (live preview) - never covers the whole page */
+        .preview-pane.preview-loading #preview {
+            opacity: 0.45;
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+        }
+        .preview-pane.preview-loading .pane-header::after {
+            content: '';
+            width: 14px;
+            height: 14px;
+            margin-left: 8px;
+            border: 2px solid #ddd;
+            border-top-color: #D86E4F;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
         /* AI Loading Overlay */
         .ai-loading-overlay {
             display: none;
@@ -1497,23 +1515,23 @@
     <!-- APPLICATION SCRIPTS START -->
     <!-- Core functionality - New Modular Architecture -->
     <!-- Shared Utilities (must load first) -->
-    <script src="/static/modules/utils/shared.js?v=1737200004"></script>
+    <script src="/static/modules/utils/shared.js?v=1754400000"></script>
     <!-- Core Modules (loaded before core.js entry point) -->
-    <script src="/static/modules/core/themeManager.js?v=1737200004"></script>
-    <script src="/static/modules/core/editorManager.js?v=1737200004"></script>
-    <script src="/static/modules/core/formatCustomization.js?v=1737200004"></script>
-    <script src="/static/modules/core/renderEngine.js?v=1737200004"></script>
-    <script src="/static/modules/core/uiController.js?v=1737200004"></script>
+    <script src="/static/modules/core/themeManager.js?v=1754400000"></script>
+    <script src="/static/modules/core/editorManager.js?v=1754400000"></script>
+    <script src="/static/modules/core/formatCustomization.js?v=1754400000"></script>
+    <script src="/static/modules/core/renderEngine.js?v=1754400000"></script>
+    <script src="/static/modules/core/uiController.js?v=1754400000"></script>
     <!-- Core Entry Point -->
-    <script src="/static/core.js?v=1737200004"></script>
+    <script src="/static/core.js?v=1754400000"></script>
     <!-- Features Modules -->
-    <script src="/static/modules/features/imageHandling.js?v=1737200004"></script>
-    <script src="/static/modules/features/download.js?v=1737200004"></script>
-    <script src="/static/modules/features/clipboard.js?v=1737200004"></script>
-    <script src="/static/modules/features/wechatIntegration.js?v=1737200004"></script>
-    <script src="/static/modules/features/styleManager.js?v=1737200004"></script>
+    <script src="/static/modules/features/imageHandling.js?v=1754400000"></script>
+    <script src="/static/modules/features/download.js?v=1754400000"></script>
+    <script src="/static/modules/features/clipboard.js?v=1754400000"></script>
+    <script src="/static/modules/features/wechatIntegration.js?v=1754400000"></script>
+    <script src="/static/modules/features/styleManager.js?v=1754400000"></script>
     <!-- Features Entry Point -->
-    <script src="/static/features.js?v=1737200004"></script>
+    <script src="/static/features.js?v=1754400000"></script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
